@@ -1,17 +1,16 @@
-# CN MONEY v0.5B SAFE
+# CN MONEY v0.5C SAFE
 
-Visual/layout cleanup only. No SQL required.
+Input interaction & picker cleanup. Tidak perlu SQL.
 
 Perubahan:
-- History Belanja: garis putus-putus dihilangkan, typography diperbesar dan memakai font utama aplikasi.
-- Receipt: font thermal/monospace dibatasi untuk receipt yang sedang dibuka; list receipt tetap modern.
-- Chart arus kas: nilai 0 tampil sebagai capsule kosong yang rapi; bar tidak overflow.
-- Daftar Belanja & Data Barang: nama/meta diperbesar dan diberi ruang lebih banyak tanpa menabrak harga/aksi.
-- Selector Tampilan/Suara di Settings dipusatkan dalam tap target.
-- Arrow/icon native pada selector bulan disembunyikan, fungsi selector tetap ada.
-- Scrollbar visual pada content/subtab/filter disembunyikan.
-- Startup screen diganti dengan splash CN MONEY yang lebih rapi tanpa mengubah boot logic.
-- Tidak mengubah Supabase, realtime, saldo, transaksi, checkout, sound, smart input, atau startup engine.
+- Quick Checkout tidak lagi auto-focus Harga dan tidak auto-select nominal. Keyboard baru muncul setelah kolom disentuh.
+- HISTORY, HISTORY BELANJA, dan RECEIPT memakai month picker custom bertema CN MONEY; tidak lagi memakai picker bulan native browser.
+- Picker custom memakai tombol - / + untuk tahun dan grid bulan, tanpa dropdown arrow.
+- Form/input diberi hint autocomplete/autocorrect/spellcheck off untuk mengurangi suggestion browser/keyboard semaksimal yang diizinkan Android/Chrome.
+- Tidak mengubah startup engine, Supabase, realtime, saldo, transaksi, checkout RPC, sound, smart input, atau struktur database.
+
+Catatan:
+- Suggestion dari Gboard/keyboard dan notifikasi Chrome tertentu berada di level Android/Chrome. PWA hanya bisa mengurangi pemicunya, bukan menjamin menghapusnya 100%.
 
 Deploy:
 1. Replace file repo `finansial-main` dengan isi folder ini.
