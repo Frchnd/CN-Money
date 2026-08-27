@@ -1,19 +1,17 @@
-# CN MONEY v0.5E SAFE
+# CN MONEY v0.5F SAFE
 
-UI/picker update dari checkpoint v0.5D yang stabil.
+Fokus: Detail Anggaran + consistency/stability audit.
 
 Perubahan:
-- PENGELUARAN merah, PEMASUKAN hijau, TRANSFER biru dengan visual family CN MONEY.
-- Dompet, kategori, tanggal transaksi memakai picker/bottom-sheet CN MONEY; tidak lagi select/calendar browser.
-- Transfer tetap tanpa kategori karena transfer bukan pemasukan/pengeluaran.
-- Grouping HISTORY memakai picker CN MONEY.
-- Checkout Dompet dan Satuan memakai picker CN MONEY.
-- Edit kategori barang + satuan memakai picker CN MONEY.
-- LAINNYA tetap di urutan paling bawah.
-- Settings: SUARA ON hijau, OFF merah; helper text yang diminta dihapus; judul setting diperbesar.
-- Judul utama/card/item tampil CAPSLOCK termasuk nama item DATA BELANJA.
-- CN MONEY lebih tebal dan letter spacing lebih lega.
-- Startup, Supabase RPC, realtime, saldo, database schema, dan sound files tidak diubah.
+- Card ANGGARAN BELANJA dapat diketuk untuk membuka DETAIL ANGGARAN.
+- Detail menampilkan anggaran, terpakai, sisa/kelebihan, sesi checkout bulan aktif, item, qty, harga satuan, subtotal, tempat beli, tanggal, dan dompet.
+- Edit anggaran tidak lagi menggunakan month picker browser. Anggaran mengikuti bulan yang sedang aktif di Dashboard.
+- HISTORY, HISTORY BELANJA, dan RECEIPT diberi sorting eksplisit terbaru di atas.
+- Tidak ada alert/confirm browser baru; modal/konfirmasi tetap menggunakan UI CN MONEY.
+- Startup, Supabase schema/RPC, realtime, transaksi, saldo, sound, dan engine checkout tidak diubah.
 - Tidak perlu SQL.
 
-Deploy: replace isi repo `finansial-main`, commit, tunggu Vercel Ready, buka online sekali lalu buka ulang PWA.
+Deploy:
+1. Replace isi repo `finansial-main` dengan isi folder ini.
+2. Commit dan tunggu Vercel Ready.
+3. Buka aplikasi online sekali, tutup, lalu buka PWA lagi.
