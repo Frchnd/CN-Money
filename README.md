@@ -1,20 +1,19 @@
-# CN MONEY v0.5D SAFE
+# CN MONEY v0.5E SAFE
 
-Safe polish batch dari v0.5C.
+UI/picker update dari checkpoint v0.5D yang stabil.
 
 Perubahan:
-- Tampilan Light/Dark menjadi tombol satu-tap.
-- Sound ON/OFF menjadi tombol satu-tap.
-- CN MONEY dibuat lebih tebal dengan sedikit letter spacing.
-- Nominal dashboard, wallet, dan Total Aset diberi spacing angka lebih lega.
-- Dashboard menampilkan jumlah DOMPET AKTIF.
-- Teks "Saldo gabungan sumber dana" dihapus.
-- Kategori finansial "Lainnya" selalu ditempatkan paling akhir dan tidak lagi menjadi pilihan pertama.
-- Startup, Supabase, realtime, transaksi, checkout, sound file, dan struktur database tidak diubah.
+- PENGELUARAN merah, PEMASUKAN hijau, TRANSFER biru dengan visual family CN MONEY.
+- Dompet, kategori, tanggal transaksi memakai picker/bottom-sheet CN MONEY; tidak lagi select/calendar browser.
+- Transfer tetap tanpa kategori karena transfer bukan pemasukan/pengeluaran.
+- Grouping HISTORY memakai picker CN MONEY.
+- Checkout Dompet dan Satuan memakai picker CN MONEY.
+- Edit kategori barang + satuan memakai picker CN MONEY.
+- LAINNYA tetap di urutan paling bawah.
+- Settings: SUARA ON hijau, OFF merah; helper text yang diminta dihapus; judul setting diperbesar.
+- Judul utama/card/item tampil CAPSLOCK termasuk nama item DATA BELANJA.
+- CN MONEY lebih tebal dan letter spacing lebih lega.
+- Startup, Supabase RPC, realtime, saldo, database schema, dan sound files tidak diubah.
 - Tidak perlu SQL.
 
-Belum masuk (sengaja ditahan ke v0.5E):
-- Custom picker History Group/Kategori.
-- Custom picker Dompet untuk transaksi/checkout.
-- UOM tap picker.
-- Restrukturisasi besar BELANJA DATA/HISTORY (direncanakan v0.6A setelah picker stabil).
+Deploy: replace isi repo `finansial-main`, commit, tunggu Vercel Ready, buka online sekali lalu buka ulang PWA.
