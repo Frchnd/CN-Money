@@ -48,6 +48,24 @@
     .confirm-card{width:min(100%,448px);background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:19px;box-shadow:0 26px 70px rgba(0,0,0,.28)}
     .confirm-icon{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);margin-bottom:13px}.confirm-icon svg{width:23px;height:23px}.confirm-title{font-size:18px;font-weight:950;letter-spacing:-.035em}.confirm-message{font-size:12px;color:var(--muted);line-height:1.55;margin-top:7px;white-space:pre-line}.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}
     .nav-btn span:last-child{font-size:9px;letter-spacing:.055em;font-weight:950}
+
+    /* CN MONEY v0.4A — SAFE VISUAL LAYER (no data/startup logic changes) */
+    .brand{font-size:22px;font-weight:1000;letter-spacing:-.045em}
+    .brand small{display:none!important}
+    .section-title{font-size:17px;font-weight:1000;letter-spacing:-.035em}
+    .section-sub{font-weight:800;line-height:1.35}
+    .filter-row{scrollbar-width:none;-ms-overflow-style:none}
+    .filter-row::-webkit-scrollbar{display:none;width:0;height:0}
+    .stat-label{font-weight:950}
+    .tx-title,.db-name,.wallet-name,.wealth-item-name,.receipt-store,.budget-title{font-weight:1000}
+    .tx-title{font-size:14px}
+    .db-name,.wallet-name,.wealth-item-name{font-size:15px}
+    .receipt-store{font-size:14px}
+    .icon-btn{background:transparent!important;border:0!important;box-shadow:none!important}
+    .wealth-safe-total{padding:16px!important}
+    .wealth-safe-total .stat-label{font-size:11px;letter-spacing:.08em}
+    .wealth-safe-total .wealth-safe-value{font-size:30px!important;line-height:1.05;font-weight:1000!important;letter-spacing:-.055em!important}
+
 </style>
 </head>
 <body>
@@ -161,7 +179,7 @@ function renderInvestments(){const cost=state.investments.reduce((a,i)=>a+Number
 function renderAssets(){const value=state.assets.reduce((a,x)=>a+Number(x.current_value||0),0);return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Aset</div><div class="hero-amount">${rupiah(value)}</div><div class="hero-sub">Estimasi nilai aset bersama</div></div><div class="section-head"><div><div class="section-title">Aset</div><div class="section-sub">Properti, kendaraan, perhiasan, dan aset bernilai</div></div><button id="addAsset" class="btn btn-primary">+ Aset</button></div>${state.assets.length?state.assets.map(a=>`<div class="card wealth-item"><div class="wealth-item-top"><div><div class="wealth-item-name">${esc(a.name)}</div><div class="wealth-item-meta">${esc(assetTypeLabel(a.asset_type))}${a.purchase_date?' · '+dateLabel(a.purchase_date):''}</div></div><div><div class="wealth-item-value">${rupiah(a.current_value)}</div><div class="wealth-item-meta">Beli ${rupiah(a.purchase_value)}</div></div></div><div class="wealth-item-actions"><button class="icon-action primary" data-edit-asset="${a.id}" aria-label="Edit aset" title="Edit">${uiIcon('edit')}</button><button class="icon-action danger" data-delete-asset="${a.id}" aria-label="Hapus aset" title="Hapus">${uiIcon('trash')}</button></div></div>`).join(''):`<div class="card empty"><div class="big">🏠</div><b>Belum ada aset</b><span>Catat hanya aset bernilai yang memang ingin masuk total kekayaan.</span></div>`}`}
 
 function wealthTabs(){return`<button class="wealth-tab ${state.wealthTab==='wallets'?'active':''}" data-wealth="wallets">DOMPET</button><button class="wealth-tab ${state.wealthTab==='investments'?'active':''}" data-wealth="investments">INVESTASI</button><button class="wealth-tab ${state.wealthTab==='assets'?'active':''}" data-wealth="assets">ASET</button>`}
-function wealthOverview(){const w=state.wealthSummary||{};return`<div class="card" style="padding:14px;margin-bottom:12px"><div class="stat-label">Total Kekayaan</div><div style="font-size:24px;font-weight:950;letter-spacing:-.045em;margin-top:4px">${rupiah(w.total_wealth||0)}</div><div class="section-sub" style="margin-top:4px">Dompet ${rupiah(w.liquid_balance||0)} · Investasi ${rupiah(w.investment_value||0)} · Aset ${rupiah(w.asset_value||0)}</div></div>`}
+function wealthOverview(){const w=state.wealthSummary||{};return`<div class="card wealth-safe-total" style="margin-bottom:12px"><div class="stat-label">TOTAL ASET</div><div class="wealth-safe-value" style="margin-top:4px">${rupiah(w.total_wealth||0)}</div><div class="section-sub" style="margin-top:7px">Dompet ${rupiah(w.liquid_balance||0)} · Investasi ${rupiah(w.investment_value||0)} · Aset ${rupiah(w.asset_value||0)}</div></div>`}
 function renderWallets(){const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Kas & Rekening</div><div class="hero-amount">${rupiah(total)}</div><div class="hero-sub">Saldo gabungan sumber dana</div></div><div class="section-head"><div><div class="section-title">Dompet & Rekening</div><div class="section-sub">Kelola sumber dana</div></div><button id="addWallet" class="btn btn-primary">+ Dompet</button></div>${state.wallets.length?state.wallets.map(w=>`<div class="card wallet-card"><div class="wallet-left"><div class="wallet-icon">${walletIcon(w.wallet_type)}</div><div><div class="wallet-name">${esc(w.name)}</div><div class="wallet-type">${esc(walletTypeLabel(w.wallet_type))}</div></div></div><div class="wallet-actions"><div class="wallet-balance ${Number(w.balance)<0?'red':''}">${rupiah(w.balance)}</div><div class="action-row"><button class="icon-action primary" data-edit-wallet="${w.id}" aria-label="Edit dompet" title="Edit">${uiIcon('edit')}</button><button class="icon-action danger" data-delete-wallet="${w.id}" aria-label="Hapus dompet" title="Hapus">${uiIcon('trash')}</button></div></div></div>`).join(''):`<div class="card empty"><div class="big">👛</div><b>Belum ada dompet</b><span>Tambahkan rekening, cash, atau e-wallet.</span></div>`}`}
 function numericInput(id,value=''){return`<input id="${id}" class="input num-input" inputmode="numeric" pattern="[0-9.]*" value="${esc(value)}" placeholder="0" autocomplete="off">`}
 function renderModal(){if(!state.modal)return'';

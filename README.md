@@ -1,9 +1,3 @@
-# CN MONEY v0.4.3 Recovery
-Emergency recovery build based on the last known-good v0.3 application.
+# CN MONEY MAIN v0.4A SAFE
 
-1. Upload all files to the main repo.
-2. Wait for Vercel Ready.
-3. Open /recovery.html in a normal browser while online.
-4. Tap Buka CN MONEY.
-
-Recovery clears Service Worker + Cache Storage only. It does not clear localStorage, Household identity, or Supabase data.
+Build incremental setelah recovery. Tahap ini sengaja hanya mengubah visual yang berisiko rendah: tipografi, scrollbar horizontal, header yang lebih bersih, dan TOTAL ASET. Tidak mengubah startup, Supabase, transaksi, realtime, sound, kategori, atau smart input.
