@@ -1,12 +1,14 @@
-# CN MONEY v0.4C SAFE
+# CN MONEY v0.4D SAFE
 
-Tahap rebuild visual ketiga di atas basis v0.4B yang sudah lolos startup dan UI test.
+Tahap smart-input dan data-belanja. Startup, realtime finansial, dan engine transaksi tidak diubah dari v0.4C.
 
-Perubahan tahap ini dibatasi pada Dashboard:
-- Insight menggunakan warna semantik yang tetap terbaca di mode terang dan gelap
-- merah untuk kondisi negatif, amber untuk peringatan, hijau untuk kondisi baik, warna utama untuk informasi
-- Insight dibuat lebih minimalis tanpa emoji dekoratif
-- chart Arus Kas Bulan Ini ditambahkan untuk membandingkan pemasukan dan pengeluaran
-- chart dibuat murni dengan CSS, tanpa library atau request eksternal baru
+Perubahan utama:
+- Normalisasi otomatis UOM dan tempat beli.
+- Koreksi typo dasar/nama barang umum sebelum masuk checklist.
+- Kategori Telur dan Protein dipisah.
+- Kategori Lainnya selalu paling akhir.
+- Data Barang dapat dihapus tanpa menghapus History/Receipt.
+- Helper text belanja yang tidak perlu dibersihkan.
+- Data Barang terbaru diprioritaskan di atas.
 
-Tidak ada SQL baru. Tidak ada perubahan pada boot, Supabase, realtime, transaction engine, kategori, smart input, atau sound.
+Jalankan `SUPABASE-v04D-SMART-INPUT-PATCH.sql` satu kali sebelum deploy.
