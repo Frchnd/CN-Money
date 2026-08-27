@@ -1,15 +1,14 @@
-# CN MONEY v0.4E SAFE
+# CN MONEY v0.4F SAFE
 
-Tahap finalisasi sound dan penyempurnaan interaksi belanja. Basis startup, Supabase, realtime, RPC transaksi, dan patch kategori tetap mengikuti v0.4D yang sudah lolos tes.
+Sound-only hotfix berbasis v0.4E SAFE yang sudah lolos tes.
 
-Perubahan utama:
-- Sound tambah barang memakai klik mekanis singkat lokal.
-- Pemasukan, pengeluaran, transfer, dan checkout memakai cash-register / ka-ching lokal yang lebih jelas.
-- Sound tetap bekerja offline setelah asset tercache, dengan fallback Web Audio bila file tidak bisa diputar.
-- Checklist dibuat lebih mudah dibaca: nama barang lebih besar, harga berada di sisi kanan, ikon edit/hapus di bawah harga.
-- Item yang sudah dibeli menampilkan total dan ikon undo checkout di bawah total bila sesi masih tersedia.
-- Data Barang menempatkan edit/hapus di bawah harga agar nama/kategori punya ruang lebih besar.
-- Quick checkout dibuat price-first dan lebih ringkas.
-- Dompet checkout terakhir diingat di perangkat untuk mengurangi tap berulang.
+Perubahan:
+- Sound cash-register/ka-ching diganti memakai audio referensi yang diberikan user.
+- Bagian hening awal dibuang.
+- Dipotong menjadi sekitar 1,46 detik agar singkat tetapi karakter ka-ching tetap utuh.
+- Fade-in/fade-out ringan untuk mencegah klik digital.
+- Level suara dinormalisasi agar jelas di speaker HP tanpa terlalu keras.
+- Nama asset dibuat baru agar PWA tidak memakai file suara lama dari cache.
+- Cache Service Worker dinaikkan ke v0.4F.
 
-Tidak memerlukan SQL baru.
+Tidak ada perubahan database, transaksi, Supabase, realtime, startup, atau flow aplikasi. Tidak memerlukan SQL baru.
