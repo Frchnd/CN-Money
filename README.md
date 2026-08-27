@@ -1,14 +1,15 @@
-# CN MONEY v0.4F SAFE
+# CN MONEY v0.4G SAFE
 
-Sound-only hotfix berbasis v0.4E SAFE yang sudah lolos tes.
+Sound-only hotfix.
 
 Perubahan:
-- Sound cash-register/ka-ching diganti memakai audio referensi yang diberikan user.
-- Bagian hening awal dibuang.
-- Dipotong menjadi sekitar 1,46 detik agar singkat tetapi karakter ka-ching tetap utuh.
-- Fade-in/fade-out ringan untuk mencegah klik digital.
-- Level suara dinormalisasi agar jelas di speaker HP tanpa terlalu keras.
-- Nama asset dibuat baru agar PWA tidak memakai file suara lama dari cache.
-- Cache Service Worker dinaikkan ke v0.4F.
+- Sound Tambah Barang diganti memakai satu pop/click paling bersih dari file referensi pengguna.
+- Sound dipotong sangat singkat (~0,16 detik), dinormalisasi, dan diberi fade tipis.
+- Cash-register v0.4F tetap dipertahankan.
+- Startup, Supabase, transaksi, realtime, smart input, dan UI tidak diubah.
+- Tidak perlu SQL.
 
-Tidak ada perubahan database, transaksi, Supabase, realtime, startup, atau flow aplikasi. Tidak memerlukan SQL baru.
+Deploy:
+1. Replace isi repo `finansial-main` dengan isi folder ini.
+2. Commit dan tunggu Vercel Ready.
+3. Buka aplikasi online sekali, tutup, lalu buka PWA lagi.
