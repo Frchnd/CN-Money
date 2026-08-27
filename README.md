@@ -1,18 +1,20 @@
-# CN MONEY v0.5C SAFE
+# CN MONEY v0.5D SAFE
 
-Input interaction & picker cleanup. Tidak perlu SQL.
+Safe polish batch dari v0.5C.
 
 Perubahan:
-- Quick Checkout tidak lagi auto-focus Harga dan tidak auto-select nominal. Keyboard baru muncul setelah kolom disentuh.
-- HISTORY, HISTORY BELANJA, dan RECEIPT memakai month picker custom bertema CN MONEY; tidak lagi memakai picker bulan native browser.
-- Picker custom memakai tombol - / + untuk tahun dan grid bulan, tanpa dropdown arrow.
-- Form/input diberi hint autocomplete/autocorrect/spellcheck off untuk mengurangi suggestion browser/keyboard semaksimal yang diizinkan Android/Chrome.
-- Tidak mengubah startup engine, Supabase, realtime, saldo, transaksi, checkout RPC, sound, smart input, atau struktur database.
+- Tampilan Light/Dark menjadi tombol satu-tap.
+- Sound ON/OFF menjadi tombol satu-tap.
+- CN MONEY dibuat lebih tebal dengan sedikit letter spacing.
+- Nominal dashboard, wallet, dan Total Aset diberi spacing angka lebih lega.
+- Dashboard menampilkan jumlah DOMPET AKTIF.
+- Teks "Saldo gabungan sumber dana" dihapus.
+- Kategori finansial "Lainnya" selalu ditempatkan paling akhir dan tidak lagi menjadi pilihan pertama.
+- Startup, Supabase, realtime, transaksi, checkout, sound file, dan struktur database tidak diubah.
+- Tidak perlu SQL.
 
-Catatan:
-- Suggestion dari Gboard/keyboard dan notifikasi Chrome tertentu berada di level Android/Chrome. PWA hanya bisa mengurangi pemicunya, bukan menjamin menghapusnya 100%.
-
-Deploy:
-1. Replace file repo `finansial-main` dengan isi folder ini.
-2. Commit dan tunggu Vercel Ready.
-3. Buka online sekali, tutup, lalu buka PWA lagi.
+Belum masuk (sengaja ditahan ke v0.5E):
+- Custom picker History Group/Kategori.
+- Custom picker Dompet untuk transaksi/checkout.
+- UOM tap picker.
+- Restrukturisasi besar BELANJA DATA/HISTORY (direncanakan v0.6A setelah picker stabil).
