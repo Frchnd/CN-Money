@@ -1,15 +1,12 @@
-# CN MONEY v0.4B SAFE
+# CN MONEY v0.4C SAFE
 
-Tahap rebuild visual kedua di atas basis v0.4A yang sudah lolos startup test.
+Tahap rebuild visual ketiga di atas basis v0.4B yang sudah lolos startup dan UI test.
 
-Perubahan tahap ini dibatasi pada UI:
-- ikon transaksi dan dompet menjadi outline icon yang konsisten
-- picker PENGELUARAN / PEMASUKAN / TRANSFER memakai icon family yang sama
-- tombol tambah Dompet / Investasi / Aset menjadi tombol + saja
-- teks dropdown grouping History disederhanakan
-- arrow visual pada select disembunyikan; fungsi dropdown tetap aktif
-- scrollbar horizontal chip/subtab disembunyikan
-- receipt memakai gaya monospace ala struk
-- aksi receipt memakai icon
+Perubahan tahap ini dibatasi pada Dashboard:
+- Insight menggunakan warna semantik yang tetap terbaca di mode terang dan gelap
+- merah untuk kondisi negatif, amber untuk peringatan, hijau untuk kondisi baik, warna utama untuk informasi
+- Insight dibuat lebih minimalis tanpa emoji dekoratif
+- chart Arus Kas Bulan Ini ditambahkan untuk membandingkan pemasukan dan pengeluaran
+- chart dibuat murni dengan CSS, tanpa library atau request eksternal baru
 
-Tidak ada SQL baru dan tidak ada perubahan pada boot, Supabase, realtime, transaction engine, kategori, atau smart input.
+Tidak ada SQL baru. Tidak ada perubahan pada boot, Supabase, realtime, transaction engine, kategori, smart input, atau sound.
