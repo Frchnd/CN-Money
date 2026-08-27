@@ -1,18 +1,19 @@
-# CN MONEY v0.5A SAFE
+# CN MONEY v0.5B SAFE
 
-Startup & stability optimization dari checkpoint stabil v0.4G.
+Visual/layout cleanup only. No SQL required.
 
 Perubahan:
-- Jika Household/cache lokal tersedia, UI dibuka langsung dari cache tanpa menunggu sync cloud selesai.
-- Menghapus load cloud kedua dan jeda startup 250 ms yang redundant.
-- Seed kategori tidak lagi dijalankan setiap boot; hanya bila hasil cloud benar-benar belum memiliki kategori.
-- Mencegah pageshow/visibility/online memulai sync kedua saat startup masih berjalan.
-- Reconnect diberi single-flight lock agar beberapa event tidak menembakkan loadAll bersamaan.
-- Engine transaksi, RPC keuangan, struktur database, realtime subscription, shopping flow, sound, dan UI feature tidak diubah.
-- Tidak perlu SQL.
+- History Belanja: garis putus-putus dihilangkan, typography diperbesar dan memakai font utama aplikasi.
+- Receipt: font thermal/monospace dibatasi untuk receipt yang sedang dibuka; list receipt tetap modern.
+- Chart arus kas: nilai 0 tampil sebagai capsule kosong yang rapi; bar tidak overflow.
+- Daftar Belanja & Data Barang: nama/meta diperbesar dan diberi ruang lebih banyak tanpa menabrak harga/aksi.
+- Selector Tampilan/Suara di Settings dipusatkan dalam tap target.
+- Arrow/icon native pada selector bulan disembunyikan, fungsi selector tetap ada.
+- Scrollbar visual pada content/subtab/filter disembunyikan.
+- Startup screen diganti dengan splash CN MONEY yang lebih rapi tanpa mengubah boot logic.
+- Tidak mengubah Supabase, realtime, saldo, transaksi, checkout, sound, smart input, atau startup engine.
 
 Deploy:
-1. Replace isi repo finansial-main dengan isi folder ini.
+1. Replace file repo `finansial-main` dengan isi folder ini.
 2. Commit dan tunggu Vercel Ready.
-3. Buka online sekali.
-4. Tutup lalu buka PWA kembali.
+3. Buka online sekali, tutup, lalu buka PWA lagi.
