@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CN MONEY Recovery</title>
+<style>body{margin:0;background:#050914;color:#f8fafc;font-family:system-ui,-apple-system,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}.card{width:min(100%,420px);background:#111827;border:1px solid #263246;border-radius:24px;padding:22px;box-sizing:border-box}.title{font-weight:900;font-size:20px}.sub{color:#94a3b8;font-size:13px;line-height:1.55;margin-top:8px}.status{margin-top:18px;font-weight:800;color:#a5b4fc}.btn{margin-top:18px;width:100%;border:0;border-radius:14px;padding:14px;font-weight:900;background:#6366f1;color:#fff}</style></head>
+<body><div class="card"><div class="title">CN MONEY</div><div class="sub">Memperbaiki cache aplikasi. Data lokal, Household, dan data Supabase tidak dihapus.</div><div class="status" id="status">Menyiapkan recovery…</div><button class="btn" id="go" hidden>Buka CN MONEY</button></div>
+<script>
+(async()=>{
+ const s=document.getElementById('status'),b=document.getElementById('go');
+ try{
+   s.textContent='Menghapus cache aplikasi lama…';
+   if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
+   if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+   s.textContent='Recovery selesai. Data pribadi tidak disentuh.';
+ }catch(e){s.textContent='Recovery selesai sebagian. Lanjutkan membuka aplikasi.';}
+ b.hidden=false;
+ b.onclick=()=>location.replace('/?recovered='+Date.now());
+})();
+</script></body></html>

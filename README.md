@@ -1,3 +1,9 @@
-CN MONEY MAIN v0.4.2
+# CN MONEY v0.4.3 Recovery
+Emergency recovery build based on the last known-good v0.3 application.
 
-Hotfix startup: UI tidak lagi menunggu Supabase SDK eksternal sebelum membuka cache lokal. SDK dimuat non-blocking dengan fallback CDN dan startup watchdog. Tidak perlu SQL baru.
+1. Upload all files to the main repo.
+2. Wait for Vercel Ready.
+3. Open /recovery.html in a normal browser while online.
+4. Tap Buka CN MONEY.
+
+Recovery clears Service Worker + Cache Storage only. It does not clear localStorage, Household identity, or Supabase data.
