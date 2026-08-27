@@ -1,14 +1,15 @@
-# CN MONEY v0.4D SAFE
+# CN MONEY v0.4E SAFE
 
-Tahap smart-input dan data-belanja. Startup, realtime finansial, dan engine transaksi tidak diubah dari v0.4C.
+Tahap finalisasi sound dan penyempurnaan interaksi belanja. Basis startup, Supabase, realtime, RPC transaksi, dan patch kategori tetap mengikuti v0.4D yang sudah lolos tes.
 
 Perubahan utama:
-- Normalisasi otomatis UOM dan tempat beli.
-- Koreksi typo dasar/nama barang umum sebelum masuk checklist.
-- Kategori Telur dan Protein dipisah.
-- Kategori Lainnya selalu paling akhir.
-- Data Barang dapat dihapus tanpa menghapus History/Receipt.
-- Helper text belanja yang tidak perlu dibersihkan.
-- Data Barang terbaru diprioritaskan di atas.
+- Sound tambah barang memakai klik mekanis singkat lokal.
+- Pemasukan, pengeluaran, transfer, dan checkout memakai cash-register / ka-ching lokal yang lebih jelas.
+- Sound tetap bekerja offline setelah asset tercache, dengan fallback Web Audio bila file tidak bisa diputar.
+- Checklist dibuat lebih mudah dibaca: nama barang lebih besar, harga berada di sisi kanan, ikon edit/hapus di bawah harga.
+- Item yang sudah dibeli menampilkan total dan ikon undo checkout di bawah total bila sesi masih tersedia.
+- Data Barang menempatkan edit/hapus di bawah harga agar nama/kategori punya ruang lebih besar.
+- Quick checkout dibuat price-first dan lebih ringkas.
+- Dompet checkout terakhir diingat di perangkat untuk mengurangi tap berulang.
 
-Jalankan `SUPABASE-v04D-SMART-INPUT-PATCH.sql` satu kali sebelum deploy.
+Tidak memerlukan SQL baru.
