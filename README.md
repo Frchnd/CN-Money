@@ -1,9 +1,10 @@
 # CN MONEY
 
-Aplikasi keuangan rumah tangga bersama.
+## Update v0.3
 
-## Deploy
+1. Jalankan `SUPABASE-v03-CATEGORY-PATCH.sql` sekali di Supabase SQL Editor.
+2. Upload seluruh isi folder ini ke root repository `finansial-main`.
+3. Tunggu Vercel selesai deploy.
+4. Buka CN MONEY saat online, tutup sekali, lalu buka kembali.
 
-Upload seluruh isi folder ini ke root repository GitHub yang terhubung ke Vercel.
-
-Tidak perlu perubahan SQL untuk paket ini.
+Patch SQL hanya memperluas kategori barang belanja dan tidak menghapus data lama.
