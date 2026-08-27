@@ -1,13 +1,20 @@
-# CN MONEY v0.5G SAFE
+# CN MONEY v0.6A SAFE
 
-Dashboard interaction refinement built from stable v0.5F.
+Shopping DATA redesign dari basis v0.5G yang stabil.
 
 Perubahan:
-- PENGELUARAN BULAN INI memakai month picker CN MONEY, bukan select browser.
-- Posisi scroll dipertahankan saat membuka/menutup modal, memilih bulan, edit, dan render ulang pada layar yang sama.
-- Tombol edit anggaran dipindahkan ke dalam card ANGGARAN BELANJA.
-- Card anggaran dan selector bulan diberi visual affordance yang lebih jelas sebagai elemen yang bisa ditap.
-- INSIGHT berada dalam satu panel dengan scroll internal bila isinya panjang.
-- AKTIVITAS TERBARU berada dalam satu panel, maksimal 4 transaksi, tanpa tombol edit/undo. Perubahan transaksi dilakukan dari HISTORY.
-- Engine transaksi, Supabase, realtime, startup, shopping, dan schema database tidak diubah.
-- Tidak perlu SQL.
+- Tab BELANJA sekarang hanya CHECKOUT | DATA | RECEIPT.
+- HISTORY BELANJA dihapus dari navigasi.
+- Tap item di DATA membuka detail item.
+- Detail item berisi kategori, satuan, pembelian terakhir, dan seluruh riwayat pembelian item tersebut (terbaru di atas).
+- Dari setiap riwayat item bisa membuka RECEIPT atau membatalkan checkout terkait.
+- EDIT dan HAPUS Data Barang dipindahkan ke dalam detail item.
+- Hapus Data Barang tetap tidak menghapus transaksi finansial, receipt, atau history checkout di server.
+- Startup, Supabase schema/RPC, saldo, realtime, sound, dan engine checkout tidak diubah.
+- Tidak perlu SQL baru.
+
+Deploy:
+1. Replace file versi sebelumnya dengan isi folder ini.
+2. Commit ke repo `finansial-main`.
+3. Tunggu Vercel Ready.
+4. Buka online sekali, tutup, lalu buka PWA lagi.
