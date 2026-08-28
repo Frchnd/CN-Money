@@ -1,13 +1,12 @@
-# CN MONEY v1.7.2
+# CN MONEY v1.8.0 APP
 
-Visual precision patch.
+Household Experience:
+- Notifikasi selektif antar perangkat.
+- Notifikasi: PEMASUKAN, PENGELUARAN, dan barang baru di LIST BELANJAAN.
+- Tidak ada notifikasi untuk TRANSFER atau CHECKOUT.
+- Tambah barang cepat dalam beberapa detik digabung menjadi satu notifikasi.
+- Toggle NOTIFIKASI ON/OFF di PENGATURAN.
+- Push service worker terpisah agar tidak mengganti service worker PWA utama.
 
-Perubahan:
-- Label "OTOMATIS" pada Tambah Pendapatan dihapus.
-- DIVIDEN / KUPON / BUNGA / DISTRIBUSI / REWARD tampil sebagai teks polos, tanpa kotak.
-- Donut KOMPOSISI ASET diperbesar sekitar 2x.
-- Alignment global dipoles: teks, angka, ikon, tombol, card, modal, form, tab, dan navigation.
-- Fokus ekstra pada KEKAYAAN dan modal pendapatan investasi.
-
-Tidak ada SQL baru.
-Tidak ada perubahan engine transaksi, saldo, checkout, realtime, Supabase, startup, atau sound.
+APP ZIP ini untuk GitHub/Vercel.
+Setup Supabase disediakan terpisah.
