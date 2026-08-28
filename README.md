@@ -1,21 +1,21 @@
-# CN MONEY v0.6A.3.2 HOTFIX
+# CN MONEY v0.6A.4 SAFE — VISUAL PRECISION POLISH
 
-Perbaikan regresi interaksi dari v0.6A.3 / v0.6A.3.1.
+Visual-only refinement based on v0.6A.3.2 HOTFIX.
 
-Akar masalah:
-- Helper `numericInput()` tidak sengaja terhapus saat merge v0.6A.3.
-- Semua modal yang membutuhkan input nominal gagal dirender.
+Perubahan:
+- Seluruh judul, label, keterangan, metadata UI, tombol, picker, dan helper copy ditampilkan CAPSLOCK.
+- Letter spacing ditambah tipis agar teks tidak terlalu rapat.
+- Data tidak diubah di database; uppercase hanya tampilan.
+- Vertical rhythm judul/subjudul/field/card/modal dirapikan.
+- Ukuran dan optical alignment ikon distandarkan.
+- Tombol Edit/Hapus/Undo dan ikon lain dipusatkan secara presisi.
+- Main navigation dan sub-tab dirapikan alignment-nya.
+- Transaction rows dirapikan: ikon, nama, metadata, nominal, dan actions satu sumbu visual.
+- LIST BELANJAAN dan DATA BARANG dirapikan grid dan spacing-nya.
+- Card DOMPET / INVESTASI / ASET dirapikan.
+- Picker CN MONEY dirapikan: title, close button, option, checkmark, calendar.
+- SETTINGS dirapikan alignment toggle dan teks.
+- Receipt dirapikan tanpa menghilangkan karakter font thermal.
 
-Yang diperbaiki:
-- EDIT ANGGARAN kembali bisa dibuka.
-- CHECKOUT barang kembali bisa dibuka.
-- TAMBAH PENGELUARAN / PEMASUKAN / TRANSFER kembali bisa dibuka.
-- TAMBAH DOMPET / INVESTASI / ASET kembali bisa dibuka.
-- EDIT DOMPET / INVESTASI / ASET kembali bisa dibuka.
-- Tombol EDIT/HAPUS pada detail DOMPET / INVESTASI / ASET dibuat compact.
-- Semua ikon tong sampah dibuat merah, termasuk hapus item LIST BELANJAAN.
-- Fitur v0.6A.3 tetap dipertahankan.
-
-Tidak ada perubahan database baru.
-Tidak perlu menjalankan SQL lagi jika patch v0.6A.3 sudah pernah dijalankan.
-File SQL sengaja tidak disertakan dalam hotfix ini agar tidak membingungkan.
+Tidak ada SQL baru.
+Tidak ada perubahan pada Supabase, transaksi, checkout, realtime, startup, budget, atau sound.

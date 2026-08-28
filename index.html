@@ -479,6 +479,327 @@
       stroke:currentColor!important;
     }
 
+
+    /* v0.6A.4 — VISUAL PRECISION POLISH
+       Visual-only. No finance/database/startup logic changes. */
+
+    /* 1) CAPSLOCK + breathing room for UI copy / descriptions.
+       Data values are not rewritten in storage; this is visual only. */
+    .section-title,.section-sub,.modal-title,.setting-title,.setting-sub,
+    .label,.eyebrow,.hero-sub,.stat-label,
+    .budget-title,.budget-month,.budget-limit,.budget-foot,
+    .budget-session-meta,.budget-item-name small,
+    .category-head,.group-head,.confirm-title,.confirm-message,
+    .tx-title,.tx-meta,.shop-name,.shop-meta,.db-name,.db-meta,
+    .db-detail-head-meta,.db-detail-kicker,.db-detail-section-title,
+    .db-summary-row span,.db-purchase-date,.db-purchase-store,.db-purchase-row-bottom,
+    .receipt-store,.receipt-line,.wallet-name,.wallet-type,
+    .wealth-note,.wealth-mini .k,.entity-card-name,.entity-card-meta,
+    .entity-detail-kicker,.entity-detail-sub,.entity-detail-cell span,
+    .purchase-detail-cell span,.purchase-session-note,
+    .picker-sheet-title,.picker-option b,.picker-option small,
+    .date-picker-label,.date-week span,.cash-bar-label,
+    .tap-toggle,.subtab,.wealth-tab,.month-trigger,.month-choice,
+    .picker-trigger,.db-detail-pill,.entity-detail-pill,
+    .notice,.empty b,.empty span {
+      text-transform:uppercase;
+    }
+
+    .section-title,.modal-title,.setting-title,.category-head,.group-head,
+    .confirm-title,.tx-title,.shop-name,.db-name,.receipt-store,
+    .entity-card-name,.picker-sheet-title,.budget-title {
+      letter-spacing:.052em!important;
+    }
+
+    .section-sub,.setting-sub,.label,.hero-sub,.stat-label,
+    .budget-month,.budget-limit,.budget-foot,.budget-session-meta,
+    .tx-meta,.shop-meta,.db-meta,.db-detail-head-meta,
+    .db-detail-kicker,.db-detail-section-title,.db-summary-row span,
+    .db-purchase-date,.db-purchase-store,.db-purchase-row-bottom,
+    .wallet-type,.wealth-note,.entity-card-meta,.entity-detail-kicker,
+    .entity-detail-sub,.entity-detail-cell span,.purchase-detail-cell span,
+    .purchase-session-note,.picker-option small,.date-week span,
+    .cash-bar-label,.notice,.empty span {
+      letter-spacing:.038em!important;
+    }
+
+    .btn,.subtab,.wealth-tab,.tap-toggle,.month-trigger,.month-choice,
+    .picker-trigger,.db-detail-pill,.entity-detail-pill {
+      letter-spacing:.045em!important;
+    }
+
+    /* 2) Consistent typography rhythm. */
+    .section-title{line-height:1.18!important}
+    .section-sub{line-height:1.48!important;margin-top:4px!important}
+    .modal-title{line-height:1.15!important}
+    .setting-title{line-height:1.2!important}
+    .setting-sub{line-height:1.42!important}
+    .tx-title,.shop-name,.db-name,.entity-card-name{line-height:1.25!important}
+    .tx-meta,.shop-meta,.db-meta,.entity-card-meta{line-height:1.45!important}
+
+    /* 3) Precision spacing / vertical grid. */
+    .content{padding-left:16px!important;padding-right:16px!important}
+    .section-head{
+      min-height:38px!important;
+      margin:22px 2px 11px!important;
+      align-items:center!important;
+      gap:12px!important;
+    }
+    .modal{padding:18px!important}
+    .modal-head{
+      min-height:40px!important;
+      align-items:center!important;
+      gap:14px!important;
+      margin-bottom:16px!important;
+    }
+    .field{margin-bottom:14px!important}
+    .label{margin:0 0 7px 1px!important}
+    .input,.select,.picker-trigger{
+      min-height:46px!important;
+      padding-top:12px!important;
+      padding-bottom:12px!important;
+    }
+
+    /* 4) Buttons/actions: same optical center and icon geometry. */
+    .btn{
+      min-height:42px;
+      align-items:center!important;
+      justify-content:center!important;
+      line-height:1!important;
+      gap:7px!important;
+    }
+    .btn svg,.mini-action svg,.icon-action svg,.type-option svg,
+    .picker-close svg,.xbtn svg,.nav-btn svg,.icon-btn svg{
+      display:block!important;
+      flex:0 0 auto!important;
+    }
+    .btn>span,.mini-action>span,.icon-action>span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+    }
+    .mini-action,.icon-action{
+      display:grid!important;
+      place-items:center!important;
+      padding:0!important;
+      line-height:1!important;
+    }
+    .mini-action{width:32px!important;height:32px!important;border-radius:10px!important}
+    .icon-action{width:32px!important;height:32px!important;border-radius:10px!important}
+    .mini-action svg,.icon-action svg{width:15px!important;height:15px!important}
+    .xbtn,.picker-close{
+      width:36px!important;height:36px!important;
+      display:grid!important;place-items:center!important;
+      padding:0!important;line-height:1!important;
+      flex:0 0 36px!important;
+    }
+
+    /* 5) Main/sub navigation alignment. */
+    .bottom-nav{align-items:center!important}
+    .nav-btn{
+      min-height:54px!important;
+      display:grid!important;
+      place-items:center!important;
+      line-height:1!important;
+    }
+    .nav-btn .ico,.nav-btn .ico svg{
+      width:25px!important;height:25px!important;
+      display:block!important;
+    }
+    .subtabs{align-items:stretch!important}
+    .subtab,.wealth-tab{
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      text-align:center!important;
+      line-height:1.15!important;
+      padding:0 8px!important;
+    }
+    .shop-tabs-three{
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    }
+
+    /* 6) Dashboard/card alignment. */
+    .grid2{align-items:stretch!important}
+    .stat{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-height:86px;
+      padding:14px!important;
+    }
+    .stat-value{margin-top:7px!important}
+    .budget-top,.budget-main,.budget-foot{
+      align-items:center!important;
+    }
+    .budget-card-actions{align-items:center!important}
+    .dashboard-month-trigger{
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      line-height:1!important;
+    }
+
+    /* 7) Transaction rows: icon / title / nominal share one optical axis. */
+    .tx-card{
+      min-height:66px!important;
+      padding:13px 14px!important;
+      align-items:center!important;
+      gap:12px!important;
+    }
+    .tx-card>div:first-child{
+      min-width:0!important;
+      flex:1 1 auto!important;
+    }
+    .tx-card>div:last-child{
+      flex:0 0 auto!important;
+      min-width:92px;
+      text-align:right;
+    }
+    .tx-icon{
+      width:40px!important;height:40px!important;
+      flex:0 0 40px!important;
+      border-radius:13px!important;
+      display:grid!important;place-items:center!important;
+    }
+    .tx-icon svg{width:20px!important;height:20px!important}
+    .tx-actions{
+      min-height:32px;
+      align-items:center!important;
+      justify-content:flex-end!important;
+      gap:5px!important;
+      margin-top:6px!important;
+    }
+
+    /* 8) Shopping/Data cards. */
+    .shop-item{
+      align-items:center!important;
+      padding:15px!important;
+      gap:12px!important;
+    }
+    .shop-main{align-self:center}
+    .shop-side{
+      min-width:96px!important;
+      justify-content:center!important;
+      align-self:stretch!important;
+    }
+    .shop-actions{align-items:center!important}
+    .db-card-open{
+      padding:16px 15px!important;
+    }
+    .db-card-open .db-row{
+      min-height:54px;
+      align-items:center!important;
+      gap:14px!important;
+    }
+    .db-card-open .db-side{
+      align-self:center!important;
+      justify-content:center!important;
+    }
+    .db-detail-pill,.entity-detail-pill{
+      min-height:25px!important;
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      line-height:1!important;
+    }
+
+    /* 9) Wallet / investment / asset cards. */
+    .entity-card{
+      padding:16px!important;
+    }
+    .entity-card-row{
+      min-height:56px!important;
+      align-items:center!important;
+    }
+    .entity-card-main{align-items:center!important}
+    .entity-card-side{
+      display:flex!important;
+      flex-direction:column!important;
+      align-items:flex-end!important;
+      justify-content:center!important;
+      gap:2px!important;
+    }
+    .wallet-icon{
+      width:40px!important;height:40px!important;
+      flex:0 0 40px!important;
+      border-radius:13px!important;
+      display:grid!important;place-items:center!important;
+    }
+    .wallet-icon svg{width:20px!important;height:20px!important}
+    .entity-detail-actions{
+      align-items:center!important;
+      gap:7px!important;
+    }
+
+    /* 10) Picker precision. */
+    .picker-sheet{padding:17px!important}
+    .picker-sheet-head{
+      min-height:40px;
+      align-items:center!important;
+      gap:12px!important;
+      margin-bottom:13px!important;
+    }
+    .picker-option{
+      min-height:48px!important;
+      align-items:center!important;
+      padding:12px 13px!important;
+    }
+    .picker-option>span:first-child{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .picker-check{
+      min-width:18px;
+      text-align:center;
+      line-height:1;
+    }
+    .date-picker-nav{align-items:center!important}
+    .date-day{display:grid!important;place-items:center!important;line-height:1!important}
+
+    /* 11) Settings rows. */
+    .setting-row{
+      min-height:68px!important;
+      padding:14px 15px!important;
+      align-items:center!important;
+      gap:14px!important;
+    }
+    .setting-row>div:first-child{
+      flex:1 1 auto;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .tap-toggle{
+      flex:0 0 auto;
+      display:grid!important;
+      place-items:center!important;
+      line-height:1!important;
+    }
+
+    /* 12) Receipt alignment without destroying thermal character. */
+    .receipt-top{align-items:flex-start!important}
+    .receipt-line{
+      align-items:baseline!important;
+      line-height:1.42!important;
+    }
+    .receipt-line>*:last-child{
+      text-align:right;
+      flex:0 0 auto;
+    }
+
+    @media(max-width:360px){
+      .section-title{font-size:14px!important}
+      .section-sub{font-size:9px!important}
+      .btn{padding-left:12px!important;padding-right:12px!important}
+      .tx-card>div:last-child{min-width:84px}
+      .entity-card-side{min-width:82px!important}
+    }
+
 </style>
 </head>
 <body>
