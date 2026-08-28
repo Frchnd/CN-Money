@@ -1,14 +1,13 @@
-# CN MONEY v1.7.1
+# CN MONEY v1.7.2
 
-- Auto pendapatan: Saham→Dividen, Obligasi→Kupon, Deposito→Bunga,
-  Reksadana→Distribusi, Crypto→Reward, Lainnya→Pendapatan.
-- Emas tidak punya input pendapatan rutin; return dari perubahan nilai.
-- Tambah Pendapatan tidak perlu memilih tipe return.
-- Dompet pendapatan terakhir diingat.
-- Chart KOMPOSISI ASET: Dompet / Investasi / Aset.
-- Final polish KEKAYAAN.
+Visual precision patch.
 
-SQL wajib sekali:
-SUPABASE-v1.7.1-AUTO-INVESTMENT-INCOME.sql
+Perubahan:
+- Label "OTOMATIS" pada Tambah Pendapatan dihapus.
+- DIVIDEN / KUPON / BUNGA / DISTRIBUSI / REWARD tampil sebagai teks polos, tanpa kotak.
+- Donut KOMPOSISI ASET diperbesar sekitar 2x.
+- Alignment global dipoles: teks, angka, ikon, tombol, card, modal, form, tab, dan navigation.
+- Fokus ekstra pada KEKAYAAN dan modal pendapatan investasi.
 
-SQL aman dijalankan walau patch v1.7.0 sudah pernah dijalankan.
+Tidak ada SQL baru.
+Tidak ada perubahan engine transaksi, saldo, checkout, realtime, Supabase, startup, atau sound.

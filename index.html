@@ -998,6 +998,291 @@
     .investment-income-auto b{font-size:11px;font-weight:1000;letter-spacing:.045em;white-space:nowrap}
     @media(max-width:355px){.wealth-chart-row{grid-template-columns:82px 1fr;gap:11px}.wealth-donut{width:82px}.wealth-donut:after{width:54px}.wealth-legend-value{font-size:8px}}
 
+
+    /* CN MONEY v1.7.2 — Precision Alignment Polish */
+
+    /* Return label: plain, no box, no AUTOMATIC label */
+    .investment-income-auto{display:none!important}
+    .investment-income-type-plain{
+      margin:2px 1px 18px;
+      font-size:15px;
+      line-height:1.15;
+      font-weight:1000;
+      letter-spacing:.055em;
+      text-transform:uppercase;
+      color:var(--primary);
+      text-align:left;
+    }
+
+    /* Donut ~2x larger than v1.7.1 */
+    .wealth-chart-row{
+      grid-template-columns:188px minmax(0,1fr)!important;
+      gap:20px!important;
+      align-items:center!important;
+    }
+    .wealth-donut{
+      width:188px!important;
+      height:188px!important;
+      aspect-ratio:1!important;
+      justify-self:center!important;
+    }
+    .wealth-donut:after{
+      width:124px!important;
+      height:124px!important;
+    }
+    .wealth-donut-center b{
+      font-size:19px!important;
+      line-height:1!important;
+    }
+    .wealth-donut-center span{
+      margin-top:6px!important;
+      font-size:8.5px!important;
+    }
+    .wealth-chart-legend{
+      gap:13px!important;
+    }
+    .wealth-legend-row{
+      grid-template-columns:11px minmax(0,1fr) auto!important;
+      gap:9px!important;
+    }
+    .wealth-legend-dot{
+      width:11px!important;
+      height:11px!important;
+    }
+    .wealth-legend-name,
+    .wealth-legend-value{
+      font-size:10px!important;
+      line-height:1.2!important;
+    }
+
+    /* Global optical alignment */
+    *,*::before,*::after{box-sizing:border-box}
+    button,input,select,textarea{font:inherit}
+    svg{vertical-align:middle}
+
+    .app-header,
+    .modal-head,
+    .section-head,
+    .setting-row,
+    .budget-top,
+    .budget-main,
+    .receipt-top,
+    .entity-card-row,
+    .entity-detail-actions,
+    .investment-income-head,
+    .investment-income-row,
+    .picker-sheet-head,
+    .date-picker-nav{
+      align-items:center!important;
+    }
+
+    .modal-head,
+    .section-head,
+    .setting-row,
+    .budget-top,
+    .budget-main,
+    .receipt-top,
+    .entity-card-row,
+    .investment-income-head{
+      justify-content:space-between!important;
+    }
+
+    /* Titles / labels / numbers share consistent rhythm */
+    .modal-title,
+    .section-title,
+    .setting-title,
+    .entity-card-name,
+    .db-name,
+    .shop-name,
+    .tx-title,
+    .receipt-store{
+      line-height:1.18!important;
+    }
+    .section-sub,
+    .setting-sub,
+    .entity-card-meta,
+    .db-meta,
+    .shop-meta,
+    .tx-meta,
+    .investment-income-meta{
+      line-height:1.42!important;
+    }
+    .hero-amount,
+    .wealth-safe-value,
+    .entity-card-value,
+    .entity-detail-amount,
+    .stat-value,
+    .receipt-total,
+    .budget-spent,
+    .budget-session-total,
+    .investment-income-amount{
+      font-variant-numeric:tabular-nums;
+      letter-spacing:.018em!important;
+      line-height:1.08!important;
+    }
+
+    /* Buttons and icons: same center and geometry */
+    .btn,
+    .icon-action,
+    .mini-action,
+    .xbtn,
+    .picker-close,
+    .nav-btn,
+    .subtab,
+    .wealth-tab,
+    .tap-toggle,
+    .month-trigger,
+    .picker-trigger,
+    .qty-btn{
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      line-height:1!important;
+    }
+    .btn svg,
+    .icon-action svg,
+    .mini-action svg,
+    .xbtn svg,
+    .picker-close svg,
+    .nav-btn svg,
+    .qty-btn svg{
+      display:block!important;
+      flex:0 0 auto!important;
+    }
+    .icon-action,
+    .mini-action{
+      width:34px!important;
+      height:34px!important;
+      padding:0!important;
+    }
+    .icon-action svg,
+    .mini-action svg{
+      width:15px!important;
+      height:15px!important;
+    }
+
+    /* Cards: consistent inner grid */
+    .card{
+      position:relative;
+    }
+    .entity-card,
+    .db-card-open,
+    .tx-card,
+    .shop-item,
+    .receipt-index-card{
+      overflow:hidden;
+    }
+    .entity-card-row,
+    .db-row,
+    .tx-card,
+    .shop-item{
+      gap:14px!important;
+    }
+    .entity-card-copy,
+    .db-card-main,
+    .shop-main{
+      min-width:0!important;
+      flex:1 1 auto!important;
+    }
+    .entity-card-side,
+    .db-side,
+    .shop-side{
+      flex:0 0 auto!important;
+      text-align:right!important;
+    }
+
+    /* Form fields: labels and controls line up */
+    .field{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+    }
+    .label{
+      margin-left:1px!important;
+    }
+    .input,
+    .select,
+    .picker-trigger,
+    .date-trigger,
+    .month-trigger{
+      width:100%;
+    }
+
+    /* Wealth / investment detail precision */
+    .investment-summary-grid{
+      align-items:stretch!important;
+    }
+    .investment-summary-grid .wealth-mini{
+      display:flex!important;
+      flex-direction:column!important;
+      justify-content:center!important;
+      min-height:74px!important;
+    }
+    .entity-detail-grid{
+      align-items:stretch!important;
+    }
+    .entity-detail-cell{
+      display:flex!important;
+      flex-direction:column!important;
+      justify-content:center!important;
+      min-height:70px!important;
+    }
+    .investment-income-row{
+      min-height:54px!important;
+    }
+
+    /* Nav / tabs symmetric */
+    .bottom-nav{
+      display:grid!important;
+      grid-template-columns:repeat(4,minmax(0,1fr))!important;
+      align-items:center!important;
+    }
+    .nav-btn{
+      width:100%!important;
+      min-width:0!important;
+    }
+    .shop-tabs-three{
+      display:grid!important;
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    }
+    .subtab{
+      width:100%!important;
+      min-width:0!important;
+      text-align:center!important;
+    }
+
+    /* Preserve compact mobile layout while keeping the chart much larger */
+    @media(max-width:420px){
+      .wealth-chart-row{
+        grid-template-columns:1fr!important;
+        gap:17px!important;
+      }
+      .wealth-donut{
+        width:176px!important;
+        height:176px!important;
+      }
+      .wealth-donut:after{
+        width:116px!important;
+        height:116px!important;
+      }
+      .wealth-chart-legend{
+        width:100%!important;
+      }
+      .wealth-legend-row{
+        grid-template-columns:11px 1fr auto!important;
+      }
+    }
+    @media(max-width:350px){
+      .wealth-donut{
+        width:160px!important;
+        height:160px!important;
+      }
+      .wealth-donut:after{
+        width:106px!important;
+        height:106px!important;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -1010,7 +1295,7 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ZQnRso9t-n05jS73PgljTQ_bJ5SDCFT';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='1.7.1';
+const CN_MONEY_VERSION='1.7.2';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -1190,7 +1475,7 @@ if(state.modal.startsWith('shopcat:')){const token=decodeURIComponent(state.moda
 if(state.modal==='investment')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH INVESTASI</div></div><button class="xbtn" data-close>×</button></div><form id="investmentForm"><div class="field"><label class="label">Nama</label><input id="investmentName" class="input" required placeholder="Contoh: Emas Antam"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('investmentType','stock',investmentTypeLabel('stock').toUpperCase(),'investment-type')}</div><div class="field"><label class="label">Nilai Awal</label>${numericInput('investmentAmount')}</div><div class="field"><label class="label">Sumber Dana</label>${choiceTrigger('investmentWallet','','SUDAH DIMILIKI','investment-wallet')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN INVESTASI</button></form></div></div>`;
 if(state.modal.startsWith('investmentDetail:')){const id=state.modal.slice(17),i=state.investments.find(x=>String(x.id)===String(id));if(!i)return'';const cost=Number(i.invested_amount||0),value=Number(i.current_value||0),gain=value-cost,incomeTx=investmentIncomeTxFor(i.id),income=incomeTx.reduce((a,t)=>a+Number(t.amount||0),0),totalReturn=gain+income,returnPct=cost>0?(totalReturn/cost)*100:0,purchaseTx=state.transactions.find(t=>t.source_type==='investment'&&String(t.source_id)===String(i.id)&&t.transaction_type==='investment_buy'&&!t.deleted_at),sourceWallet=purchaseTx?state.wallets.find(w=>String(w.id)===String(purchaseTx.wallet_id))?.name:null;return`<div class="modal-bg"><div class="modal entity-detail-modal"><div class="modal-head"><div><div class="modal-title">${esc(i.name)}</div><div class="section-sub">${esc(investmentTypeLabel(i.investment_type))}</div></div><button class="xbtn" data-close>×</button></div><div class="entity-detail-hero"><div class="entity-detail-kicker">NILAI SEKARANG</div><div class="entity-detail-amount">${rupiah(value)}</div><div class="entity-detail-sub ${totalReturn>=0?'green':'red'}">TOTAL RETURN ${totalReturn>=0?'+ ':''}${rupiah(totalReturn)}${cost>0?` · ${returnPct>=0?'+ ':''}${returnPct.toFixed(1).replace('.0','')}%`:''}</div></div><div class="entity-detail-grid"><div class="entity-detail-cell"><span>MODAL</span><b>${rupiah(cost)}</b></div><div class="entity-detail-cell"><span>GAIN / LOSS</span><b class="${gain>=0?'green':'red'}">${gain>=0?'+ ':''}${rupiah(gain)}</b></div><div class="entity-detail-cell"><span>PENDAPATAN DITERIMA</span><b class="green">+ ${rupiah(income)}</b></div><div class="entity-detail-cell"><span>TOTAL RETURN</span><b class="${totalReturn>=0?'green':'red'}">${totalReturn>=0?'+ ':''}${rupiah(totalReturn)}</b></div><div class="entity-detail-cell full"><span>SUMBER DANA AWAL</span><b>${esc(sourceWallet||'SUDAH DIMILIKI / TIDAK TERCATAT')}</b></div></div>${investmentSupportsCashIncome(i.investment_type)?`<div class="investment-income-section"><div class="investment-income-head"><div class="db-detail-section-title">RIWAYAT PENDAPATAN</div><button type="button" class="btn btn-primary add-only" data-add-investment-income="${i.id}" aria-label="Tambah pendapatan investasi" title="Tambah pendapatan">+</button></div>${incomeTx.length?`<div class="investment-income-list">${incomeTx.map(t=>{const wallet=state.wallets.find(w=>String(w.id)===String(t.wallet_id))?.name||'DOMPET';return`<div class="investment-income-row"><div class="investment-income-copy"><div class="investment-income-type">${investmentIncomeTypeLabel(t.investment_income_type)}</div><div class="investment-income-meta">${dateLabel(t.transaction_date)} · ${esc(wallet)}${t.description?` · ${esc(t.description)}`:''}</div></div><div class="investment-income-side"><div class="investment-income-amount">+ ${rupiah(t.amount)}</div><button type="button" class="icon-action danger" data-undo-tx="${t.id}" aria-label="Hapus pendapatan investasi" title="Hapus">${uiIcon('trash')}</button></div></div>`}).join('')}</div>`:`<div class="card empty empty-minimal"><b>BELUM ADA PENDAPATAN</b></div>`}</div>`:''}<div class="entity-detail-actions"><button type="button" class="btn btn-soft" data-detail-edit-investment="${i.id}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger" data-detail-delete-investment="${i.id}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
 
-if(state.modal.startsWith('investmentIncome:')){const id=state.modal.slice(17),i=state.investments.find(x=>String(x.id)===String(id));if(!i)return'';const type=defaultInvestmentIncomeType(i.investment_type);if(!type)return'';const lastWallet=localStorage.getItem('cn_last_investment_income_wallet')||'',wallet=state.wallets.find(w=>String(w.id)===String(lastWallet))||state.wallets[0];return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH PENDAPATAN</div><div class="section-sub">${esc(i.name)}</div></div><button class="xbtn" data-close>×</button></div><form id="investmentIncomeForm" data-id="${i.id}" data-type="${esc(type)}" data-clientid="${esc(state.txClientId||'')}"><div class="investment-income-auto"><span>OTOMATIS</span><b>${investmentIncomeTypeLabel(type)}</b></div><div class="field"><label class="label">NOMINAL</label>${numericInput('investmentIncomeAmount')}</div><div class="field"><label class="label">MASUK KE DOMPET</label>${choiceTrigger('investmentIncomeWallet',wallet?.id||'',wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div><div class="field"><label class="label">TANGGAL</label>${dateTrigger('investmentIncomeDate',today())}</div><button class="btn btn-primary btn-block" type="submit" ${!state.wallets.length||!state.online?'disabled':''}>SIMPAN PENDAPATAN</button></form></div></div>`}
+if(state.modal.startsWith('investmentIncome:')){const id=state.modal.slice(17),i=state.investments.find(x=>String(x.id)===String(id));if(!i)return'';const type=defaultInvestmentIncomeType(i.investment_type);if(!type)return'';const lastWallet=localStorage.getItem('cn_last_investment_income_wallet')||'',wallet=state.wallets.find(w=>String(w.id)===String(lastWallet))||state.wallets[0];return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH PENDAPATAN</div><div class="section-sub">${esc(i.name)}</div></div><button class="xbtn" data-close>×</button></div><form id="investmentIncomeForm" data-id="${i.id}" data-type="${esc(type)}" data-clientid="${esc(state.txClientId||'')}"><div class="investment-income-type-plain">${investmentIncomeTypeLabel(type)}</div><div class="field"><label class="label">NOMINAL</label>${numericInput('investmentIncomeAmount')}</div><div class="field"><label class="label">MASUK KE DOMPET</label>${choiceTrigger('investmentIncomeWallet',wallet?.id||'',wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div><div class="field"><label class="label">TANGGAL</label>${dateTrigger('investmentIncomeDate',today())}</div><button class="btn btn-primary btn-block" type="submit" ${!state.wallets.length||!state.online?'disabled':''}>SIMPAN PENDAPATAN</button></form></div></div>`}
 
 if(state.modal.startsWith('investmentEdit:')){const id=state.modal.slice(15),i=state.investments.find(x=>x.id===id);if(!i)return'';return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">EDIT INVESTASI</div><div class="section-sub">Perbarui modal dan nilai sekarang</div></div><button class="xbtn" data-close>×</button></div><form id="investmentEditForm" data-id="${i.id}"><div class="field"><label class="label">Nama</label><input id="investmentEditName" class="input" value="${esc(i.name)}" required></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('investmentEditType',i.investment_type,investmentTypeLabel(i.investment_type).toUpperCase(),'investment-type')}</div><div class="field"><label class="label">Total Modal</label>${numericInput('investmentEditCost',groupDigits(i.invested_amount))}</div><div class="field"><label class="label">Nilai Sekarang</label>${numericInput('investmentEditValue',groupDigits(i.current_value))}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PERUBAHAN</button></form></div></div>`}
 if(state.modal==='asset')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH ASET</div></div><button class="xbtn" data-close>×</button></div><form id="assetForm"><div class="field"><label class="label">Nama</label><input id="assetName" class="input" required placeholder="Contoh: Motor / Cincin Emas"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('assetType','property',assetTypeLabel('property').toUpperCase(),'asset-type')}</div><div class="field"><label class="label">Harga Beli</label>${numericInput('assetPurchase')}</div><div class="field"><label class="label">Estimasi Nilai Sekarang · kosong = harga beli</label>${numericInput('assetCurrent')}</div><div class="field"><label class="label">Tanggal Beli · opsional</label>${optionalDateTrigger('assetDate','')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN ASET</button></form></div></div>`;
