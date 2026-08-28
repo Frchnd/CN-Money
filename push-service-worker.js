@@ -7,7 +7,8 @@ self.addEventListener('push',event=>{
     tag:data.tag||'cn-money-household',
     renotify:false,
     data:{url:data.url||'/'},
-    silent:false
+    silent:false,
+    timestamp:Date.now()
   };
   event.waitUntil(self.registration.showNotification(title,options));
 });

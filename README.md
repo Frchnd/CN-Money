@@ -1,12 +1,16 @@
-# CN MONEY v1.8.0 APP
+# CN MONEY v1.8.1
 
-Household Experience:
-- Notifikasi selektif antar perangkat.
-- Notifikasi: PEMASUKAN, PENGELUARAN, dan barang baru di LIST BELANJAAN.
-- Tidak ada notifikasi untuk TRANSFER atau CHECKOUT.
-- Tambah barang cepat dalam beberapa detik digabung menjadi satu notifikasi.
-- Toggle NOTIFIKASI ON/OFF di PENGATURAN.
-- Push service worker terpisah agar tidak mengganti service worker PWA utama.
+Household notification stability patch.
 
-APP ZIP ini untuk GitHub/Vercel.
-Setup Supabase disediakan terpisah.
+Perubahan:
+- Subscription push otomatis diperiksa ulang saat aplikasi dibuka.
+- Subscription push otomatis diperbaiki setelah koneksi kembali online.
+- Sync subscription diberi lock + throttle agar tidak request berulang.
+- Jika permission Android/Chrome dicabut dari luar aplikasi, status NOTIFIKASI otomatis kembali OFF.
+- Toggle NOTIFIKASI membaca status permission aktual.
+- Service worker push diminta update tanpa cache lama.
+- Tidak mengubah aturan notifikasi: hanya PEMASUKAN, PENGELUARAN, dan barang baru LIST BELANJAAN.
+- TRANSFER dan CHECKOUT tetap tanpa notifikasi.
+
+Tidak ada SQL baru.
+Tidak perlu ubah Edge Function atau Secrets.
