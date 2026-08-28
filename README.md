@@ -1,11 +1,21 @@
-# CN MONEY v0.6A.3.1 HOTFIX
+# CN MONEY v0.6A.3.2 HOTFIX
 
-Hotfix regresi v0.6A.3.
+Perbaikan regresi interaksi dari v0.6A.3 / v0.6A.3.1.
 
-Perubahan:
-- Mengembalikan fungsi `wealthTabs()` yang tidak sengaja terhapus saat merge v0.6A.3.
-- Memulihkan navigasi DOMPET / INVESTASI / ASET.
-- Setelah render KEKAYAAN normal kembali, Settings, Tambah Transaksi, dan Edit Anggaran juga kembali bisa dibuka.
-- Semua ikon tong sampah sekarang selalu berwarna merah di seluruh aplikasi.
-- Semua fitur v0.6A.3 tetap dipertahankan, termasuk card/detail Dompet-Investasi-Aset dan koreksi saldo.
-- Tidak ada perubahan database/RPC baru. Tidak perlu SQL baru.
+Akar masalah:
+- Helper `numericInput()` tidak sengaja terhapus saat merge v0.6A.3.
+- Semua modal yang membutuhkan input nominal gagal dirender.
+
+Yang diperbaiki:
+- EDIT ANGGARAN kembali bisa dibuka.
+- CHECKOUT barang kembali bisa dibuka.
+- TAMBAH PENGELUARAN / PEMASUKAN / TRANSFER kembali bisa dibuka.
+- TAMBAH DOMPET / INVESTASI / ASET kembali bisa dibuka.
+- EDIT DOMPET / INVESTASI / ASET kembali bisa dibuka.
+- Tombol EDIT/HAPUS pada detail DOMPET / INVESTASI / ASET dibuat compact.
+- Semua ikon tong sampah dibuat merah, termasuk hapus item LIST BELANJAAN.
+- Fitur v0.6A.3 tetap dipertahankan.
+
+Tidak ada perubahan database baru.
+Tidak perlu menjalankan SQL lagi jika patch v0.6A.3 sudah pernah dijalankan.
+File SQL sengaja tidak disertakan dalam hotfix ini agar tidak membingungkan.
