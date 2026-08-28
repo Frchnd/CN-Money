@@ -1,21 +1,29 @@
-# CN MONEY v0.6A.4 SAFE — VISUAL PRECISION POLISH
+# CN MONEY v0.6B.1 SAFE — SHOPPING INTELLIGENCE
 
-Visual-only refinement based on v0.6A.3.2 HOTFIX.
+Fokus: klasifikasi KATEGORI + PRIORITAS barang.
 
-Perubahan:
-- Seluruh judul, label, keterangan, metadata UI, tombol, picker, dan helper copy ditampilkan CAPSLOCK.
-- Letter spacing ditambah tipis agar teks tidak terlalu rapat.
-- Data tidak diubah di database; uppercase hanya tampilan.
-- Vertical rhythm judul/subjudul/field/card/modal dirapikan.
-- Ukuran dan optical alignment ikon distandarkan.
-- Tombol Edit/Hapus/Undo dan ikon lain dipusatkan secara presisi.
-- Main navigation dan sub-tab dirapikan alignment-nya.
-- Transaction rows dirapikan: ikon, nama, metadata, nominal, dan actions satu sumbu visual.
-- LIST BELANJAAN dan DATA BARANG dirapikan grid dan spacing-nya.
-- Card DOMPET / INVESTASI / ASET dirapikan.
-- Picker CN MONEY dirapikan: title, close button, option, checkmark, calendar.
-- SETTINGS dirapikan alignment toggle dan teks.
-- Receipt dirapikan tanpa menghilangkan karakter font thermal.
+Yang berubah:
+- Barang baru tetap diklasifikasikan otomatis ke kategori belanja.
+- Ditambahkan prioritas otomatis: PRIMER / SEKUNDER / PELENGKAP.
+- Hasil otomatis tetap bisa diedit dari ikon pensil / detail DATA BARANG.
+- Koreksi kategori dan prioritas disimpan sebagai profil barang dan dipakai lagi di perangkat household.
+- LIST BELANJAAN menampilkan chip kategori + prioritas yang compact.
+- DATA BARANG menampilkan chip kategori + prioritas + UOM.
+- Detail DATA BARANG menampilkan PRIORITAS di ringkasan.
+- Modal edit barang berubah menjadi PROFIL BARANG: KATEGORI, PRIORITAS, SATUAN.
+- LAINNYA tetap selalu berada paling akhir.
+- Tidak ada AI/API berbayar. Klasifikasi dasar berjalan rule-based dan offline-friendly.
+- Startup, saldo, transaksi, checkout RPC, wallet, investasi, aset, receipt, realtime, sound, dan budget tidak diubah.
 
-Tidak ada SQL baru.
-Tidak ada perubahan pada Supabase, transaksi, checkout, realtime, startup, budget, atau sound.
+SQL:
+- Jalankan `SUPABASE-v06B1-SHOPPING-PRIORITY.sql` SEKALI sebelum deploy.
+- SQL hanya menambah kolom `priority` pada `shopping_item_profiles` dan RPC aman untuk menyimpan koreksi prioritas.
+- SQL tidak menghapus data lama.
+
+Tes utama:
+1. Tambah `Telur` -> harus otomatis TELUR + PRIMER.
+2. Tambah `Tahu` -> PROTEIN + PRIMER.
+3. Tambah `Keripik` -> SNACK & CAMILAN + SEKUNDER.
+4. Tambah `Spatula` -> PERLENGKAPAN DAPUR + PELENGKAP.
+5. Edit prioritas satu barang, simpan, tutup/buka kembali aplikasi -> koreksi harus tetap.
+6. Cek perangkat household kedua -> koreksi harus ikut setelah sync.
