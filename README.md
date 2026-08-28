@@ -1,16 +1,15 @@
-# CN MONEY v1.8.1
+# CN MONEY v1.9.0
 
-Household notification stability patch.
+Backup / Restore + Release Audit.
 
-Perubahan:
-- Subscription push otomatis diperiksa ulang saat aplikasi dibuka.
-- Subscription push otomatis diperbaiki setelah koneksi kembali online.
-- Sync subscription diberi lock + throttle agar tidak request berulang.
-- Jika permission Android/Chrome dicabut dari luar aplikasi, status NOTIFIKASI otomatis kembali OFF.
-- Toggle NOTIFIKASI membaca status permission aktual.
-- Service worker push diminta update tanpa cache lama.
-- Tidak mengubah aturan notifikasi: hanya PEMASUKAN, PENGELUARAN, dan barang baru LIST BELANJAAN.
-- TRANSFER dan CHECKOUT tetap tanpa notifikasi.
+- BACKUP sekarang mengambil snapshot penuh langsung dari Supabase, bukan hanya data yang sedang tampil di layar.
+- Format tetap .cnmoney.
+- RESTORE validasi file + Household sebelum perubahan data.
+- Preview jumlah Dompet / Transaksi / Investasi / Aset / Belanja.
+- Restore hanya untuk Household yang sama.
+- Checkpoint server otomatis dibuat sebelum restore.
+- BATALKAN RESTORE tersedia setelah restore.
+- Push subscriptions / secrets / device settings tidak ikut ditimpa.
+- Empty-state emoji lama diganti outline icon yang konsisten.
 
-Tidak ada SQL baru.
-Tidak perlu ubah Edge Function atau Secrets.
+SQL v1.9.0 wajib dijalankan sekali sebelum fitur Backup/Restore dipakai.
