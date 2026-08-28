@@ -1,15 +1,14 @@
-# CN MONEY v1.62.4
+# CN MONEY v1.7.0
 
-Patch UI kecil dari v1.62.3.
+Tahap 1 dari 2 penyempurnaan KEKAYAAN.
 
-Perubahan:
-- Helper text di INVESTASI dan ASET dihapus.
-- Helper text TAMBAH INVESTASI dan TAMBAH ASET dihapus.
-- "NILAI / MODAL SAAT DICATAT" -> "NILAI AWAL".
-- Keterangan emas pada form Investasi/Aset dihapus.
-- Keterangan kecil pada pilihan PENGELUARAN / PEMASUKAN / TRANSFER dihapus.
-- DETAIL ANGGARAN dibuat sekitar 68% tinggi layar dan scroll di dalam modal.
-- AKTIVITAS TERBARU dipindah ke atas INSIGHT; INSIGHT sekarang berada paling bawah Dashboard.
+- Investasi: DIVIDEN / KUPON / BUNGA.
+- Pendapatan investasi masuk ke Dompet dan dihitung sebagai pemasukan nyata.
+- Detail investasi: MODAL, GAIN/LOSS, PENDAPATAN, TOTAL RETURN, RETURN %.
+- Riwayat pendapatan investasi di detail investasi.
+- Pendapatan investasi ikut muncul di HISTORY.
+- Hapus pendapatan otomatis membalik saldo Dompet.
+- Aset: perubahan nilai Rupiah + persentase.
 
-Tidak ada SQL baru.
-Tidak ada perubahan engine transaksi, saldo, checkout, realtime, startup, Supabase, atau sound.
+Jalankan sekali:
+SUPABASE-v1.7.0-INVESTMENT-INCOME.sql
