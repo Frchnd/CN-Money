@@ -1,29 +1,20 @@
-# CN MONEY v0.6B.1 SAFE — SHOPPING INTELLIGENCE
+# CN MONEY v0.6B.1.1 SAFE — Shopping Intelligence Patch
 
-Fokus: klasifikasi KATEGORI + PRIORITAS barang.
+Patch lanjutan dari v0.6B.1 SAFE.
 
-Yang berubah:
-- Barang baru tetap diklasifikasikan otomatis ke kategori belanja.
-- Ditambahkan prioritas otomatis: PRIMER / SEKUNDER / PELENGKAP.
-- Hasil otomatis tetap bisa diedit dari ikon pensil / detail DATA BARANG.
-- Koreksi kategori dan prioritas disimpan sebagai profil barang dan dipakai lagi di perangkat household.
-- LIST BELANJAAN menampilkan chip kategori + prioritas yang compact.
-- DATA BARANG menampilkan chip kategori + prioritas + UOM.
-- Detail DATA BARANG menampilkan PRIORITAS di ringkasan.
-- Modal edit barang berubah menjadi PROFIL BARANG: KATEGORI, PRIORITAS, SATUAN.
-- LAINNYA tetap selalu berada paling akhir.
-- Tidak ada AI/API berbayar. Klasifikasi dasar berjalan rule-based dan offline-friendly.
-- Startup, saldo, transaksi, checkout RPC, wallet, investasi, aset, receipt, realtime, sound, dan budget tidak diubah.
+Perubahan:
+- PRIORITAS di PROFIL BARANG tidak lagi pakai dropdown.
+- PRIMER / SEKUNDER / PELENGKAP sekarang bisa langsung di-tap.
+- Tombol prioritas aktif diberi state visual yang jelas.
+- Keterangan kecil di bawah PRIMER / SEKUNDER / PELENGKAP ditampilkan huruf kecil.
+- SATUAN di LIST BELANJAAN disembunyikan agar card lebih bersih.
+- Helper text yang tidak penting dibersihkan dari:
+  - DATA BARANG kosong
+  - LIST BELANJAAN kosong
+  - RECEIPT kosong
+- Empty state DOMPET / INVESTASI / ASET disederhanakan tanpa kalimat tambahan.
+- Empty state HISTORY transaksi tetap ada, tapi teks
+  "Ubah filter atau periode." tidak dipaksa CAPSLOCK.
 
-SQL:
-- Jalankan `SUPABASE-v06B1-SHOPPING-PRIORITY.sql` SEKALI sebelum deploy.
-- SQL hanya menambah kolom `priority` pada `shopping_item_profiles` dan RPC aman untuk menyimpan koreksi prioritas.
-- SQL tidak menghapus data lama.
-
-Tes utama:
-1. Tambah `Telur` -> harus otomatis TELUR + PRIMER.
-2. Tambah `Tahu` -> PROTEIN + PRIMER.
-3. Tambah `Keripik` -> SNACK & CAMILAN + SEKUNDER.
-4. Tambah `Spatula` -> PERLENGKAPAN DAPUR + PELENGKAP.
-5. Edit prioritas satu barang, simpan, tutup/buka kembali aplikasi -> koreksi harus tetap.
-6. Cek perangkat household kedua -> koreksi harus ikut setelah sync.
+Tidak ada SQL baru.
+Tidak ada perubahan engine startup, checkout, budget, transaksi, sound, Supabase, atau realtime.
