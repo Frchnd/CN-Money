@@ -1,14 +1,14 @@
-# CN MONEY v1.7.0
+# CN MONEY v1.7.1
 
-Tahap 1 dari 2 penyempurnaan KEKAYAAN.
+- Auto pendapatan: Saham→Dividen, Obligasi→Kupon, Deposito→Bunga,
+  Reksadana→Distribusi, Crypto→Reward, Lainnya→Pendapatan.
+- Emas tidak punya input pendapatan rutin; return dari perubahan nilai.
+- Tambah Pendapatan tidak perlu memilih tipe return.
+- Dompet pendapatan terakhir diingat.
+- Chart KOMPOSISI ASET: Dompet / Investasi / Aset.
+- Final polish KEKAYAAN.
 
-- Investasi: DIVIDEN / KUPON / BUNGA.
-- Pendapatan investasi masuk ke Dompet dan dihitung sebagai pemasukan nyata.
-- Detail investasi: MODAL, GAIN/LOSS, PENDAPATAN, TOTAL RETURN, RETURN %.
-- Riwayat pendapatan investasi di detail investasi.
-- Pendapatan investasi ikut muncul di HISTORY.
-- Hapus pendapatan otomatis membalik saldo Dompet.
-- Aset: perubahan nilai Rupiah + persentase.
+SQL wajib sekali:
+SUPABASE-v1.7.1-AUTO-INVESTMENT-INCOME.sql
 
-Jalankan sekali:
-SUPABASE-v1.7.0-INVESTMENT-INCOME.sql
+SQL aman dijalankan walau patch v1.7.0 sudah pernah dijalankan.
