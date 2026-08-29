@@ -1,21 +1,26 @@
 {
+  "id": "/",
   "name": "CN MONEY",
   "short_name": "CN MONEY",
+  "description": "Keuangan rumah tangga bersama: dashboard, belanja, history, dompet, investasi, dan aset.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#eef2f7",
   "theme_color": "#0f172a",
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
-  ],
-  "description": "Keuangan rumah tangga bersama: dashboard, belanja, history, dompet, investasi, dan aset."
+  ]
 }
