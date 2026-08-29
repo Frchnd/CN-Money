@@ -1,35 +1,24 @@
-# CN MONEY v2.0.0
+# CN MONEY v2.1.0
 
-FINAL RELEASE.
+Settings + Smart Shopping polish.
 
-Sudah mencakup:
-- Dashboard, Budget, Insight, Activity
-- List Belanjaan, Data Barang, Receipt
-- History finansial
-- Dompet, Investasi, Aset, Total Aset
-- Pendapatan investasi otomatis
-- Household realtime
-- Household push notifications
-- Offline cache yang aman
-- Backup / Restore + checkpoint + rollback
-- Android Back navigation
-- Light / Dark + sound
+Perubahan:
+- HOUSEHOLD + ONLINE/OFFLINE dipindah dari header ke PENGATURAN.
+- GUIDE CN MONEY ditambahkan ke PENGATURAN.
+- GUIDE menjelaskan Dashboard, Belanja, Smart Learning, Data Barang, Receipt, Kekayaan, Backup/Restore, dan Notifikasi.
+- Subtitle "Semua arus uang bersama" di HISTORY dihapus.
+- Barang SUDAH DIBELI hanya tampil maksimal 24 jam di LIST BELANJAAN.
+- Setelah 24 jam barang hanya disembunyikan dari List; Receipt/History tetap aman.
+- Item tes lama otomatis tidak tampil lagi karena sudah lewat 24 jam.
+- RESTORE TERAKHIR / BATALKAN hanya muncul setelah Restore benar-benar dilakukan pada v2.1.0+, bukan karena marker tes versi lama.
 
-Final audit v2.0.0:
-- Paket deploy sekarang self-contained.
-- Icon dan sound approved ikut di ZIP.
-- Main service worker tidak cache data Supabase.
-- Restore rollback marker dibersihkan setelah sukses.
-- Android Back dari preview Restore kembali ke Settings.
-- Backup file menandai app_version 2.0.0.
-- Service worker update tidak memakai cache lama.
+SMART LEARNING SAAT INI:
+- Koreksi Kategori/Prioritas/UOM disimpan sebagai profil barang di Supabase.
+- Profil tersinkron antar perangkat Household.
+- Harga, toko, UOM, dan dompet terakhir dipelajari dari riwayat pembelian.
+- Barang baru memakai rule internal.
+- Tidak ada AI/search internet background.
 
 Tidak ada SQL baru.
 Tidak perlu ubah Edge Function.
 Tidak perlu ubah Push Secrets.
-
-Receipt PDF thermal 80mm:
-- EXPORT PDF tersedia di detail RECEIPT.
-- Lebar PDF 80mm, tinggi otomatis mengikuti panjang nota.
-- Toko, tanggal, dompet, item, qty/UOM, harga satuan, subtotal, total.
-- Dibuat lokal di perangkat tanpa layanan PDF eksternal.
