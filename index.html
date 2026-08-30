@@ -2256,7 +2256,7 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.2';
+const CN_MONEY_VERSION='2.4.3';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -2675,10 +2675,51 @@ let shoppingAutocorrectPromise=null;
 function shoppingAutocorrectKey(value){
   return String(value||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('id-ID');
 }
+const SHOP_AUTOCORRECT_EXPLICIT_PREFERENCES={
+  'sampo':'Shampoo',
+  'shampo':'Shampoo',
+  'sampoo':'Shampoo',
+  'smpo':'Shampoo'
+};
+function shoppingAutocorrectWords(value){
+  return shoppingAutocorrectKey(value).split(/[\s\-_/]+/).filter(Boolean);
+}
+function shoppingSingleTokenIsCatalogVocabulary(key){
+  if(!key||key.includes(' '))return false;
+  const hasWord=value=>shoppingAutocorrectWords(value).includes(key);
+  for(const item of (state.catalog?.items||[])){
+    if(!catalogItemVisible(item))continue;
+    if(hasWord(item.canonical_name)||hasWord(item.category_name)||hasWord(item.subcategory_name))return true;
+  }
+  for(const brand of (state.catalog?.brands||[])){
+    if(!catalogBrandVisible(brand))continue;
+    if(hasWord(brand.name))return true;
+    if((Array.isArray(brand.aliases)?brand.aliases:[]).some(hasWord))return true;
+  }
+  return false;
+}
+function shoppingAutocorrectMappingAllowed(key,mapped){
+  const targetKey=shoppingAutocorrectKey(mapped);
+  if(!key||!targetKey)return false;
+  if(targetKey===key)return true;
+
+  // Explicit product-language preference chosen for CN MONEY.
+  const preferred=SHOP_AUTOCORRECT_EXPLICIT_PREFERENCES[key];
+  if(preferred)return shoppingAutocorrectKey(preferred)===targetKey;
+
+  // Never rewrite very short standalone input into a different product.
+  if(!key.includes(' ')&&key.length<=3)return false;
+
+  // If a standalone word already exists inside the active catalog vocabulary,
+  // treat it as intentional input instead of a typo (e.g. AYAM, SAPI).
+  if(shoppingSingleTokenIsCatalogVocabulary(key))return false;
+
+  return true;
+}
 function loadShoppingAutocorrect(){
   if(shoppingAutocorrectData.ready)return Promise.resolve(shoppingAutocorrectData);
   if(shoppingAutocorrectPromise)return shoppingAutocorrectPromise;
-  shoppingAutocorrectPromise=fetch('/data/autocorrect-v242.json',{cache:'force-cache'})
+  shoppingAutocorrectPromise=fetch('/data/autocorrect-v243.json',{cache:'force-cache'})
     .then(r=>{if(!r.ok)throw new Error('Autocorrect data unavailable');return r.json()})
     .then(data=>{
       shoppingAutocorrectData={
@@ -2764,7 +2805,7 @@ function resolveShoppingInput(raw){
 
   // 5. Conservative exact whole-input mapping.
   const mapped=shoppingAutocorrectData.map?.[key];
-  if(mapped){
+  if(mapped&&shoppingAutocorrectMappingAllowed(key,mapped)){
     const target=exactVisibleCatalogItem(mapped);
     if(target){
       const name=String(target.canonical_name||mapped);

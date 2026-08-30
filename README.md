@@ -1,37 +1,28 @@
-CN MONEY v2.4.2 — AUDIT AUTOCORRECT
+CN MONEY v2.4.3 — AUTOCORRECT RUNTIME GUARD
 
-Kebijakan baru:
-1. Autocorrect otomatis dipakai untuk TYPO yang jelas.
-2. MANUAL synonym / translation / istilah alternatif tidak otomatis diubah.
-3. Nama barang/master valid dan brand tetap dilindungi.
-4. Household rename/alias tetap prioritas tertinggi.
-5. Input ambigu tetap meminta pilihan.
-6. Preferensi canonical eksplisit:
+Fokus update:
+1. Dataset audit v2.4.2 tetap dipakai sebagai dasar.
+2. Ditambah runtime guard supaya mapping buruk tidak langsung dipercaya jika database autocorrect berubah di masa depan.
+3. Input satu kata yang sudah merupakan kosakata valid di katalog aktif dianggap disengaja, bukan typo.
+4. Input satu kata <= 3 karakter tidak boleh otomatis diubah menjadi produk lain.
+5. Household rename/alias, exact master item, brand, dan ambiguity tetap memiliki prioritas lebih tinggi.
+6. Preferensi canonical eksplisit tetap dipertahankan:
    SAMPO / SHAMPO / SAMPOO / SMPO -> SHAMPOO
 
-Keluarga canonical:
-- Shampoo
-- Shampoo Bayi
-- Shampoo Sachet
-- Shampoo Hewan
-
-Contoh yang TIDAK lagi dipaksa otomatis:
-- conditioner -> Kondisioner
-- tissue -> Tisu
-- butter -> Mentega
-- odol -> Pasta Gigi
-- obat maag -> Antasida
-- cling wrap -> Plastic Wrap
-
-Safety:
+Regression safety:
+- shampoo -> Shampoo: OK
+- shampo -> Shampoo: OK
+- sampo -> Shampoo: OK
+- sampoo -> Shampoo: OK
+- smpo -> Shampoo: OK
+- conditioner -> tetap Conditioner: OK (bukan autocorrect otomatis)
+- apa -> api: BLOK
+- ada -> dada: BLOK
 - ayam -> bayam: BLOK
 - sapi -> sapu: BLOK
 - sapo: PILIH SHAMPOO / SAPU
 
-Source autocorrect: 35823
-Mapping otomatis aman: 25071
-Mapping diblok/filter: 10751
-
-Supabase:
-Jalankan SUPABASE-v2.4.2-AUDIT-CANONICAL.sql sekali,
-lalu hasil cek harus menampilkan nama keluarga SHAMPOO di atas.
+Catatan:
+- Guard katalog hanya memblok perubahan untuk input SATU kata yang memang sudah valid di vocabulary katalog.
+- Input multi-kata tetap boleh menggunakan mapping typo yang sudah diaudit, sehingga typo seperti nama barang + kata kedua yang salah tetap dapat dikoreksi.
+- Tidak ada perubahan schema / SQL untuk v2.4.3.

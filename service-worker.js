@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.4.2-shell';
+const CACHE='cn-money-v2.4.3-shell';
 const CORE=[
   '/',
   '/index.html',
@@ -8,7 +8,7 @@ const CORE=[
   '/sounds/shop-click-v04g.wav',
   '/sounds/cash-register-v04f.wav',
   '/sounds/delete-undo-v239.wav',
-  '/data/autocorrect-v242.json'
+  '/data/autocorrect-v243.json'
 ];
 
 self.addEventListener('install',event=>{

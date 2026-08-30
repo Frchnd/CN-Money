@@ -1,26 +1,32 @@
-CN MONEY v2.0.0 — FINAL SMOKE TEST
+CN MONEY v2.4.3 — RELEASE / REGRESSION CHECKLIST
 
+CORE
 1. Startup online.
 2. Tutup/buka app.
 3. Offline membuka cache terakhir.
 4. Online kembali dan sync pulih.
-5. Pemasukan.
-6. Pengeluaran.
-7. Transfer.
-8. Tambah item List Belanjaan.
-9. Quick Checkout.
-10. Undo / History.
-11. Dompet.
-12. Investasi + pendapatan investasi.
-13. Aset.
-14. Notifikasi dua arah antar HP.
-15. Backup .cnmoney.
-16. Restore + preview.
-17. Batalkan Restore.
-18. Android Back.
-19. Light / Dark.
-20. Sound click + cash register.
+5. Input cepat List Belanjaan: Enter menambah item tanpa menutup keyboard.
+6. Search Panduan Kategori: keyboard tidak buka/tutup tiap karakter.
+7. Delete + Undo: SFX berjalan pada semua flow yang sudah didukung.
 
-Tidak ada SQL v2.0.0.
+AUTOCORRECT
+8. shampoo -> Shampoo.
+9. shampo -> Shampoo.
+10. sampo -> Shampoo.
+11. sampoo -> Shampoo.
+12. smpo -> Shampoo.
+13. conditioner tetap Conditioner (tidak dipaksa jadi Kondisioner).
+14. apa tidak berubah jadi Api.
+15. ada tidak berubah jadi Dada.
+16. ayam tidak berubah jadi Bayam.
+17. sapi tidak berubah jadi Sapu.
+18. sapo memunculkan pilihan Shampoo / Sapu.
+19. Brand valid tidak dikoreksi sebagai typo.
+20. Household rename/alias tetap menang atas autocorrect.
 
-21. Export PDF Receipt 80mm dan buka hasil PDF.
+VERSION / CACHE
+21. Versi aplikasi = 2.4.3.
+22. Service worker cache = cn-money-v2.4.3-shell.
+23. Dataset runtime = /data/autocorrect-v243.json.
+
+Tidak ada SQL v2.4.3.
