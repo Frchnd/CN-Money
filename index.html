@@ -1600,6 +1600,98 @@
       text-transform:none!important;
     }
 
+
+    /* CN MONEY v2.2.1 — List / Data / History / Wealth polish */
+
+    /* Shopping top tabs */
+    .shop-tabs-three .subtab{
+      font-size:11.5px!important;
+      font-weight:1000!important;
+      letter-spacing:.025em!important;
+    }
+
+    /* LIST: smaller name + perfectly symmetric horizontal actions */
+    .clean-list-item .shop-name{
+      font-size:14px!important;
+      line-height:1.28!important;
+    }
+    .clean-list-item .shop-side{
+      flex-direction:row!important;
+      align-items:center!important;
+      justify-content:flex-end!important;
+      gap:8px!important;
+    }
+    .clean-list-item .shop-side .icon-action{
+      width:40px!important;
+      height:40px!important;
+      min-width:40px!important;
+      min-height:40px!important;
+      padding:0!important;
+      border-radius:13px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+    }
+    .clean-list-item .shop-side .icon-action svg{
+      width:17px!important;
+      height:17px!important;
+    }
+
+    /* HISTORY top controls: Period + grouping side by side */
+    .history-head{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:2px;
+      margin-bottom:10px;
+    }
+    .history-topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .history-top-controls{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:8px;
+      width:100%;
+    }
+    .history-top-controls .month-trigger,
+    .history-top-controls .picker-trigger{
+      width:100%!important;
+      max-width:none!important;
+      min-height:42px!important;
+      height:42px!important;
+      padding:0 10px!important;
+      border-radius:13px!important;
+      font-size:10.5px!important;
+      font-weight:950!important;
+      text-align:center!important;
+    }
+    .history-top-controls .picker-trigger .picker-value{
+      width:100%;
+      text-align:center;
+    }
+
+    /* DATA filter chips */
+    .data-filter-chip{
+      font-size:9.5px!important;
+      padding-left:13px!important;
+      padding-right:13px!important;
+    }
+
+    /* Wealth cards stay tappable without DETAIL text */
+    .entity-card-side{
+      justify-content:center;
+    }
+
+    @media(max-width:350px){
+      .shop-tabs-three .subtab{font-size:10.5px!important}
+      .clean-list-item .shop-name{font-size:13.5px!important}
+      .history-top-controls .month-trigger,
+      .history-top-controls .picker-trigger{font-size:10px!important}
+    }
+
 </style>
 </head>
 <body>
@@ -1613,7 +1705,7 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.2.0';
+const CN_MONEY_VERSION='2.2.1';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',deviceNames:{},modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -1760,6 +1852,36 @@ const ITEM_WORD_ALIASES={sampo:'shampoo',shampo:'shampoo',syabun:'sabun',sabunh:
 function normalizeItemName(raw){const cleaned=String(raw||'').trim().replace(/\s+/g,' ');if(!cleaned)return'';const fixed=cleaned.split(/(\s+|[-/])/).map(part=>{if(/^\s+$|^[-/]$/.test(part))return part;const low=part.toLowerCase();return ITEM_WORD_ALIASES[low]||low}).join('');return titleCaseWords(fixed)}
 function normalizeStoreName(raw){return titleCaseWords(raw)}
 function normalizeUom(raw){const low=String(raw||'').trim().toLowerCase().replace(/\s+/g,' ');const map={pcs:'Pcs',pc:'Pcs',piece:'Pcs',pieces:'Pcs',kg:'Kg',kilogram:'Kg',g:'Gram',gr:'Gram',gram:'Gram',l:'L',liter:'L',litre:'L',ml:'Ml',mililiter:'Ml',pack:'Pack',pak:'Pack',bungkus:'Bungkus',botol:'Botol',kaleng:'Kaleng',sachet:'Sachet',saset:'Sachet',box:'Box',kotak:'Kotak',lusin:'Lusin',ikat:'Ikat',roll:'Roll',rol:'Roll',renteng:'Renteng'};return map[low]||titleCaseWords(low||'Pcs')}
+function shoppingBroadCategoryName(categoryName){
+  const cat=String(categoryName||'Lainnya').trim();
+  const food=new Set([
+    'Makanan Pokok','Makanan Kaleng & Instan','Daging & Seafood','Telur','Protein',
+    'Sayur','Buah','Susu & Produk Olahan','Bahan Baking & Dessert',
+    'Bumbu & Bahan Masak','Minuman','Snack & Camilan','Frozen Food','Roti & Bakery'
+  ]);
+  const home=new Set([
+    'Laundry','Kebutuhan Kamar Mandi','Kebersihan Rumah','Penyimpanan & Plastik',
+    'Tisu & Produk Kertas','Perlengkapan Dapur','Perlengkapan Rumah'
+  ]);
+  const personal=new Set(['Perawatan Diri','Kesehatan & Obat']);
+  const family=new Set(['Bayi & Anak','Hewan Peliharaan']);
+  const utility=new Set(['Alat Tulis & Sekolah','Elektronik & Baterai']);
+  if(food.has(cat))return'MAKANAN & MINUMAN';
+  if(home.has(cat))return'RUMAH & KEBERSIHAN';
+  if(personal.has(cat))return'PERAWATAN & KESEHATAN';
+  if(family.has(cat))return'KELUARGA & HEWAN';
+  if(utility.has(cat))return'KEBUTUHAN LAIN';
+  return'LAINNYA';
+}
+const SHOPPING_BROAD_CATEGORY_ORDER=[
+  'MAKANAN & MINUMAN',
+  'RUMAH & KEBERSIHAN',
+  'PERAWATAN & KESEHATAN',
+  'KELUARGA & HEWAN',
+  'KEBUTUHAN LAIN',
+  'LAINNYA'
+];
+
 function shoppingCategoryOrder(){return [...state.shoppingCategories].sort((a,b)=>{if(a.name==='Lainnya')return 1;if(b.name==='Lainnya')return-1;return Number(a.sort_order||0)-Number(b.sort_order||0)||a.name.localeCompare(b.name)})}
 function inferShoppingCategoryName(raw){const s=String(raw||'').toLowerCase();if(/beras|nasi|gula|tepung|mie|mi instan|oat|sereal/.test(s))return'Makanan Pokok';if(/sarden|kornet|kaleng|makanan instan|sup instan/.test(s))return'Makanan Kaleng & Instan';if(/ayam|sapi|daging|ikan|udang|cumi|seafood/.test(s))return'Daging & Seafood';if(/telur/.test(s))return'Telur';if(/tahu|tempe|tofu|kacang|edamame/.test(s))return'Protein';if(/sayur|bayam|kangkung|wortel|brokoli|kol|cabai|tomat|bawang/.test(s))return'Sayur';if(/buah|apel|pisang|jeruk|mangga|anggur|semangka/.test(s))return'Buah';if(/susu|keju|yogurt|mentega|butter/.test(s))return'Susu & Produk Olahan';if(/ragi|vanili|baking powder|soda kue|maizena|gelatin|cokelat bubuk/.test(s))return'Bahan Baking & Dessert';if(/garam|merica|lada|saus|kecap|bumbu|santan|minyak goreng/.test(s))return'Bumbu & Bahan Masak';if(/kopi|teh|air mineral|soda|sirup|jus|minuman/.test(s))return'Minuman';if(/snack|camilan|keripik|biskuit|cokelat|permen/.test(s))return'Snack & Camilan';if(/frozen|nugget|sosis|bakso/.test(s))return'Frozen Food';if(/roti|bakery|donat|kue/.test(s))return'Roti & Bakery';if(/deterjen|rinso|pewangi|laundry/.test(s))return'Laundry';if(/sikat wc|pembersih toilet|pewangi toilet|keset kamar mandi/.test(s))return'Kebutuhan Kamar Mandi';if(/sabun cuci|pel|pembersih|karbol|spons/.test(s))return'Kebersihan Rumah';if(/shampoo|sabun mandi|pasta gigi|deodorant|skincare/.test(s))return'Perawatan Diri';if(/obat|vitamin|masker|plester/.test(s))return'Kesehatan & Obat';if(/popok|diaper|bayi|susu formula/.test(s))return'Bayi & Anak';if(/kucing|anjing|pet|pakan/.test(s))return'Hewan Peliharaan';if(/pulpen|pensil|buku tulis|penghapus|spidol|alat tulis/.test(s))return'Alat Tulis & Sekolah';if(/baterai|charger|kabel|bohlam|lampu|adapter/.test(s))return'Elektronik & Baterai';if(/plastik|ziplock|cling wrap|aluminium foil|wadah|container/.test(s))return'Penyimpanan & Plastik';if(/tisu|toilet paper|kertas dapur/.test(s))return'Tisu & Produk Kertas';if(/panci|wajan|spatula|pisau dapur/.test(s))return'Perlengkapan Dapur';if(/sapu|ember|gantungan|keset|rak|hanger/.test(s))return'Perlengkapan Rumah';return'Lainnya'}
 const SHOPPING_PRIORITIES=['PRIMER','SEKUNDER','PELENGKAP'];
@@ -1813,14 +1935,14 @@ function scheduleShoppingCompletedExpiry(items){
 }
 
 function renderShopping(){if(state.shopTab==='data')return renderShopData();if(state.shopTab==='receipt')return renderShopReceipt();state.shopTab='checkout';return renderShopCheckout()}
-function shopTabs(){return`<div class="subtabs shop-tabs-three"><button class="subtab ${state.shopTab==='checkout'?'active':''}" data-shoptab="checkout">LIST</button><button class="subtab ${state.shopTab==='data'?'active':''}" data-shoptab="data">DATA BARANG</button><button class="subtab ${state.shopTab==='receipt'?'active':''}" data-shoptab="receipt">RECEIPT</button></div>`}
+function shopTabs(){return`<div class="subtabs shop-tabs-three"><button class="subtab ${state.shopTab==='checkout'?'active':''}" data-shoptab="checkout">LIST</button><button class="subtab ${state.shopTab==='data'?'active':''}" data-shoptab="data">DATA</button><button class="subtab ${state.shopTab==='receipt'?'active':''}" data-shoptab="receipt">RECEIPT</button></div>`}
 function renderShopCheckout(){
   const alpha=(a,b)=>String(a?.name||'').localeCompare(String(b?.name||''),'id',{sensitivity:'base'});
   const active=state.checklist.filter(x=>!x.purchased).sort(alpha);
   const allDone=state.checklist.filter(x=>x.purchased).sort(alpha);
   const done=allDone.filter(x=>shoppingCompletedVisible(x));
   scheduleShoppingCompletedExpiry(done);
-  const activeRows=active.map(x=>`<div class="shop-item clean-list-item"><button class="shop-main shop-tap" data-checkout="${esc(x.id)}" aria-label="Checkout ${esc(x.name)}"><div class="shop-name">${esc(x.name)}</div></button><div class="shop-side"><button class="icon-action primary" data-shopcat="${esc(x.id)}" aria-label="Edit barang" title="Edit">${uiIcon('edit')}</button><button class="mini-action trash-action" data-delete-shop="${esc(x.id)}" aria-label="Hapus barang" title="Hapus">${uiIcon('trash')}</button></div></div>`).join('');
+  const activeRows=active.map(x=>`<div class="shop-item clean-list-item"><button class="shop-main shop-tap" data-checkout="${esc(x.id)}" aria-label="Checkout ${esc(x.name)}"><div class="shop-name">${esc(x.name)}</div></button><div class="shop-side"><button class="icon-action primary" data-shopcat="${esc(x.id)}" aria-label="Edit barang" title="Edit">${uiIcon('edit')}</button><button class="icon-action trash-action" data-delete-shop="${esc(x.id)}" aria-label="Hapus barang" title="Hapus">${uiIcon('trash')}</button></div></div>`).join('');
   const doneRows=done.slice(0,30).map(x=>`<div class="shop-item clean-list-item purchased"><div class="shop-main"><div class="shop-name">${esc(x.name)}</div></div><div class="shop-side">${x.shoppingSessionId?`<button class="icon-action danger" data-cancel-checkout="${esc(x.shoppingSessionId)}" aria-label="Batalkan checkout" title="Batalkan checkout">${uiIcon('undo')}</button>`:''}</div></div>`).join('');
   return`${shopTabs()}<div class="card shopping-add"><input id="shopInput" class="input" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" spellcheck="false"><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div class="section-head"><div><div class="section-title">DAFTAR BELANJA</div><div class="section-sub">${active.length} BELUM DIBELI</div></div></div>${active.length?`<div class="card shop-clean-list">${activeRows}</div>`:`<div class="card empty empty-minimal"><div class="big">${uiIcon('shopping')}</div><b>DAFTAR KOSONG</b></div>`}${done.length?`<div class="section-head"><div><div class="section-title">SUDAH DIBELI</div></div></div><div class="card shop-clean-list">${doneRows}</div>`:''}`}
 
@@ -1834,26 +1956,68 @@ function renderShopData(){
   const alpha=(a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'});
   const recent=(a,b)=>new Date(b.lastPurchased||0)-new Date(a.lastPurchased||0)||alpha(a,b);
   const mode=state.dataView||'all';
-  const filters=[['all','SEMUA'],['alpha','ABJAD'],['category','KATEGORI'],['priority','PRIORITAS'],['recent','TERAKHIR']];
+  const filters=[
+    ['all','SEMUA'],
+    ['alpha','ALPHABET'],
+    ['category','KATEGORI'],
+    ['subcategory','SUB KATEGORI'],
+    ['priority','PRIORITAS']
+  ];
   let content='';
+
   if(mode==='alpha'){
     const sorted=[...base].sort(alpha),groups={};
-    sorted.forEach(x=>{const k=(String(x.name||'#').trim()[0]||'#').toUpperCase();(groups[k]||(groups[k]=[])).push(x)});
-    content=Object.entries(groups).map(([k,v])=>`<div class="category-head">${esc(k)}</div>${renderDbFlat(v)}`).join('');
+    sorted.forEach(x=>{
+      const k=(String(x.name||'#').trim()[0]||'#').toUpperCase();
+      (groups[k]||(groups[k]=[])).push(x)
+    });
+    content=Object.entries(groups)
+      .map(([k,v])=>`<div class="category-head">${esc(k)}</div>${renderDbFlat(v)}`)
+      .join('');
   }else if(mode==='category'){
     const groups={};
-    base.forEach(x=>{const cat=shoppingCategoryFor(x.name,x.category);(groups[cat]||(groups[cat]=[])).push(x)});
+    base.forEach(x=>{
+      const sub=shoppingCategoryFor(x.name,x.category);
+      const cat=shoppingBroadCategoryName(sub);
+      (groups[cat]||(groups[cat]=[])).push(x)
+    });
+    content=SHOPPING_BROAD_CATEGORY_ORDER
+      .filter(cat=>groups[cat]?.length)
+      .map(cat=>`<div class="category-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}`)
+      .join('');
+  }else if(mode==='subcategory'){
+    const groups={};
+    base.forEach(x=>{
+      const cat=shoppingCategoryFor(x.name,x.category);
+      (groups[cat]||(groups[cat]=[])).push(x)
+    });
     const order=shoppingCategoryOrder().map(c=>c.name);
-    content=Object.keys(groups).sort((a,b)=>{const ai=order.indexOf(a),bi=order.indexOf(b);return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b)}).map(cat=>`<div class="category-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}`).join('');
+    content=Object.keys(groups)
+      .sort((a,b)=>{
+        const ai=order.indexOf(a),bi=order.indexOf(b);
+        return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'})
+      })
+      .map(cat=>`<div class="category-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}`)
+      .join('');
   }else if(mode==='priority'){
     const groups={PRIMER:[],SEKUNDER:[],PELENGKAP:[]};
-    base.forEach(x=>{const cat=shoppingCategoryFor(x.name,x.category),p=shoppingPriorityFor(x.name,x.priority,cat);(groups[p]||(groups[p]=[])).push(x)});
-    content=['PRIMER','SEKUNDER','PELENGKAP'].filter(k=>groups[k]?.length).map(k=>`<div class="category-head">${k}</div>${renderDbFlat(groups[k].sort(alpha))}`).join('');
+    base.forEach(x=>{
+      const cat=shoppingCategoryFor(x.name,x.category);
+      const p=shoppingPriorityFor(x.name,x.priority,cat);
+      (groups[p]||(groups[p]=[])).push(x)
+    });
+    content=['PRIMER','SEKUNDER','PELENGKAP']
+      .filter(k=>groups[k]?.length)
+      .map(k=>`<div class="category-head">${k}</div>${renderDbFlat(groups[k].sort(alpha))}`)
+      .join('');
   }else{
-    const sorted=[...base].sort(mode==='recent'?recent:recent);
-    content=renderDbFlat(sorted);
+    content=renderDbFlat([...base].sort(recent));
   }
-  if(!base.length)content=`<div class="card empty empty-minimal"><div class="big">${uiIcon('box')}</div><b>BELUM ADA DATA BARANG</b></div>`;
+
+  if(!base.length){
+    content=`<div class="card empty empty-minimal"><div class="big">${uiIcon('box')}</div><b>BELUM ADA DATA BARANG</b></div>`;
+  }
+
   return`${shopTabs()}<input id="dbSearch" class="input search" placeholder="Cari data barang…" autocomplete="off" autocorrect="off" spellcheck="false"><div class="data-filter-row">${filters.map(([v,l])=>`<button type="button" class="data-filter-chip ${mode===v?'active':''}" data-dbview="${v}">${l}</button>`).join('')}</div><div id="dbList">${content}</div>`
 }
 
@@ -2013,7 +2177,16 @@ function exportReceiptPdf(sessionId){
 function renderShopReceipt(){const sessions=state.shoppingSessions.filter(s=>String(s.checkout_date||'').startsWith(state.month)).sort((a,b)=>new Date(b.created_at||b.checkout_date||0)-new Date(a.created_at||a.checkout_date||0));let selected=state.receiptSessionId?state.shoppingSessions.find(s=>s.id===state.receiptSessionId):null;if(selected&&String(selected.checkout_date||'').slice(0,7)!==state.month)selected=null;const header=`${shopTabs()}<div class="section-head" style="margin-top:2px"><div><div class="section-title">Receipt</div></div>${monthTrigger()}</div>`;if(selected){const items=state.shoppingItems.filter(i=>i.session_id===selected.id);return`${header}<button class="btn btn-soft" id="receiptBack" style="margin-bottom:10px">← Semua Receipt</button><div class="card receipt-card"><div class="receipt-top"><div><div class="receipt-store">${esc(selected.store_name||'Belanja Bulanan')}</div><div class="db-meta">${dateLabel(selected.checkout_date)} · ${esc(state.wallets.find(w=>w.id===selected.wallet_id)?.name||'Dompet')}</div></div><div class="receipt-total">${rupiah(selected.total_amount)}</div></div><div class="receipt-items">${items.map(i=>`<div class="receipt-line"><span>${esc(i.item_name)} · ${i.quantity} ${esc(i.uom||'pcs')}</span><b>${rupiah(i.subtotal)}</b></div>`).join('')}</div><div class="receipt-actions"><button class="btn btn-soft receipt-export-btn" data-export-receipt="${selected.id}" aria-label="Export receipt ke PDF">${uiIcon('download')}<span>EXPORT PDF</span></button><button class="icon-action danger" data-cancel-checkout="${selected.id}" aria-label="Batalkan checkout" title="Batalkan checkout">${uiIcon('undo')}</button></div></div>`}return`${header}${sessions.length?sessions.map(s=>{const items=state.shoppingItems.filter(i=>i.session_id===s.id);return`<button class="card receipt-index-card" data-view-receipt="${s.id}" style="display:block;width:100%;text-align:left;color:inherit;border:1px solid var(--line);margin-bottom:9px"><div class="receipt-top"><div><div class="receipt-store">${esc(s.store_name||'Belanja Bulanan')}</div><div class="db-meta">${dateLabel(s.checkout_date)} · ${items.length} item</div></div><div class="receipt-total">${rupiah(s.total_amount)}</div></div></button>`}).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('receipt')}</div><b>BELUM ADA RECEIPT</b></div>`}`}
 function filteredHistory(){let list=state.transactions.filter(t=>String(t.transaction_date||'').startsWith(state.month)).sort((a,b)=>new Date(b.created_at||b.transaction_date||0)-new Date(a.created_at||a.transaction_date||0));if(state.historyFilter==='income')list=list.filter(t=>t.transaction_type==='income');if(state.historyFilter==='expense')list=list.filter(t=>t.transaction_type==='expense'&&t.source_type!=='shopping');if(state.historyFilter==='shopping')list=list.filter(t=>t.source_type==='shopping');if(state.historyFilter==='transfer')list=list.filter(t=>t.transaction_type==='transfer');return list}
 function historyGroupKey(t){if(state.historyGroup==='category')return state.categories.find(c=>c.id===t.category_id)?.name||(t.transaction_type==='transfer'?'Transfer':'Lainnya');if(state.historyGroup==='wallet')return state.wallets.find(w=>w.id===t.wallet_id)?.name||'Tanpa Dompet';return dateLabel(t.transaction_date)}
-function renderHistory(){const list=filteredHistory(),groups={};list.forEach(t=>{const k=historyGroupKey(t);(groups[k]||(groups[k]=[])).push(t)});return`<div class="section-head" style="margin-top:2px"><div><div class="section-title">HISTORY</div></div>${monthTrigger()}</div><div class="filter-row">${[['all','SEMUA'],['shopping','BELANJA'],['expense','PENGELUARAN'],['income','PEMASUKAN'],['transfer','TRANSFER']].map(([v,l])=>`<button class="chip ${state.historyFilter===v?'active':''}" data-hfilter="${v}">${l}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-bottom:8px">${choiceTrigger('historyGroup',state.historyGroup,state.historyGroup==='category'?'KATEGORI':state.historyGroup==='wallet'?'DOMPET':'TANGGAL','history-group','',true)}</div>${Object.keys(groups).length?Object.entries(groups).map(([k,v])=>`<div class="group-head">${esc(k)}</div>${renderTransactionRows(v)}`).join(''):`<div class="card empty"><div class="big">${uiIcon('receipt')}</div><b>TIDAK ADA TRANSAKSI</b><span class="no-caps">Ubah filter atau periode.</span></div>`}<button id="addTx" class="fab">+</button>`}
+function renderHistory(){
+  const list=filteredHistory(),groups={};
+  list.forEach(t=>{
+    const k=historyGroupKey(t);
+    (groups[k]||(groups[k]=[])).push(t)
+  });
+  const groupLabel=state.historyGroup==='category'?'KATEGORI':state.historyGroup==='wallet'?'DOMPET':'TANGGAL';
+  return`<div class="history-head"><div class="history-topline"><div class="section-title">HISTORY</div></div><div class="history-top-controls">${monthTrigger()}${choiceTrigger('historyGroup',state.historyGroup,groupLabel,'history-group','',false)}</div></div><div class="filter-row">${[['all','SEMUA'],['shopping','BELANJA'],['expense','PENGELUARAN'],['income','PEMASUKAN'],['transfer','TRANSFER']].map(([v,l])=>`<button class="chip ${state.historyFilter===v?'active':''}" data-hfilter="${v}">${l}</button>`).join('')}</div>${Object.keys(groups).length?Object.entries(groups).map(([k,v])=>`<div class="group-head">${esc(k)}</div>${renderTransactionRows(v)}`).join(''):`<div class="card empty"><div class="big">${uiIcon('receipt')}</div><b>TIDAK ADA TRANSAKSI</b><span class="no-caps">Ubah filter atau periode.</span></div>`}<button id="addTx" class="fab">+</button>`
+}
+
 function investmentTypeLabel(t){return({stock:'Saham',mutual_fund:'Reksadana',gold:'Emas Investasi',crypto:'Crypto',deposit:'Deposito',bond:'Obligasi',other:'Lainnya'})[t]||t}
 const investmentIncomeTypeLabel=t=>({dividend:'DIVIDEN',coupon:'KUPON',interest:'BUNGA',distribution:'DISTRIBUSI',reward:'REWARD',other:'PENDAPATAN'})[t]||'PENDAPATAN';
 function isInvestmentIncomeTx(t){return !!(t&&t.transaction_type==='income'&&t.source_type==='investment'&&t.investment_income_type)}
@@ -2025,12 +2198,12 @@ function investmentSupportsCashIncome(type){return type!=='gold'&&!!defaultInves
 function assetTypeLabel(t){return({property:'Properti',vehicle:'Kendaraan',jewelry:'Perhiasan',electronics:'Elektronik',collectible:'Koleksi',other:'Lainnya'})[t]||t}
 function wealthTabs(){return`<button class="wealth-tab ${state.wealthTab==='wallets'?'active':''}" data-wealth="wallets">DOMPET</button><button class="wealth-tab ${state.wealthTab==='investments'?'active':''}" data-wealth="investments">INVESTASI</button><button class="wealth-tab ${state.wealthTab==='assets'?'active':''}" data-wealth="assets">ASET</button>`}
 function renderWealth(){if(state.wealthTab==='wallets')return renderWallets();if(state.wealthTab==='investments')return renderInvestments();return renderAssets()}
-function renderInvestments(){const cost=state.investments.reduce((a,i)=>a+Number(i.invested_amount||0),0),value=state.investments.reduce((a,i)=>a+Number(i.current_value||0),0),gain=value-cost,income=state.investments.reduce((a,i)=>a+investmentIncomeTotal(i.id),0),totalReturn=gain+income;return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Investasi</div><div class="hero-amount">${rupiah(value)}</div><div class="hero-sub">TOTAL RETURN ${totalReturn>=0?'+ ':''}${rupiah(totalReturn)}</div></div><div class="wealth-summary investment-summary-grid"><div class="card wealth-mini"><div class="k">MODAL</div><div class="v">${rupiah(cost)}</div></div><div class="card wealth-mini"><div class="k">GAIN / LOSS</div><div class="v ${gain>=0?'gain':'loss'}">${gain>=0?'+ ':''}${rupiah(gain)}</div></div><div class="card wealth-mini"><div class="k">PENDAPATAN</div><div class="v gain">+ ${rupiah(income)}</div></div></div><div class="section-head"><div><div class="section-title">INVESTASI</div></div><button id="addInvestment" class="btn btn-primary add-only" aria-label="Tambah investasi" title="Tambah investasi">+</button></div>${state.investments.length?state.investments.map(i=>{const g=Number(i.current_value||0)-Number(i.invested_amount||0),inc=investmentIncomeTotal(i.id),ret=g+inc;return`<button type="button" class="card entity-card" data-investment-detail="${i.id}" aria-label="Buka detail investasi ${esc(i.name)}"><div class="entity-card-row"><div class="entity-card-main"><div class="entity-card-copy"><div class="entity-card-name">${esc(i.name)}</div><div class="entity-card-meta">${esc(investmentTypeLabel(i.investment_type))} · MODAL ${rupiah(i.invested_amount)}${inc?` · PENDAPATAN ${rupiah(inc)}`:''}</div></div></div><div class="entity-card-side"><div class="entity-card-value">${rupiah(i.current_value)}</div><div class="entity-card-meta ${ret>=0?'gain':'loss'}">${ret>=0?'+ ':''}${rupiah(ret)} RETURN</div><div class="entity-detail-pill">DETAIL</div></div></div></button>`}).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('trend')}</div><b>BELUM ADA INVESTASI</b></div>`}`}
+function renderInvestments(){const cost=state.investments.reduce((a,i)=>a+Number(i.invested_amount||0),0),value=state.investments.reduce((a,i)=>a+Number(i.current_value||0),0),gain=value-cost,income=state.investments.reduce((a,i)=>a+investmentIncomeTotal(i.id),0),totalReturn=gain+income;return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Investasi</div><div class="hero-amount">${rupiah(value)}</div><div class="hero-sub">TOTAL RETURN ${totalReturn>=0?'+ ':''}${rupiah(totalReturn)}</div></div><div class="wealth-summary investment-summary-grid"><div class="card wealth-mini"><div class="k">MODAL</div><div class="v">${rupiah(cost)}</div></div><div class="card wealth-mini"><div class="k">GAIN / LOSS</div><div class="v ${gain>=0?'gain':'loss'}">${gain>=0?'+ ':''}${rupiah(gain)}</div></div><div class="card wealth-mini"><div class="k">PENDAPATAN</div><div class="v gain">+ ${rupiah(income)}</div></div></div><div class="section-head"><div><div class="section-title">INVESTASI</div></div><button id="addInvestment" class="btn btn-primary add-only" aria-label="Tambah investasi" title="Tambah investasi">+</button></div>${state.investments.length?state.investments.map(i=>{const g=Number(i.current_value||0)-Number(i.invested_amount||0),inc=investmentIncomeTotal(i.id),ret=g+inc;return`<button type="button" class="card entity-card" data-investment-detail="${i.id}" aria-label="Buka detail investasi ${esc(i.name)}"><div class="entity-card-row"><div class="entity-card-main"><div class="entity-card-copy"><div class="entity-card-name">${esc(i.name)}</div><div class="entity-card-meta">${esc(investmentTypeLabel(i.investment_type))} · MODAL ${rupiah(i.invested_amount)}${inc?` · PENDAPATAN ${rupiah(inc)}`:''}</div></div></div><div class="entity-card-side"><div class="entity-card-value">${rupiah(i.current_value)}</div><div class="entity-card-meta ${ret>=0?'gain':'loss'}">${ret>=0?'+ ':''}${rupiah(ret)} RETURN</div></div></div></button>`}).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('trend')}</div><b>BELUM ADA INVESTASI</b></div>`}`}
 
-function renderAssets(){const value=state.assets.reduce((a,x)=>a+Number(x.current_value||0),0),initial=state.assets.reduce((a,x)=>a+Number(x.purchase_value||0),0),change=value-initial;return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Aset</div><div class="hero-amount">${rupiah(value)}</div><div class="hero-sub">PERUBAHAN NILAI ${change>=0?'+ ':''}${rupiah(change)}</div></div><div class="section-head"><div><div class="section-title">ASET</div></div><button id="addAsset" class="btn btn-primary add-only" aria-label="Tambah aset" title="Tambah aset">+</button></div>${state.assets.length?state.assets.map(a=>{const delta=Number(a.current_value||0)-Number(a.purchase_value||0),pct=Number(a.purchase_value||0)>0?(delta/Number(a.purchase_value))*100:0;return`<button type="button" class="card entity-card" data-asset-detail="${a.id}" aria-label="Buka detail aset ${esc(a.name)}"><div class="entity-card-row"><div class="entity-card-main"><div class="entity-card-copy"><div class="entity-card-name">${esc(a.name)}</div><div class="entity-card-meta">${esc(assetTypeLabel(a.asset_type))}${a.purchase_date?' · '+dateLabel(a.purchase_date):''}</div></div></div><div class="entity-card-side"><div class="entity-card-value">${rupiah(a.current_value)}</div><div class="entity-card-meta asset-change ${delta>=0?'gain':'loss'}">${delta>=0?'+ ':''}${rupiah(delta)}${a.purchase_value?` · ${pct>=0?'+ ':''}${pct.toFixed(1).replace('.0','')}%`:''}</div><div class="entity-detail-pill">DETAIL</div></div></div></button>`}).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('dashboard')}</div><b>BELUM ADA ASET</b></div>`}`}
+function renderAssets(){const value=state.assets.reduce((a,x)=>a+Number(x.current_value||0),0),initial=state.assets.reduce((a,x)=>a+Number(x.purchase_value||0),0),change=value-initial;return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Aset</div><div class="hero-amount">${rupiah(value)}</div><div class="hero-sub">PERUBAHAN NILAI ${change>=0?'+ ':''}${rupiah(change)}</div></div><div class="section-head"><div><div class="section-title">ASET</div></div><button id="addAsset" class="btn btn-primary add-only" aria-label="Tambah aset" title="Tambah aset">+</button></div>${state.assets.length?state.assets.map(a=>{const delta=Number(a.current_value||0)-Number(a.purchase_value||0),pct=Number(a.purchase_value||0)>0?(delta/Number(a.purchase_value))*100:0;return`<button type="button" class="card entity-card" data-asset-detail="${a.id}" aria-label="Buka detail aset ${esc(a.name)}"><div class="entity-card-row"><div class="entity-card-main"><div class="entity-card-copy"><div class="entity-card-name">${esc(a.name)}</div><div class="entity-card-meta">${esc(assetTypeLabel(a.asset_type))}${a.purchase_date?' · '+dateLabel(a.purchase_date):''}</div></div></div><div class="entity-card-side"><div class="entity-card-value">${rupiah(a.current_value)}</div><div class="entity-card-meta asset-change ${delta>=0?'gain':'loss'}">${delta>=0?'+ ':''}${rupiah(delta)}${a.purchase_value?` · ${pct>=0?'+ ':''}${pct.toFixed(1).replace('.0','')}%`:''}</div></div></div></button>`}).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('dashboard')}</div><b>BELUM ADA ASET</b></div>`}`}
 
 function wealthOverview(){const w=state.wealthSummary||{},wallet=Math.max(0,Number(w.liquid_balance||0)),investment=Math.max(0,Number(w.investment_value||0)),asset=Math.max(0,Number(w.asset_value||0)),chartTotal=wallet+investment+asset,wp=chartTotal?wallet/chartTotal*100:0,ip=chartTotal?investment/chartTotal*100:0,ap=chartTotal?asset/chartTotal*100:0,wEnd=wp,iEnd=wp+ip,chartBg=chartTotal?`conic-gradient(var(--blue) 0 ${wEnd}%,var(--primary2) ${wEnd}% ${iEnd}%,var(--amber) ${iEnd}% 100%)`:'var(--line)';return`<div class="card wealth-safe-total" style="margin-bottom:12px"><div class="stat-label">TOTAL ASET</div><div class="wealth-safe-value" style="margin-top:4px">${rupiah(w.total_wealth||0)}</div><div class="wealth-composition"><div class="wealth-composition-title">KOMPOSISI ASET</div><div class="wealth-chart-row"><div class="wealth-donut" style="--wealth-chart-bg:${chartBg}"><div class="wealth-donut-center"><b>${chartTotal?'100%':'0%'}</b><span>KOMPOSISI</span></div></div><div class="wealth-chart-legend"><div class="wealth-legend-row"><span class="wealth-legend-dot wallet"></span><span class="wealth-legend-name">DOMPET</span><span class="wealth-legend-value">${wp.toFixed(0)}%</span></div><div class="wealth-legend-row"><span class="wealth-legend-dot investment"></span><span class="wealth-legend-name">INVESTASI</span><span class="wealth-legend-value">${ip.toFixed(0)}%</span></div><div class="wealth-legend-row"><span class="wealth-legend-dot asset"></span><span class="wealth-legend-name">ASET</span><span class="wealth-legend-value">${ap.toFixed(0)}%</span></div></div></div></div></div>`}
-function renderWallets(){const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">Kas & Rekening</div><div class="hero-amount">${rupiah(total)}</div></div><div class="section-head"><div><div class="section-title">Dompet & Rekening</div></div><button id="addWallet" class="btn btn-primary add-only" aria-label="Tambah dompet" title="Tambah dompet">+</button></div>${state.wallets.length?state.wallets.map(w=>`<button type="button" class="card entity-card" data-wallet-detail="${w.id}" aria-label="Buka detail dompet ${esc(w.name)}"><div class="entity-card-row"><div class="entity-card-main"><div class="wallet-icon">${walletIcon(w.wallet_type)}</div><div class="entity-card-copy"><div class="entity-card-name">${esc(w.name)}</div><div class="entity-card-meta">${esc(walletTypeLabel(w.wallet_type))}</div></div></div><div class="entity-card-side"><div class="entity-card-value ${Number(w.balance)<0?'red':''}">${rupiah(w.balance)}</div><div class="entity-detail-pill">DETAIL</div></div></div></button>`).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('wealth')}</div><b>BELUM ADA DOMPET</b></div>`}`}
+function renderWallets(){const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);return`<div class="wealth-tabs">${wealthTabs()}</div>${wealthOverview()}<div class="hero"><div class="eyebrow">SAKU</div><div class="hero-amount">${rupiah(total)}</div></div><div class="section-head"><div><div class="section-title">SAKU</div></div><button id="addWallet" class="btn btn-primary add-only" aria-label="Tambah dompet" title="Tambah dompet">+</button></div>${state.wallets.length?state.wallets.map(w=>`<button type="button" class="card entity-card" data-wallet-detail="${w.id}" aria-label="Buka detail dompet ${esc(w.name)}"><div class="entity-card-row"><div class="entity-card-main"><div class="wallet-icon">${walletIcon(w.wallet_type)}</div><div class="entity-card-copy"><div class="entity-card-name">${esc(w.name)}</div><div class="entity-card-meta">${esc(walletTypeLabel(w.wallet_type))}</div></div></div><div class="entity-card-side"><div class="entity-card-value ${Number(w.balance)<0?'red':''}">${rupiah(w.balance)}</div></div></div></button>`).join(''):`<div class="card empty empty-minimal"><div class="big">${uiIcon('wealth')}</div><b>BELUM ADA DOMPET</b></div>`}`}
 function numericInput(id,value=''){return`<input id="${id}" class="input num-input" inputmode="numeric" pattern="[0-9.]*" value="${esc(value)}" placeholder="0" autocomplete="off">`}
 function choiceTrigger(id,value,label,kind,context='',compact=false){return`<input type="hidden" id="${id}" value="${esc(value||'')}"><button type="button" class="picker-trigger ${compact?'compact':''}" data-choice-kind="${esc(kind)}" data-choice-target="${esc(id)}" data-choice-context="${esc(context)}"><span class="picker-value">${esc(label||'PILIH')}</span></button>`}
 function dateTrigger(id,value){const v=value||today();return`<input type="hidden" id="${id}" value="${esc(v)}"><button type="button" class="picker-trigger" data-date-target="${esc(id)}"><span class="picker-value">${esc(dateLabel(v))}</span></button>`}

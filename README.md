@@ -1,37 +1,24 @@
-# CN MONEY v2.2.0
+# CN MONEY v2.2.1
 
-Shopping + History UX update.
+UI/UX polish patch.
 
-1. PROFIL BARANG:
-   - Nama barang kembali bisa diedit.
-   - Rename ikut mengubah item aktif + Data Barang.
-   - Riwayat pembelian lama tetap tertaut lewat alias; Receipt lama tidak ditulis ulang.
+- LIST edit + hapus sejajar horizontal dan simetris.
+- Font item LIST sedikit lebih kecil.
+- DATA BARANG -> DATA.
+- Ukuran tab LIST / DATA / RECEIPT diperbesar.
+- HISTORY: TANGGAL/KATEGORI/DOMPET dipindah di sebelah periode bulan-tahun, ukuran sama.
+- DATA filter:
+  - SEMUA
+  - ALPHABET
+  - KATEGORI
+  - SUB KATEGORI
+  - PRIORITAS
+- TERAKHIR dihapus.
+- KATEGORI = kelompok besar.
+- SUB KATEGORI = kategori detail yang sudah ada di profil barang.
+- Tulisan DETAIL pada card SAKU / INVESTASI / ASET dihapus; card tetap bisa ditap.
+- KAS & REKENING dan DOMPET & REKENING -> SAKU.
 
-2. VIEWPORT / BOTTOM NAV:
-   - Bottom navigation fixed ke viewport.
-   - Body tidak lagi ikut scroll di luar app.
-   - Mengurangi kasus nav turun keluar layar setelah keyboard/modal.
-
-3. MONTH PICKER:
-   - Ganti desain grid + +/- menjadi horizontal rail BULAN dan TAHUN.
-
-4. DATA BARANG:
-   - SEMUA / ABJAD / KATEGORI / PRIORITAS / TERAKHIR.
-
-5. LIST:
-   - Tab berubah dari LIST BELANJAAN -> LIST.
-   - Item aktif diurutkan alfabetis.
-
-6. CLEAN LIST:
-   - Card LIST hanya menampilkan nama + tombol edit/hapus.
-   - Kategori, prioritas, UOM, harga disembunyikan dari LIST.
-   - Data tetap ada di Profil/Data Barang.
-
-7. HISTORY FILTER:
-   - SEMUA -> BELANJA -> PENGELUARAN -> PEMASUKAN -> TRANSFER.
-
-8. HISTORY DEVICE:
-   - Tiap transaksi menampilkan DIBUAT OLEH [NAMA PERANGKAT].
-   - Membutuhkan SQL v2.2.0 sekali.
-
+Tidak ada SQL baru.
+Tetap memakai SQL History Device dari v2.2.0.
 Tidak perlu ubah Edge Function / Push Secrets.
