@@ -1,20 +1,22 @@
-# CN MONEY v2.3.0
+# CN MONEY v2.3.1
 
-MASTER DATABASE — PHASE 1
+CLEAN UI / BUG PATCH
 
-Yang aktif:
-- DATABASE di Pengaturan.
-- KATEGORI / SUB KATEGORI / MEREK / BARANG.
-- Search + checklist per data.
-- Pilihan checklist tersimpan per Household dan sync.
-- Suggestion nama barang/merek ketika mengetik LIST.
-- Suggestion tidak pernah mengganti input otomatis.
-- Semua transaksi, Checkout, Receipt, History dan saldo tetap memakai alur stabil sebelumnya.
+- Hapus spinner/panah bawaan browser pada JUMLAH checkout.
+- DATA depan sekarang mengikuti gaya LIST:
+  - hanya nama barang
+  - tanpa kategori
+  - tanpa prioritas
+  - tanpa UOM
+  - tanpa toko
+  - tanpa harga
+  - tanpa tulisan DETAIL
+  - tap item untuk membuka seluruh detail.
+- HISTORY mencegah kategori tampil dua kali jika sudah ada di judul transaksi.
+- RECEIPT tidak mengulang judul RECEIPT di bawah tab RECEIPT.
+- KEKAYAAN tidak mengulang judul SAKU / INVESTASI / ASET di hero dan list.
+- Empty state DOMPET diselaraskan menjadi SAKU.
 
-Belum aktif (sengaja dipisah untuk keamanan):
-- autocorrect otomatis
-- pemilih input ambigu
-- nama terbaru / alias learning
-- varian ukuran dan pemisahan harga per ukuran
-
-Supabase v2.3.0 harus dijalankan sebelum APP ini dideploy.
+Tidak ada SQL baru.
+Tetap memakai Supabase v2.3.0.
+Fitur autocorrect lanjutan dipindahkan ke update berikutnya agar patch ini tetap aman.
