@@ -1,15 +1,26 @@
-# CN MONEY v2.3.8
+# CN MONEY v2.3.9
 
-KEYBOARD / FOCUS FIX — REBUILT
+DELETE / UNDO SFX
 
-- LIST input tidak dirender ulang saat Enter.
-- Enter hanya memperbarui area daftar di bawah input.
-- Input LIST tetap terpasang di DOM, dikosongkan, lalu tetap fokus.
-- Realtime sync tidak full-render halaman saat input LIST aktif.
-- Input LIST memakai one-line textarea agar Enter tidak diperlakukan sebagai tombol Done.
-- Klik di luar input tetap membolehkan keyboard tertutup.
-- Search PANDUAN KATEGORI hanya memperbarui hasil, bukan modal/input.
-- Service worker mengecek update saat app dibuka.
+SFX sumber: file DELETE yang diberikan user.
+Leading silence dipotong supaya efek berbunyi langsung.
+Durasi asset aplikasi: 0.667 detik.
+
+SFX diterapkan ke aksi berhasil:
+- Hapus item LIST
+- Hapus DATA barang
+- Hapus SAKU
+- Hapus INVESTASI
+- Hapus ASET
+- Undo / batalkan transaksi
+- Batalkan checkout dari LIST / DATA / Receipt / History
+- Batalkan restore terakhir
+- Hapus data perangkat
+
+Aksi internal seperti pembersihan alias lama tidak memutar SFX.
+Tombol batal pada dialog/modal biasa juga tidak dianggap UNDO.
+
+SOUND ON/OFF di Pengaturan tetap mengontrol seluruh SFX.
 
 Tidak ada SQL baru.
 Tetap memakai Supabase v2.3.5.

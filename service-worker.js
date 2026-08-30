@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.3.8-shell';
+const CACHE='cn-money-v2.3.9-shell';
 const CORE=[
   '/',
   '/index.html',
@@ -6,7 +6,8 @@ const CORE=[
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/sounds/shop-click-v04g.wav',
-  '/sounds/cash-register-v04f.wav'
+  '/sounds/cash-register-v04f.wav',
+  '/sounds/delete-undo-v239.wav'
 ];
 
 self.addEventListener('install',event=>{
