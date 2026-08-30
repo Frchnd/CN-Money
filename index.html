@@ -2065,6 +2065,35 @@
       text-transform:uppercase;
     }
 
+
+    /* CN MONEY v2.3.4 — DATA detail scroll + cancel cleanup */
+    .db-detail-modal{
+      display:block!important;
+      width:min(100%,500px)!important;
+      min-height:0!important;
+      height:auto!important;
+      max-height:calc(100dvh - 20px)!important;
+      overflow-x:hidden!important;
+      overflow-y:auto!important;
+      overscroll-behavior:contain!important;
+      -webkit-overflow-scrolling:touch!important;
+      touch-action:pan-y!important;
+      padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
+    }
+    .db-detail-modal .db-detail-head,
+    .db-detail-modal .db-detail-latest,
+    .db-detail-modal .db-detail-section,
+    .db-detail-modal .db-detail-actions{
+      flex:none!important;
+    }
+    .db-detail-modal .db-history-section{
+      min-height:auto!important;
+    }
+    .db-detail-modal .db-purchase-history{
+      max-height:none!important;
+      overflow:visible!important;
+    }
+
 </style>
 </head>
 <body>
@@ -2078,7 +2107,7 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.3.3';
+const CN_MONEY_VERSION='2.3.4';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -2866,7 +2895,7 @@ if(state.modal==='monthPicker'){const selectedYear=Number(String(state.month||to
 if(state.modal.startsWith('walletDetail:')){const id=state.modal.slice(13),w=state.wallets.find(x=>String(x.id)===String(id));if(!w)return'';const related=state.transactions.filter(t=>!t.deleted_at&&(String(t.wallet_id)===String(w.id)||String(t.destination_wallet_id)===String(w.id))).length;return`<div class="modal-bg"><div class="modal entity-detail-modal"><div class="modal-head"><div><div class="modal-title">${esc(w.name)}</div><div class="section-sub">${esc(walletTypeLabel(w.wallet_type))}</div></div><button class="xbtn" data-close>×</button></div><div class="entity-detail-hero"><div class="entity-detail-kicker">SALDO SAAT INI</div><div class="entity-detail-amount ${Number(w.balance)<0?'red':''}">${rupiah(w.balance)}</div></div><div class="entity-detail-grid"><div class="entity-detail-cell"><span>JENIS</span><b>${esc(walletTypeLabel(w.wallet_type))}</b></div><div class="entity-detail-cell"><span>AKTIVITAS</span><b>${related} TRANSAKSI</b></div></div><div class="entity-detail-actions"><button type="button" class="btn btn-soft" data-detail-edit-wallet="${w.id}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger" data-detail-delete-wallet="${w.id}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
 if(state.modal.startsWith('walletEdit:')){const id=state.modal.slice(11),w=state.wallets.find(x=>x.id===id);if(!w)return'';return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">EDIT DOMPET</div><div class="section-sub">Koreksi saldo tercatat di HISTORY</div></div><button class="xbtn" data-close>×</button></div><form id="walletEditForm" data-id="${w.id}" data-old-balance="${Number(w.balance||0)}"><div class="field"><label class="label">Nama</label><input class="input" id="walletEditName" required maxlength="50" value="${esc(w.name)}"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('walletEditType',w.wallet_type,walletTypeLabel(w.wallet_type).toUpperCase(),'wallet-type')}</div><div class="field"><label class="label">Saldo Saat Ini</label>${numericInput('walletEditBalance',groupDigits(w.balance))}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PERUBAHAN</button></form></div></div>`}
 if(state.modal.startsWith('txEdit:')){const id=state.modal.slice(7),t=state.transactions.find(x=>x.id===id);if(!t)return'';const type=t.transaction_type,cats=state.categories.filter(c=>c.category_type===type).sort((a,b)=>(a.name==='Lainnya'?1:b.name==='Lainnya'?-1:a.name.localeCompare(b.name))),wallet=state.wallets.find(w=>w.id===t.wallet_id),cat=cats.find(c=>c.id===t.category_id)||cats[0];return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title ${type==='income'?'green':type==='expense'?'red':'blue'}">EDIT ${txLabel(type)}</div><div class="section-sub">Saldo akan disesuaikan otomatis</div></div><button class="xbtn" data-close>×</button></div><form id="txEditForm" data-id="${t.id}"><div class="field"><label class="label">Nominal</label>${numericInput('txEditAmount',groupDigits(t.amount))}</div><div class="field"><label class="label">Dompet</label>${choiceTrigger('txEditWallet',t.wallet_id,wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div><div class="field"><label class="label">Kategori</label>${choiceTrigger('txEditCategory',cat?.id||'',cat?.name||'PILIH KATEGORI','category',type)}</div><div class="field"><label class="label">Keterangan</label><input id="txEditDescription" class="input" value="${esc(t.description||'')}"></div><div class="field"><label class="label">Tanggal</label>${dateTrigger('txEditDate',t.transaction_date||today())}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PERUBAHAN</button></form></div></div>`}
-if(state.modal.startsWith('dbdetail:')){const key=decodeURIComponent(state.modal.slice(9)),db=state.itemDb[key];if(!db)return'';const name=db.name||key,normalized=normalizeItemName(name).toLocaleLowerCase('id-ID'),variantValues=db.variants&&typeof db.variants==='object'?Object.values(db.variants):[],matchKeys=new Set([normalized,...(Array.isArray(db.aliases)?db.aliases:[]).map(x=>normalizeItemName(x).toLocaleLowerCase('id-ID')),...variantValues.map(v=>normalizeItemName(v?.name||'').toLocaleLowerCase('id-ID'))]),master=masterShoppingInfo(name),subcat=shoppingCategoryFor(name,db.category),cat=master?.categoryName||db.categoryName||masterCategoryForItemName(name,shoppingBroadCategoryName(subcat)),priority=shoppingPriorityFor(name,db.priority,subcat),uom=normalizeUom(db.uom||shoppingProfileFor(name)?.preferred_uom||master?.uom||'PCS'),purchases=state.shoppingItems.map(i=>{if(!matchKeys.has(normalizeItemName(i.item_name||'').toLocaleLowerCase('id-ID')))return null;const sess=state.shoppingSessions.find(s=>String(s.id)===String(i.session_id));return{item:i,session:sess,when:sess?.checkout_date||i.created_at||'',created:sess?.created_at||i.created_at||sess?.checkout_date||''}}).filter(Boolean).sort((a,b)=>new Date(b.created||b.when||0)-new Date(a.created||a.when||0)),variantMap={};for(const p of purchases){const productName=normalizeItemName(p.item?.item_name||name)||name,productNorm=productName.toLocaleLowerCase('id-ID'),unit=Number(p.item?.unit_price||0),subtotal=Number(p.item?.subtotal||0);if(!variantMap[productNorm])variantMap[productNorm]={name:productName,count:0,lastPrice:unit,total:0,norm:productNorm};variantMap[productNorm].count++;variantMap[productNorm].total+=subtotal;if(!variantMap[productNorm].lastPrice)variantMap[productNorm].lastPrice=unit}const productRows=Object.values(variantMap).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'id',{sensitivity:'base'})),showProducts=productRows.length>1||productRows.some(v=>v.norm!==normalized),last=purchases[0],lastStore=last?.session?.store_name||db.lastStore||'',lastDate=last?.session?.checkout_date||db.lastPurchased||'',lastPrice=Number(last?.item?.unit_price||db.lastPrice||0);return`<div class="modal-bg"><div class="modal db-detail-modal"><div class="modal-head db-detail-head"><div class="db-detail-title-wrap"><div class="modal-title">${esc(String(name).toUpperCase())}</div>${shoppingBadges(name,subcat,priority,uom)}</div><button class="xbtn" data-close>×</button></div><div class="db-detail-latest"><div class="db-detail-kicker">PEMBELIAN TERAKHIR</div><div class="db-detail-last-row"><div class="db-detail-last-copy"><div class="db-detail-store">${esc(lastStore||'BELUM ADA TEMPAT BELI')}</div><div class="db-detail-date">${lastDate?dateLabel(lastDate):'BELUM ADA RIWAYAT'}</div></div><div class="db-detail-last-price">${lastPrice?rupiah(lastPrice):'—'}</div></div></div><div class="db-detail-section"><div class="db-detail-section-title">RINGKASAN BARANG</div><div class="db-summary-list"><div class="db-summary-row"><span>KATEGORI</span><b>${esc(cat)}</b></div><div class="db-summary-row"><span>SUB KATEGORI</span><b>${esc(subcat)}</b></div><div class="db-summary-row"><span>PRIORITAS</span><b>${esc(priority)}</b></div><div class="db-summary-row"><span>SATUAN</span><b>${esc(uom)}</b></div><div class="db-summary-row"><span>TOTAL PEMBELIAN</span><b>${purchases.length}×</b></div></div></div>${showProducts?`<div class="db-detail-section"><div class="db-detail-section-title">PRODUK DIBELI</div><div class="db-variant-list">${productRows.map(v=>`<div class="db-variant-row"><div class="db-variant-main"><b>${esc(String(v.name).toUpperCase())}</b><span>${v.count}× PEMBELIAN</span></div><div class="db-variant-price">${v.lastPrice?rupiah(v.lastPrice):'—'}</div></div>`).join('')}</div></div>`:''}<div class="db-detail-section db-history-section"><div class="db-detail-section-title">RIWAYAT PEMBELIAN</div><div class="db-purchase-history">${purchases.length?purchases.map(({item,session})=>{const wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id))?.name||'Dompet',qty=Number(item.quantity||0),rowUom=normalizeUom(item.uom||uom),unit=Number(item.unit_price||0),subtotal=Number(item.subtotal||unit*qty||0),store=session?.store_name||'Belanja Bulanan',product=normalizeItemName(item.item_name||name)||name;return`<button type="button" class="db-purchase-row db-purchase-open" data-purchase-detail="${encodeURIComponent(item.id||'')}" aria-label="Buka detail pembelian ${esc(product)}"><div class="db-purchase-row-top"><div><div class="db-purchase-product">${esc(product)}</div><div class="db-purchase-date">${esc(dateLabel(session?.checkout_date||item.created_at))}</div><div class="db-purchase-store">${esc(store)}</div></div><div class="db-purchase-total">${rupiah(subtotal)}</div></div><div class="db-purchase-row-bottom"><span>${qty} ${esc(rowUom)} × ${rupiah(unit)}</span><span>${esc(wallet)}</span></div></button>`}).join(''):`<div class="db-detail-empty">BELUM ADA RIWAYAT PEMBELIAN.</div>`}</div></div><div class="db-detail-actions"><button type="button" class="btn btn-soft db-detail-action" data-detail-edit-db="${esc(name)}" data-detail-edit-key="${esc(key)}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger db-detail-action" data-detail-delete-db="${esc(key)}" data-detail-delete-name="${esc(name)}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
+if(state.modal.startsWith('dbdetail:')){const key=decodeURIComponent(state.modal.slice(9)),db=state.itemDb[key];if(!db)return'';const name=db.name||key,normalized=normalizeItemName(name).toLocaleLowerCase('id-ID'),variantValues=db.variants&&typeof db.variants==='object'?Object.values(db.variants):[],matchKeys=new Set([normalized,...(Array.isArray(db.aliases)?db.aliases:[]).map(x=>normalizeItemName(x).toLocaleLowerCase('id-ID')),...variantValues.map(v=>normalizeItemName(v?.name||'').toLocaleLowerCase('id-ID'))]),master=masterShoppingInfo(name),subcat=shoppingCategoryFor(name,db.category),cat=master?.categoryName||db.categoryName||masterCategoryForItemName(name,shoppingBroadCategoryName(subcat)),priority=shoppingPriorityFor(name,db.priority,subcat),uom=normalizeUom(db.uom||shoppingProfileFor(name)?.preferred_uom||master?.uom||'PCS'),purchases=state.shoppingItems.map(i=>{if(!matchKeys.has(normalizeItemName(i.item_name||'').toLocaleLowerCase('id-ID')))return null;const sess=state.shoppingSessions.find(s=>String(s.id)===String(i.session_id));if(!sess)return null;return{item:i,session:sess,when:sess.checkout_date||i.created_at||'',created:sess.created_at||i.created_at||sess.checkout_date||''}}).filter(Boolean).sort((a,b)=>new Date(b.created||b.when||0)-new Date(a.created||a.when||0)),variantMap={};for(const p of purchases){const productName=normalizeItemName(p.item?.item_name||name)||name,productNorm=productName.toLocaleLowerCase('id-ID'),unit=Number(p.item?.unit_price||0),subtotal=Number(p.item?.subtotal||0);if(!variantMap[productNorm])variantMap[productNorm]={name:productName,count:0,lastPrice:unit,total:0,norm:productNorm};variantMap[productNorm].count++;variantMap[productNorm].total+=subtotal;if(!variantMap[productNorm].lastPrice)variantMap[productNorm].lastPrice=unit}const productRows=Object.values(variantMap).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'id',{sensitivity:'base'})),showProducts=productRows.length>1||productRows.some(v=>v.norm!==normalized),last=purchases[0],lastStore=last?normalizeStoreName(last.session?.store_name||''):'',lastDate=last?(last.session?.checkout_date||last.item?.created_at||''):'',lastPrice=last?Number(last.item?.unit_price||0):0;return`<div class="modal-bg"><div class="modal db-detail-modal"><div class="modal-head db-detail-head"><div class="db-detail-title-wrap"><div class="modal-title">${esc(String(name).toUpperCase())}</div>${shoppingBadges(name,subcat,priority,uom)}</div><button class="xbtn" data-close>×</button></div><div class="db-detail-latest"><div class="db-detail-kicker">PEMBELIAN TERAKHIR</div><div class="db-detail-last-row"><div class="db-detail-last-copy"><div class="db-detail-store">${esc(lastStore||'BELUM ADA TEMPAT BELI')}</div><div class="db-detail-date">${lastDate?dateLabel(lastDate):'BELUM ADA RIWAYAT'}</div></div><div class="db-detail-last-price">${lastPrice?rupiah(lastPrice):'—'}</div></div></div><div class="db-detail-section"><div class="db-detail-section-title">RINGKASAN BARANG</div><div class="db-summary-list"><div class="db-summary-row"><span>KATEGORI</span><b>${esc(cat)}</b></div><div class="db-summary-row"><span>SUB KATEGORI</span><b>${esc(subcat)}</b></div><div class="db-summary-row"><span>PRIORITAS</span><b>${esc(priority)}</b></div><div class="db-summary-row"><span>SATUAN</span><b>${esc(uom)}</b></div><div class="db-summary-row"><span>TOTAL PEMBELIAN</span><b>${purchases.length}×</b></div></div></div>${showProducts?`<div class="db-detail-section"><div class="db-detail-section-title">PRODUK DIBELI</div><div class="db-variant-list">${productRows.map(v=>`<div class="db-variant-row"><div class="db-variant-main"><b>${esc(String(v.name).toUpperCase())}</b><span>${v.count}× PEMBELIAN</span></div><div class="db-variant-price">${v.lastPrice?rupiah(v.lastPrice):'—'}</div></div>`).join('')}</div></div>`:''}<div class="db-detail-section db-history-section"><div class="db-detail-section-title">RIWAYAT PEMBELIAN</div><div class="db-purchase-history">${purchases.length?purchases.map(({item,session})=>{const wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id))?.name||'Dompet',qty=Number(item.quantity||0),rowUom=normalizeUom(item.uom||uom),unit=Number(item.unit_price||0),subtotal=Number(item.subtotal||unit*qty||0),store=session?.store_name||'Belanja Bulanan',product=normalizeItemName(item.item_name||name)||name;return`<button type="button" class="db-purchase-row db-purchase-open" data-purchase-detail="${encodeURIComponent(item.id||'')}" aria-label="Buka detail pembelian ${esc(product)}"><div class="db-purchase-row-top"><div><div class="db-purchase-product">${esc(product)}</div><div class="db-purchase-date">${esc(dateLabel(session?.checkout_date||item.created_at))}</div><div class="db-purchase-store">${esc(store)}</div></div><div class="db-purchase-total">${rupiah(subtotal)}</div></div><div class="db-purchase-row-bottom"><span>${qty} ${esc(rowUom)} × ${rupiah(unit)}</span><span>${esc(wallet)}</span></div></button>`}).join(''):`<div class="db-detail-empty">BELUM ADA RIWAYAT PEMBELIAN.</div>`}</div></div><div class="db-detail-actions"><button type="button" class="btn btn-soft db-detail-action" data-detail-edit-db="${esc(name)}" data-detail-edit-key="${esc(key)}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger db-detail-action" data-detail-delete-db="${esc(key)}" data-detail-delete-name="${esc(name)}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
 if(state.modal.startsWith('purchase:')){const itemId=decodeURIComponent(state.modal.slice(9)),item=state.shoppingItems.find(i=>String(i.id)===String(itemId));if(!item)return'';const session=state.shoppingSessions.find(s=>String(s.id)===String(item.session_id)),wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id))?.name||'Dompet',qty=Number(item.quantity||0),uom=normalizeUom(item.uom||'Pcs'),unit=Number(item.unit_price||0),subtotal=Number(item.subtotal||unit*qty||0),sessionItems=state.shoppingItems.filter(i=>String(i.session_id)===String(item.session_id)),store=session?.store_name||'Belanja Bulanan',date=session?.checkout_date||item.created_at||today();return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">DETAIL PEMBELIAN</div><div class="section-sub">${esc(String(item.item_name||'BARANG').toUpperCase())}</div></div><button class="xbtn" data-close>×</button></div><div class="purchase-detail-amount"><span>SUBTOTAL ITEM</span><b>${rupiah(subtotal)}</b></div><div class="purchase-detail-grid"><div class="purchase-detail-cell"><span>TANGGAL</span><b>${esc(dateLabel(date))}</b></div><div class="purchase-detail-cell"><span>DOMPET</span><b>${esc(wallet)}</b></div><div class="purchase-detail-cell full"><span>TEMPAT BELI</span><b>${esc(store)}</b></div><div class="purchase-detail-cell"><span>JUMLAH</span><b>${qty} ${esc(uom)}</b></div><div class="purchase-detail-cell"><span>HARGA SATUAN</span><b>${rupiah(unit)}</b></div>${session?`<div class="purchase-detail-cell full"><span>TOTAL SESI CHECKOUT</span><b>${rupiah(session.total_amount||0)} · ${sessionItems.length} ITEM</b></div>`:''}</div>${session?`<div class="purchase-session-note">PEMBELIAN INI BAGIAN DARI SATU SESI CHECKOUT. MEMBATALKAN SESI AKAN MEMBATALKAN SEMUA ITEM DI SESI TERSEBUT DAN MENGEMBALIKAN SALDO SERTA ANGGARAN.</div><div class="purchase-cancel-wrap"><button type="button" class="purchase-cancel-btn" data-cancel-purchase-session="${esc(session.id)}">${uiIcon('undo')}<span>BATALKAN SESI</span></button></div>`:''}</div></div>`}
 if(state.modal.startsWith('shopcat:')){const token=decodeURIComponent(state.modal.slice(8)),item=state.checklist.find(x=>String(x.id)===token),name=item?.name||token,norm=normalizeItemName(name).toLowerCase(),db=state.itemDb[norm]||{},profile=shoppingProfileFor(name),profileCat=profile?.category_id?state.shoppingCategories.find(x=>x.id===profile.category_id):null,master=masterShoppingInfo(name),subName=profileCat?.name||master?.subcategoryName||shoppingCategoryFor(name,item?.category||db.category||''),subRow=(state.catalog?.subcategories||[]).find(x=>String(x.name)===String(subName))||(master?catalogSubcategoryForName(name):null),categoryKey=subRow?.category_key||master?.categoryKey||(state.catalog?.categories||[])[0]?.category_key||'',categoryRow=(state.catalog?.categories||[]).find(x=>String(x.category_key)===String(categoryKey)),currentCat=state.shoppingCategories.find(c=>String(c.name)===String(subName))||shoppingCategoryOrder().find(c=>{const sub=(state.catalog?.subcategories||[]).find(s=>String(s.name)===String(c.name));return sub&&String(sub.category_key)===String(categoryKey)})||shoppingCategoryOrder()[0],priority=shoppingPriorityFor(name,item?.priority||db.priority,subName),uom=profile?.preferred_uom||db.uom||smartItem(name).uom;return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PROFIL BARANG</div><div class="section-sub">${esc(name)}</div></div><button class="xbtn" data-close>×</button></div><form id="shopCategoryForm" data-itemid="${item?esc(item.id):''}" data-name="${esc(name)}"><div class="field"><label class="label">NAMA BARANG</label><input id="shopProfileName" class="input profile-name-input" maxlength="100" value="${esc(name)}" autocomplete="off" autocorrect="off" spellcheck="false" required></div><div class="field"><label class="label">KATEGORI</label>${choiceTrigger('shopMasterCategory',categoryKey,categoryRow?.name||'PILIH KATEGORI','shopping-master-category')}</div><div class="field"><label class="label">SUB KATEGORI</label>${choiceTrigger('shopCategorySelect',currentCat?.id||'',currentCat?.name||'PILIH SUB KATEGORI','shopping-subcategory',categoryKey)}</div><div class="field"><label class="label">PRIORITAS</label><input type="hidden" id="shopPriorityValue" value="${esc(priority)}"><div class="priority-explain"><button type="button" class="priority-choice primer ${priority==='PRIMER'?'active':''}" data-priority-choice="PRIMER"><b>PRIMER</b><span>kebutuhan utama</span></button><button type="button" class="priority-choice sekunder ${priority==='SEKUNDER'?'active':''}" data-priority-choice="SEKUNDER"><b>SEKUNDER</b><span>dibutuhkan, bukan yang utama</span></button><button type="button" class="priority-choice pelengkap ${priority==='PELENGKAP'?'active':''}" data-priority-choice="PELENGKAP"><b>PELENGKAP</b><span>tambahan / opsional</span></button></div></div><div class="field"><label class="label">SATUAN</label>${choiceTrigger('shopCategoryUom',normalizeUom(uom||'PCS'),normalizeUom(uom||'PCS'),'uom')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PROFIL</button></form></div></div>`}
 if(state.modal==='investment')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH INVESTASI</div></div><button class="xbtn" data-close>×</button></div><form id="investmentForm"><div class="field"><label class="label">Nama</label><input id="investmentName" class="input" required placeholder="Contoh: Emas Antam"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('investmentType','stock',investmentTypeLabel('stock').toUpperCase(),'investment-type')}</div><div class="field"><label class="label">Nilai Awal</label>${numericInput('investmentAmount')}</div><div class="field"><label class="label">Sumber Dana</label>${choiceTrigger('investmentWallet','','SUDAH DIMILIKI','investment-wallet')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN INVESTASI</button></form></div></div>`;
@@ -3109,7 +3138,144 @@ async function handleWalletEditSubmit(e){e.preventDefault();if(state.loading||!s
 async function handleDeleteWallet(id,confirmed=false){if(!state.online)return toast('Internet diperlukan.');const w=state.wallets.find(x=>x.id===id);if(!w)return;if(!confirmed){askConfirm('deleteWallet',id,'Hapus dompet?',`\"${w.name}\" akan dihapus jika tidak memiliki history finansial. Dompet yang sudah dipakai transaksi akan ditolak otomatis.`,'HAPUS');return}state.loading=true;const {error}=await sb.rpc('finance_delete_wallet',{p_household_id:state.household.id,p_wallet_id:id});state.loading=false;if(error)return toast(error.message||'Dompet tidak bisa dihapus.');await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Dompet dihapus aman.')}
 async function handleUndoTransaction(id,confirmed=false){if(!state.online)return toast('Internet diperlukan.');const t=state.transactions.find(x=>x.id===id);if(!t)return;if(!confirmed){askConfirm('undoTransaction',id,'Batalkan transaksi?',`${txLabel(t.transaction_type)} ${rupiah(t.amount)} akan dibatalkan dan saldo dikembalikan otomatis.`,'BATALKAN');return}state.loading=true;const {error}=await sb.rpc('finance_undo_transaction',{p_household_id:state.household.id,p_transaction_id:id});state.loading=false;if(error)return toast(error.message||'Undo gagal.');await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Transaksi dibatalkan.')}
 async function handleTxEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,amount=num(document.getElementById('txEditAmount').value),wallet=document.getElementById('txEditWallet').value,cat=document.getElementById('txEditCategory').value||null,desc=document.getElementById('txEditDescription').value.trim(),date=document.getElementById('txEditDate').value||today();if(amount<=0)return toast('Nominal harus lebih dari 0.');state.loading=true;const {error}=await sb.rpc('finance_update_transaction',{p_household_id:state.household.id,p_transaction_id:id,p_wallet_id:wallet,p_amount:amount,p_category_id:cat,p_description:desc||null,p_transaction_date:date});state.loading=false;if(error)return toast(error.message||'Edit transaksi gagal.');state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Transaksi diperbarui.')}
-async function handleCancelCheckout(sessionId,confirmed=false){if(!state.online)return toast('Internet diperlukan.');const sess=state.shoppingSessions.find(x=>x.id===sessionId);if(!sess)return;if(!confirmed){askConfirm('cancelCheckout',sessionId,'Batalkan checkout?',`${rupiah(sess.total_amount)} akan dibatalkan. Saldo dompet dan pemakaian anggaran dikembalikan otomatis.`,'BATALKAN CHECKOUT');return}state.loading=true;const {error}=await sb.rpc('finance_cancel_checkout',{p_household_id:state.household.id,p_session_id:sessionId});if(error){state.loading=false;return toast(error.message||'Gagal membatalkan checkout.')}state.checklist=state.checklist.map(x=>x.shoppingSessionId===sessionId?{...x,purchased:false,purchasedAt:null,shoppingSessionId:null,clientCheckoutId:null}:x);state.legacyHistory=state.legacyHistory.filter(x=>x.shoppingSessionId!==sessionId);try{await Promise.all([updateBucket('checklist',state.checklist),updateBucket('history',state.legacyHistory)])}catch(e){console.error(e)}state.loading=false;persistCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Checkout dibatalkan. Saldo & budget dipulihkan.')}
+function rebuildItemDbAfterCancelledCheckout(cancelledSessionId){
+  const activeSessions=new Map(
+    (state.shoppingSessions||[])
+      .filter(s=>String(s.id)!==String(cancelledSessionId))
+      .map(s=>[String(s.id),s])
+  );
+
+  const next={...state.itemDb};
+
+  for(const [key,rawDb] of Object.entries(next)){
+    const db={...rawDb};
+    const familyName=normalizeItemName(db.name||key)||String(db.name||key);
+    const familyNorm=familyName.toLocaleLowerCase('id-ID');
+
+    const matchNames=new Set([
+      familyNorm,
+      ...(Array.isArray(db.aliases)?db.aliases:[])
+        .map(x=>normalizeItemName(x).toLocaleLowerCase('id-ID')),
+      ...Object.values(db.variants&&typeof db.variants==='object'?db.variants:{})
+        .map(v=>normalizeItemName(v?.name||'').toLocaleLowerCase('id-ID'))
+    ].filter(Boolean));
+
+    const purchases=(state.shoppingItems||[])
+      .map(item=>{
+        const session=activeSessions.get(String(item.session_id));
+        if(!session)return null;
+
+        const productName=normalizeItemName(item.item_name||'');
+        const productNorm=productName.toLocaleLowerCase('id-ID');
+        if(!matchNames.has(productNorm))return null;
+
+        return{
+          item,
+          session,
+          productName,
+          productNorm,
+          stamp:new Date(session.created_at||session.checkout_date||item.created_at||0).getTime()||0
+        };
+      })
+      .filter(Boolean)
+      .sort((a,b)=>b.stamp-a.stamp);
+
+    const variants={};
+    for(const p of purchases){
+      if(p.productNorm===familyNorm)continue;
+      if(variants[p.productNorm])continue;
+      variants[p.productNorm]={
+        name:p.productName,
+        lastPrice:Number(p.item.unit_price||0),
+        lastStore:normalizeStoreName(p.session.store_name||''),
+        uom:normalizeUom(p.item.uom||db.uom||'PCS'),
+        lastPurchased:p.session.created_at||p.session.checkout_date||p.item.created_at||null
+      };
+    }
+
+    if(purchases.length){
+      const latest=purchases[0];
+      db.lastPrice=Number(latest.item.unit_price||0);
+      db.lastStore=normalizeStoreName(latest.session.store_name||'');
+      db.lastPurchased=latest.session.created_at||latest.session.checkout_date||latest.item.created_at||null;
+      db.lastVariantName=latest.productName||familyName;
+    }else{
+      db.lastPrice=0;
+      db.lastStore='';
+      db.lastPurchased=null;
+      db.lastVariantName=familyName;
+    }
+
+    db.variants=variants;
+    next[key]=db;
+  }
+
+  state.itemDb=next;
+  return next;
+}
+
+async function handleCancelCheckout(sessionId,confirmed=false){
+  if(!state.online)return toast('Internet diperlukan.');
+  const sess=state.shoppingSessions.find(x=>x.id===sessionId);
+  if(!sess)return;
+
+  if(!confirmed){
+    askConfirm(
+      'cancelCheckout',
+      sessionId,
+      'Batalkan checkout?',
+      `${rupiah(sess.total_amount)} akan dibatalkan. Saldo, anggaran, Receipt, dan data pembelian akan dikembalikan.`,
+      'BATALKAN CHECKOUT'
+    );
+    return;
+  }
+
+  state.loading=true;
+
+  const {error}=await sb.rpc('finance_cancel_checkout',{
+    p_household_id:state.household.id,
+    p_session_id:sessionId
+  });
+
+  if(error){
+    state.loading=false;
+    return toast(error.message||'Gagal membatalkan checkout.');
+  }
+
+  state.checklist=state.checklist.map(x=>
+    x.shoppingSessionId===sessionId
+      ?{...x,purchased:false,purchasedAt:null,shoppingSessionId:null,clientCheckoutId:null}
+      :x
+  );
+  state.legacyHistory=state.legacyHistory.filter(x=>x.shoppingSessionId!==sessionId);
+
+  try{
+    await Promise.all([
+      updateBucket('checklist',state.checklist),
+      updateBucket('history',state.legacyHistory)
+    ]);
+  }catch(e){
+    console.error(e);
+  }
+
+  // Reload active sessions first. finance_cancel_checkout removes the
+  // cancelled session from the active shopping_sessions query.
+  try{
+    await loadAll({rerender:false,preserveCacheOnEmpty:true});
+
+    rebuildItemDbAfterCancelledCheckout(sessionId);
+
+    await updateBucket('database',state.itemDb);
+    persistCaches();
+  }catch(e){
+    console.error('Cancel cleanup',e);
+  }
+
+  state.loading=false;
+  render();
+  toast('Checkout dibatalkan. Saldo & data pembelian dipulihkan.');
+}
+
 async function handleDeleteDbItem(payload,confirmed=false){const key=String(payload?.key||''),name=String(payload?.name||state.itemDb[key]?.name||'').trim();if(!key||!state.itemDb[key])return;if(!confirmed){askConfirm('deleteDbItem',{key,name},'Hapus data barang?',`Data harga ${name||'barang ini'} akan dihapus. Riwayat transaksi dan receipt tetap aman.`,'HAPUS');return}const next={...state.itemDb};delete next[key];state.itemDb=next;persistCaches();render();try{if(state.online&&name){const r=await sb.rpc('shopping_delete_item_profile',{p_household_id:state.household.id,p_item_name:name});if(r.error)console.warn('Profile delete',r.error)}await updateBucket('database',state.itemDb);toast('Data barang dihapus.')}catch(e){console.error(e);toast('Data dihapus di perangkat. Sync akan dicoba lagi.')}}
 async function handleShopCategorySubmit(e){
   e.preventDefault();

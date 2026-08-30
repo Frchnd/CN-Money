@@ -1,20 +1,18 @@
-# CN MONEY v2.3.3
+# CN MONEY v2.3.4
 
-HOUSEHOLD DATABASE + PRODUCT VARIANTS
+DATA DETAIL / CANCEL CHECKOUT FIX
 
-- Dropdown rekomendasi saat mengetik LIST dihapus.
-- DATA filter ALPHABET -> A - Z.
-- Edit nama barang mengubah record keluarga barang yang sama.
-  Nama lama tetap menjadi alias dan akan diarahkan ke nama terbaru saat ditambahkan lagi.
-- Edit KATEGORI / SUB KATEGORI / PRIORITAS / UOM langsung menjadi preferensi database Household.
-  Database master bawaan tetap fallback.
-- Quick Checkout punya NAMA PRODUK:
-  LIST bisa tetap SHAMPOO, sementara produk yang dibeli bisa SHAMPOO ZINC / PANTENE / LIFEBUOY.
-- Receipt dan riwayat pembelian menyimpan nama produk yang benar.
-- DATA tetap satu card keluarga (contoh SHAMPOO).
-- Detail DATA menampilkan PRODUK DIBELI dan riwayat masing-masing produk.
-- Produk terakhir diingat sebagai default NAMA PRODUK checkout berikutnya.
+- Detail DATA sekarang scroll vertikal sebagai satu halaman.
+- Tidak ada nested scroll yang bikin bagian bawah terjebak.
+- BATALKAN CHECKOUT sekarang ikut membersihkan data pembelian:
+  - produk dibeli dari checkout itu hilang
+  - riwayat pembelian dari checkout itu hilang
+  - harga/toko/pembelian terakhir dihitung ulang
+  - kalau produk yang sama masih punya checkout valid lain, produknya tetap ada
+- Pembelian yang pernah dibatalkan sebelum v2.3.4 juga tidak lagi ditampilkan
+  di detail DATA karena hanya sesi checkout aktif yang dihitung.
+- Profil barang, kategori, sub kategori, UOM dan alias tetap dipertahankan.
 
 Tidak ada SQL baru.
 Tetap memakai Supabase v2.3.2.
-Autocorrect typo/ambiguity belum diaktifkan dan dipindahkan ke update berikutnya.
+Autocorrect/ambiguity dipindahkan ke update berikutnya.
