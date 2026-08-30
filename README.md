@@ -1,22 +1,19 @@
-# CN MONEY v2.3.1
+# CN MONEY v2.3.2
 
-CLEAN UI / BUG PATCH
+MASTER DATA + ESTIMASI LIST
 
-- Hapus spinner/panah bawaan browser pada JUMLAH checkout.
-- DATA depan sekarang mengikuti gaya LIST:
-  - hanya nama barang
-  - tanpa kategori
-  - tanpa prioritas
-  - tanpa UOM
-  - tanpa toko
-  - tanpa harga
-  - tanpa tulisan DETAIL
-  - tap item untuk membuka seluruh detail.
-- HISTORY mencegah kategori tampil dua kali jika sudah ada di judul transaksi.
-- RECEIPT tidak mengulang judul RECEIPT di bawah tab RECEIPT.
-- KEKAYAAN tidak mengulang judul SAKU / INVESTASI / ASET di hero dan list.
-- Empty state DOMPET diselaraskan menjadi SAKU.
+- LIST menampilkan ESTIMASI TOTAL dari harga terakhir yang pernah tersimpan.
+- Item tanpa riwayat harga tidak dianggap Rp0; jumlah item tanpa harga ditampilkan.
+- Master rumah tangga aktif:
+  - 8 kategori
+  - 36 sub kategori
+  - 277 barang
+  - 12 UOM
+- DATA > KATEGORI memakai kategori master.
+- DATA > SUB KATEGORI memakai sub kategori master.
+- Profil Barang sekarang punya KATEGORI dan SUB KATEGORI terpisah.
+- UOM pilihan mengikuti master terbaru.
+- Merek dari v2.3.0 tetap dipertahankan.
 
-Tidak ada SQL baru.
-Tetap memakai Supabase v2.3.0.
-Fitur autocorrect lanjutan dipindahkan ke update berikutnya agar patch ini tetap aman.
+Tidak ada perubahan pada perhitungan transaksi atau saldo.
+Jalankan Supabase v2.3.2 sebelum deploy APP.
