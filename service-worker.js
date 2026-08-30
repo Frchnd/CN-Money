@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.3.9-shell';
+const CACHE='cn-money-v2.4.2-shell';
 const CORE=[
   '/',
   '/index.html',
@@ -7,7 +7,8 @@ const CORE=[
   '/icons/icon-512.png',
   '/sounds/shop-click-v04g.wav',
   '/sounds/cash-register-v04f.wav',
-  '/sounds/delete-undo-v239.wav'
+  '/sounds/delete-undo-v239.wav',
+  '/data/autocorrect-v242.json'
 ];
 
 self.addEventListener('install',event=>{
@@ -81,7 +82,8 @@ self.addEventListener('fetch',event=>{
     url.pathname==='/index.html' ||
     url.pathname==='/manifest.json' ||
     url.pathname.startsWith('/icons/') ||
-    url.pathname.startsWith('/sounds/');
+    url.pathname.startsWith('/sounds/') ||
+    url.pathname.startsWith('/data/');
 
   if(staticPath) event.respondWith(staticFirst(request));
 });

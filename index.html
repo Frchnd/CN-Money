@@ -2204,6 +2204,45 @@
       height:100%!important;
       font-family:inherit!important;
     }
+
+    /* CN MONEY v2.4.0 — conservative autocorrect / ambiguity */
+    .shop-ambiguity{
+      margin:7px 0 2px;
+      padding:9px 10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface2);
+    }
+    .shop-ambiguity.hidden{display:none}
+    .shop-ambiguity-title{
+      margin-bottom:7px;
+      color:var(--muted);
+      font-size:8.5px;
+      font-weight:1000;
+      letter-spacing:.055em;
+      text-transform:uppercase;
+    }
+    .shop-ambiguity-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .shop-ambiguity-choice{
+      min-height:32px;
+      padding:0 11px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      color:var(--text);
+      font-size:9.5px;
+      font-weight:1000;
+      text-transform:uppercase;
+    }
+    .shop-ambiguity-choice.primary{
+      border-color:color-mix(in srgb,var(--primary) 48%,var(--line));
+      color:var(--primary);
+    }
+
 </style>
 </head>
 <body>
@@ -2217,7 +2256,7 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.3.9';
+const CN_MONEY_VERSION='2.4.2';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -2562,8 +2601,8 @@ return`<div class="hero"><div class="eyebrow">Total saldo saat ini</div><div cla
 <div class="section-head"><div><div class="section-title">Pengeluaran Bulan Ini</div><div class="section-sub">${monthLabel(state.month)}</div></div>${dashboardMonthTrigger()}</div><div class="card" style="padding:15px">${m.breakdown.length?m.breakdown.slice(0,6).map(([name,val])=>`<div class="breakdown-row"><div class="breakdown-name">${esc(name)}</div><div class="bar-wrap"><div class="bar" style="width:${Math.max(5,Math.round(val/max*100))}%"></div></div><div class="breakdown-value">${rupiah(val).replace('Rp ','')}</div></div>`).join(''):`<div class="empty"><b>Belum ada pengeluaran</b></div>`}</div>
 <div class="section-head"><div><div class="section-title">Aktivitas Terbaru</div></div></div><div class="dashboard-panel dashboard-activity-panel">${renderTransactionRows(m.monthTx.slice(0,4),false)}</div><div class="section-head"><div><div class="section-title">Insight</div></div></div><div class="dashboard-panel"><div class="dashboard-panel-scroll">${insights.map(([tone,bb,p])=>`<div class="card insight semantic ${tone}"><div class="insight-icon"></div><div><b>${esc(bb)}</b><p>${esc(p)}</p></div></div>`).join('')}</div></div><button id="addTx" class="fab" aria-label="Tambah transaksi">+</button>`}
 function titleCaseWords(raw){return String(raw||'').trim().replace(/\s+/g,' ').toLowerCase().replace(/(^|[\s\-])([a-zà-ÿ])/g,(m,p,c)=>p+c.toUpperCase())}
-const ITEM_WORD_ALIASES={sampo:'shampoo',shampo:'shampoo',syabun:'sabun',sabunh:'sabun',telor:'telur',cabe:'cabai',cabay:'cabai',deterjen:'deterjen',detergen:'deterjen',odol:'pasta gigi'};
-function normalizeItemName(raw){const cleaned=String(raw||'').trim().replace(/\s+/g,' ');if(!cleaned)return'';const fixed=cleaned.split(/(\s+|[-/])/).map(part=>{if(/^\s+$|^[-/]$/.test(part))return part;const low=part.toLowerCase();return ITEM_WORD_ALIASES[low]||low}).join('');return titleCaseWords(fixed)}
+const ITEM_WORD_ALIASES={};
+function normalizeItemName(raw){const cleaned=String(raw||'').trim().replace(/\s+/g,' ');if(!cleaned)return'';return titleCaseWords(cleaned)}
 function normalizeStoreName(raw){return titleCaseWords(raw)}
 function normalizeUom(raw){
   const original=String(raw||'').trim(),low=original.toLowerCase().replace(/\s+/g,' ');
@@ -2630,6 +2669,141 @@ function inferShoppingPriority(name,category=''){
   if(pelengkap.includes(cat))return'PELENGKAP';
   return'SEKUNDER';
 }
+let shoppingAutocorrectData={ready:false,map:{},ambiguity:{}};
+let shoppingAutocorrectPromise=null;
+
+function shoppingAutocorrectKey(value){
+  return String(value||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('id-ID');
+}
+function loadShoppingAutocorrect(){
+  if(shoppingAutocorrectData.ready)return Promise.resolve(shoppingAutocorrectData);
+  if(shoppingAutocorrectPromise)return shoppingAutocorrectPromise;
+  shoppingAutocorrectPromise=fetch('/data/autocorrect-v242.json',{cache:'force-cache'})
+    .then(r=>{if(!r.ok)throw new Error('Autocorrect data unavailable');return r.json()})
+    .then(data=>{
+      shoppingAutocorrectData={
+        ready:true,
+        map:data?.map||{},
+        ambiguity:data?.ambiguity||{}
+      };
+      return shoppingAutocorrectData;
+    })
+    .catch(err=>{
+      console.warn('Autocorrect',err);
+      shoppingAutocorrectData={ready:false,map:{},ambiguity:{}};
+      return shoppingAutocorrectData;
+    });
+  return shoppingAutocorrectPromise;
+}
+async function warmShoppingAutocorrect(maxWait=260){
+  if(shoppingAutocorrectData.ready)return shoppingAutocorrectData;
+  const load=loadShoppingAutocorrect();
+  if(!maxWait)return load;
+  await Promise.race([load,new Promise(resolve=>setTimeout(resolve,maxWait))]);
+  return shoppingAutocorrectData;
+}
+function exactVisibleCatalogItem(name){
+  const key=shoppingAutocorrectKey(name);
+  const shampooFamilies={
+    'shampoo':['shampoo','shampo','sampo'],
+    'shampoo bayi':['shampoo bayi','shampo bayi','sampo bayi'],
+    'shampoo sachet':['shampoo sachet','shampo sachet','sampo sachet'],
+    'shampoo hewan':['shampoo hewan','shampo hewan','sampo hewan']
+  };
+  let preferredKey=key,aliases=new Set([key]);
+  for(const [canonical,forms] of Object.entries(shampooFamilies)){
+    if(forms.includes(key)){preferredKey=canonical;aliases=new Set(forms);break}
+  }
+  const row=(state.catalog?.items||[]).find(x=>aliases.has(shoppingAutocorrectKey(x.canonical_name||'')));
+  if(!row||!catalogItemVisible(row))return null;
+  const names={
+    'shampoo':'Shampoo',
+    'shampoo bayi':'Shampoo Bayi',
+    'shampoo sachet':'Shampoo Sachet',
+    'shampoo hewan':'Shampoo Hewan'
+  };
+  return names[preferredKey]?{...row,canonical_name:names[preferredKey]}:row;
+}
+function exactVisibleCatalogBrand(name){
+  const key=shoppingAutocorrectKey(name);
+  if(!key)return null;
+  return(state.catalog?.brands||[]).find(x=>{
+    if(!catalogBrandVisible(x))return false;
+    if(shoppingAutocorrectKey(x.name||'')===key)return true;
+    return(Array.isArray(x.aliases)?x.aliases:[])
+      .some(a=>shoppingAutocorrectKey(a)===key);
+  })||null;
+}
+function resolveShoppingInput(raw){
+  const clean=normalizeItemName(raw);
+  const key=shoppingAutocorrectKey(clean);
+  if(!key)return{name:''};
+
+  // 1. Household latest name / old alias always wins.
+  const household=itemDbMatch(clean);
+  if(household){
+    return{
+      name:normalizeItemName(household.entry?.name||clean),
+      source:'household'
+    };
+  }
+
+  // 2. Exact active master item is already valid.
+  const exactItem=exactVisibleCatalogItem(clean);
+  if(exactItem)return{name:String(exactItem.canonical_name||clean),source:'master'};
+
+  // 3. Exact brand/brand alias is protected from typo correction.
+  if(exactVisibleCatalogBrand(clean))return{name:clean,source:'brand'};
+
+  // 4. Ambiguous input is NEVER changed automatically.
+  const candidates=shoppingAutocorrectData.ambiguity?.[key];
+  if(Array.isArray(candidates)&&candidates.length>1){
+    const visible=candidates.filter(x=>!!exactVisibleCatalogItem(x));
+    if(visible.length>1)return{name:clean,ambiguity:visible,source:'ambiguity'};
+  }
+
+  // 5. Conservative exact whole-input mapping.
+  const mapped=shoppingAutocorrectData.map?.[key];
+  if(mapped){
+    const target=exactVisibleCatalogItem(mapped);
+    if(target){
+      const name=String(target.canonical_name||mapped);
+      return{name,correctedFrom:clean,source:'autocorrect'};
+    }
+  }
+
+  return{name:clean,source:'raw'};
+}
+function clearShopAmbiguity(){
+  refs.pendingShopAmbiguity=null;
+  const box=document.getElementById('shopAmbiguity');
+  if(box){box.classList.add('hidden');box.innerHTML=''}
+}
+function showShopAmbiguity(raw,candidates,keepFocus=true){
+  const box=document.getElementById('shopAmbiguity');
+  const input=document.getElementById('shopInput');
+  if(!box||!input)return;
+  refs.pendingShopAmbiguity={raw,candidates};
+  box.classList.remove('hidden');
+  box.innerHTML=`<div class="shop-ambiguity-title">MAKSUD LO YANG MANA?</div><div class="shop-ambiguity-actions">${candidates.map(x=>`<button type="button" class="shop-ambiguity-choice primary" data-shop-ambiguity-choice="${esc(x)}">${esc(x)}</button>`).join('')}<button type="button" class="shop-ambiguity-choice" data-shop-ambiguity-original>PAKAI "${esc(normalizeItemName(raw))}"</button></div>`;
+
+  const commit=(name,original)=>{
+    clearShopAmbiguity();
+    addShop({keepFocus,resolvedName:name,originalRaw:original,skipResolve:true});
+  };
+
+  box.querySelectorAll('[data-shop-ambiguity-choice]').forEach(b=>{
+    b.addEventListener('pointerdown',e=>{
+      e.preventDefault();
+      commit(b.dataset.shopAmbiguityChoice,raw);
+    });
+  });
+  box.querySelector('[data-shop-ambiguity-original]')?.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    commit(normalizeItemName(raw),raw);
+  });
+}
+
 function itemDbMatch(name){
   const norm=normalizeItemName(name).toLocaleLowerCase('id-ID');
   if(!norm)return null;
@@ -2805,7 +2979,7 @@ function renderShopListLive(){
   return`<div class="list-filter-row"><button type="button" class="list-filter-chip ${listMode==='alpha'?'active':''}" data-listview="alpha">A - Z</button><button type="button" class="list-filter-chip ${listMode==='category'?'active':''}" data-listview="category">KATEGORI</button></div><div class="section-head shopping-list-head"><div><div class="section-title">DAFTAR BELANJA</div><div class="section-sub">${active.length} BELUM DIBELI</div></div>${estimateHtml}</div>${activeContent}${done.length?`<div class="section-head"><div><div class="section-title">SUDAH DIBELI</div></div></div><div class="card shop-clean-list">${doneRows}</div>`:''}`;
 }
 function renderShopCheckout(){
-  return`${shopTabs()}<div class="card shopping-add"><textarea id="shopInput" class="input shop-fast-input" rows="1" enterkeyhint="enter" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false"></textarea><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div id="shopListLive">${renderShopListLive()}</div>`
+  return`${shopTabs()}<div class="card shopping-add"><textarea id="shopInput" class="input shop-fast-input" rows="1" enterkeyhint="enter" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false"></textarea><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div id="shopAmbiguity" class="shop-ambiguity hidden"></div><div id="shopListLive">${renderShopListLive()}</div>`
 }
 function shopFastInputActive(){
   const input=document.getElementById('shopInput');
@@ -3210,19 +3384,67 @@ document.querySelectorAll('[data-receipt-period-apply]').forEach(b=>b.addEventLi
   render();
 }));
 document.querySelectorAll('[data-export-receipt]').forEach(b=>b.addEventListener('click',()=>exportReceiptPdf(b.dataset.exportReceipt)));document.querySelectorAll('[data-shopcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.shopcat);render()}));document.querySelectorAll('[data-dbdetail]').forEach(b=>b.addEventListener('click',()=>{state.modal='dbdetail:'+b.dataset.dbdetail;render()}));document.querySelectorAll('[data-purchase-detail]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.purchaseDetail;if(!id)return;state.modal='purchase:'+id;render()}));document.querySelectorAll('[data-cancel-purchase-session]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.cancelPurchaseSession;if(!id)return;state.modal=null;render();handleCancelCheckout(id)}));document.querySelectorAll('[data-detail-edit-db]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=b.dataset.detailEditKey||null;state.modal='shopcat:'+encodeURIComponent(b.dataset.detailEditDb);render()}));document.querySelectorAll('[data-detail-delete-db]').forEach(b=>b.addEventListener('click',()=>{const payload={key:b.dataset.detailDeleteDb,name:b.dataset.detailDeleteName||''};state.modal=null;render();handleDeleteDbItem(payload)}));document.querySelectorAll('[data-dbcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.dbcat);render()}));document.querySelectorAll('[data-delete-db]').forEach(b=>b.addEventListener('click',()=>handleDeleteDbItem({key:b.dataset.deleteDb,name:b.dataset.deleteDbName||''})));document.querySelectorAll('[data-priority-choice]').forEach(b=>b.addEventListener('click',()=>{const v=(b.dataset.priorityChoice||'').toUpperCase();const input=document.getElementById('shopPriorityValue');if(input)input.value=v;document.querySelectorAll('[data-priority-choice]').forEach(x=>x.classList.toggle('active',(x.dataset.priorityChoice||'').toUpperCase()===v));}));document.getElementById('checkoutStore')?.addEventListener('blur',e=>{e.target.value=normalizeStoreName(e.target.value)});document.getElementById('addTx')?.addEventListener('click',()=>{if(!state.wallets.length){toast('Buat dompet dulu di Kekayaan.');return}state.modal='txPicker';render()});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{state.modal=null;state.txClientId=null;shopEditReturnKey=null;render()}));document.querySelector('.modal-bg')?.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg')){state.modal=null;state.txClientId=null;render()}});document.querySelectorAll('[data-txtype]').forEach(b=>b.addEventListener('click',()=>{state.txClientId=makeId();state.modal='tx:'+b.dataset.txtype;render()}));document.querySelectorAll('[data-checkout]').forEach(b=>b.addEventListener('click',()=>{state.modal='checkout:'+b.dataset.checkout;render()}));document.querySelectorAll('[data-delete-shop]').forEach(b=>b.addEventListener('click',()=>deleteShopListItem(b.dataset.deleteShop)));
-const addShop=async({keepFocus=false}={})=>{
-  const input=document.getElementById('shopInput'),raw=input?.value.trim();
-  if(!raw)return;
-  const rec=smartItem(raw),item={id:makeId(),originalInput:raw,name:rec.name,normalized:normalizeItemName(rec.name).toLowerCase(),category:rec.category,priority:rec.priority,uom:rec.uom,addedAt:new Date().toISOString(),purchased:false};
+const addShop=async({keepFocus=false,resolvedName=null,originalRaw=null,skipResolve=false}={})=>{
+  const input=document.getElementById('shopInput');
+  const typed=String(originalRaw??input?.value??'').trim();
+  if(!typed)return;
+
+  if(!skipResolve)await warmShoppingAutocorrect(260);
+
+  const resolved=skipResolve
+    ?{name:normalizeItemName(resolvedName||typed),source:'choice'}
+    :resolveShoppingInput(typed);
+
+  if(resolved.ambiguity?.length){
+    showShopAmbiguity(typed,resolved.ambiguity,keepFocus);
+    if(keepFocus&&input){
+      try{input.focus({preventScroll:true})}catch(_){input.focus()}
+    }
+    return;
+  }
+
+  const finalName=normalizeItemName(resolved.name||typed);
+  if(!finalName)return;
+
+  clearShopAmbiguity();
+
+  const rec=smartItem(finalName),item={
+    id:makeId(),
+    originalInput:typed,
+    correctedFrom:resolved.correctedFrom||null,
+    name:rec.name,
+    normalized:normalizeItemName(rec.name).toLocaleLowerCase('id-ID'),
+    category:rec.category,
+    priority:rec.priority,
+    uom:rec.uom,
+    addedAt:new Date().toISOString(),
+    purchased:false
+  };
+
   state.checklist=[item,...state.checklist];
   persistCaches();
   playShopClick();
+
   if(input){input.value='';input.scrollTop=0}
   refreshShopListLive();
-  if(keepFocus&&input){try{input.focus({preventScroll:true})}catch(_){input.focus()}}
-  try{await updateBucket('checklist',state.checklist);queueShoppingPush(rec.name)}catch(e){console.error(e);toast('Item tersimpan lokal, sync gagal.')}
+
+  if(keepFocus&&input){
+    try{input.focus({preventScroll:true})}catch(_){input.focus()}
+  }
+
+  if(resolved.correctedFrom&&shoppingAutocorrectKey(resolved.correctedFrom)!==shoppingAutocorrectKey(rec.name)){
+    toast(`${resolved.correctedFrom.toUpperCase()} → ${String(rec.name).toUpperCase()}`);
+  }
+
+  try{
+    await updateBucket('checklist',state.checklist);
+    queueShoppingPush(rec.name);
+  }catch(e){
+    console.error(e);
+    toast('Item tersimpan lokal, sync gagal.');
+  }
 };
-document.getElementById('shopAdd')?.addEventListener('click',()=>addShop({keepFocus:false}));const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(e.repeat)return;addShop({keepFocus:true})}});bindShopListLive();document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
+document.getElementById('shopAdd')?.addEventListener('click',()=>addShop({keepFocus:false}));const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('input',()=>clearShopAmbiguity());shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(e.repeat)return;addShop({keepFocus:true})}});bindShopListLive();document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
 document.getElementById('qtyMinus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=Math.max(.01,(parseFloat(el.value)||1)-1)});document.getElementById('qtyPlus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=(parseFloat(el.value)||0)+1});bindMoneyInputs();document.getElementById('walletForm')?.addEventListener('submit',handleWalletSubmit);document.getElementById('walletEditForm')?.addEventListener('submit',handleWalletEditSubmit);document.getElementById('budgetForm')?.addEventListener('submit',handleBudgetSubmit);document.getElementById('txForm')?.addEventListener('submit',handleTxSubmit);document.getElementById('txEditForm')?.addEventListener('submit',handleTxEditSubmit);document.getElementById('checkoutForm')?.addEventListener('submit',handleCheckoutSubmit);document.getElementById('shopCategoryForm')?.addEventListener('submit',handleShopCategorySubmit);document.getElementById('investmentForm')?.addEventListener('submit',handleInvestmentSubmit);document.getElementById('investmentIncomeForm')?.addEventListener('submit',handleInvestmentIncomeSubmit);document.getElementById('investmentEditForm')?.addEventListener('submit',handleInvestmentEditSubmit);document.getElementById('assetForm')?.addEventListener('submit',handleAssetSubmit);document.getElementById('assetEditForm')?.addEventListener('submit',handleAssetEditSubmit);
 document.getElementById('themeToggle')?.addEventListener('click',()=>{const darkNow=document.documentElement.classList.contains('dark');localStorage.setItem('fin_theme',darkNow?'light':'dark');applyTheme();render()});document.getElementById('soundToggle')?.addEventListener('click',()=>{const next=soundIsOn()?'off':'on';localStorage.setItem('cn_sound',next);if(next==='on')playShopClick();render()});document.getElementById('guideBtn')?.addEventListener('click',()=>{state.modal='guide';render()});
 document.getElementById('categoryGuideBtn')?.addEventListener('click',()=>{state.categoryGuideSearch='';state.modal='categoryGuide';render()});
@@ -3693,7 +3915,7 @@ async function recoverOnline(){if(reconnectPromise)return reconnectPromise;recon
 window.addEventListener('online',()=>{if(!startupSyncing)recoverOnline()});window.addEventListener('offline',()=>{state.online=false;render()});window.addEventListener('pageshow',()=>{if(!startupSyncing&&state.household&&navigator.onLine)recoverOnline()});document.addEventListener('visibilitychange',()=>{if(!startupSyncing&&document.visibilityState==='visible'&&state.household&&navigator.onLine)recoverOnline()});
 history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(refs.modal){if(state.modal==='restorePreview'){state.restoreCandidate=null;state.modal='settings'}else if(state.modal==='guide'){state.modal='settings'}else if(state.modal==='categoryGuide'){state.categoryGuideSearch='';state.modal='settings'}else if(state.modal==='catalogSettings'){state.catalogSearch='';state.modal='settings'}else if(state.modal==='receiptPeriodPicker'){state.receiptPickerMonth=null;state.receiptPickerYear=null;state.modal=null}else{state.modal=null;state.restoreCandidate=null}state.confirmation=null;state.txClientId=null;render();history.pushState({finGuard:true},'');return}if(refs.tab!=='dashboard'){state.tab='dashboard';render();history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
 async function seedMissingCategories(){if(!state.household?.id||!navigator.onLine)return;const jobs=[];if(!state.categories.length)jobs.push(sb.rpc('finance_seed_categories',{p_household_id:state.household.id}));if(!state.shoppingCategories.length)jobs.push(sb.rpc('shopping_seed_categories',{p_household_id:state.household.id}));if(!jobs.length)return;const results=await Promise.all(jobs);const err=results.find(x=>x?.error)?.error;if(err)throw err;await loadAll({rerender:false,preserveCacheOnEmpty:true})}
-async function boot(){const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
+async function boot(){loadShoppingAutocorrect().catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).then(r=>r.update()).catch(console.warn))}boot();
 })();
 </script>
