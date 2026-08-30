@@ -1759,6 +1759,174 @@
       margin-top:12px;
     }
 
+
+    /* CN MONEY v2.3.0 — DATABASE foundation */
+    .catalog-settings-modal{
+      max-height:min(88dvh,760px)!important;
+      display:flex!important;
+      flex-direction:column!important;
+      overflow:hidden!important;
+    }
+    .catalog-tools{
+      flex:0 0 auto;
+    }
+    .catalog-search{
+      margin-top:2px;
+    }
+    .catalog-tabs{
+      display:flex;
+      gap:7px;
+      margin:10px 0 8px;
+      overflow-x:auto;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+    }
+    .catalog-tabs::-webkit-scrollbar{display:none}
+    .catalog-tab{
+      flex:0 0 auto;
+      min-height:35px;
+      padding:0 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9.5px;
+      font-weight:1000;
+      letter-spacing:.035em;
+    }
+    .catalog-tab.active{
+      color:var(--primary);
+      border-color:color-mix(in srgb,var(--primary) 45%,var(--line));
+      background:color-mix(in srgb,var(--primary) 12%,var(--surface));
+    }
+    .catalog-count{
+      color:var(--muted);
+      font-size:9px;
+      font-weight:900;
+      letter-spacing:.035em;
+      margin:0 2px 8px;
+    }
+    .catalog-list{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+      padding-bottom:6px;
+    }
+    .catalog-list::-webkit-scrollbar{display:none}
+    .catalog-group{
+      margin:10px 2px 6px;
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.065em;
+    }
+    .catalog-row{
+      width:100%;
+      min-height:50px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:9px 11px;
+      margin-bottom:6px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+      color:var(--text);
+      text-align:left;
+    }
+    .catalog-row-main{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    .catalog-row-main b{
+      font-size:11px;
+      line-height:1.2;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .catalog-row-main small{
+      color:var(--muted);
+      font-size:8.5px;
+      font-weight:750;
+      line-height:1.25;
+    }
+    .catalog-check{
+      flex:0 0 auto;
+      width:24px;
+      height:24px;
+      border:1.5px solid var(--line);
+      border-radius:7px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:transparent;
+      font-size:14px;
+      font-weight:1000;
+    }
+    .catalog-row.active .catalog-check{
+      border-color:var(--primary);
+      background:var(--primary);
+      color:white;
+    }
+    .catalog-loading{
+      padding:30px 12px;
+      text-align:center;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:850;
+    }
+
+    /* Optional master suggestions. Does not change input automatically. */
+    .shopping-add-wrap{
+      position:relative;
+    }
+    .catalog-suggestions{
+      position:absolute;
+      left:0;
+      right:0;
+      top:calc(100% + 6px);
+      z-index:55;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+      box-shadow:0 14px 38px rgba(0,0,0,.16);
+      overflow:hidden;
+      display:none;
+    }
+    .catalog-suggestions.show{display:block}
+    .catalog-suggestion{
+      width:100%;
+      min-height:44px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:9px 11px;
+      border:0;
+      border-bottom:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      text-align:left;
+    }
+    .catalog-suggestion:last-child{border-bottom:0}
+    .catalog-suggestion b{
+      font-size:11px;
+      line-height:1.2;
+    }
+    .catalog-suggestion small{
+      flex:0 0 auto;
+      color:var(--muted);
+      font-size:8px;
+      font-weight:900;
+      letter-spacing:.035em;
+    }
+
 </style>
 </head>
 <body>
@@ -1772,8 +1940,8 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.2.2';
-const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',deviceNames:{},modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
+const CN_MONEY_VERSION='2.3.0';
+const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const rupiah=n=>'Rp '+Math.round(Number(n||0)).toLocaleString('id-ID');
@@ -1849,9 +2017,163 @@ function clearLocalCaches(){if(financeCacheKey())localStorage.removeItem(finance
 async function ensureSession(){const {data,error}=await sb.auth.getSession();if(error)throw error;if(data.session){state.userId=data.session.user.id;return data.session}const res=await sb.auth.signInAnonymously();if(res.error)throw res.error;state.userId=res.data.session?.user?.id||res.data.user?.id;return res.data.session}
 function saveHousehold(h){state.household=h;localStorage.setItem('fin_household_id',h.id);localStorage.setItem('fin_household_name',h.name||'Household');if(h.inviteCode)localStorage.setItem('fin_household_code',h.inviteCode);localStorage.setItem('sp_household_id',h.id);localStorage.setItem('sp_household_name',h.name||'Household');if(h.inviteCode)localStorage.setItem('sp_household_invite_code',h.inviteCode)}
 function restoreHouseholdFromLocal(){const id=localStorage.getItem('fin_household_id');if(!id)return false;saveHousehold({id,name:localStorage.getItem('fin_household_name')||'Household',inviteCode:localStorage.getItem('fin_household_code')||localStorage.getItem('sp_household_invite_code')||''});return true}
-function forgetHousehold(){clearLocalCaches();state.household=null;['fin_household_id','fin_household_name','fin_household_code','sp_household_id','sp_household_name','sp_household_invite_code','cn_restore_undo_available','cn_restore_undo_at','cn_last_backup_at','cn_last_investment_income_wallet','cn_device_name'].forEach(k=>localStorage.removeItem(k));if(state.channel){sb.removeChannel(state.channel);state.channel=null}}
+function forgetHousehold(){const oldCatalogKey=catalogCacheKey();clearLocalCaches();localStorage.removeItem(oldCatalogKey);state.household=null;['fin_household_id','fin_household_name','fin_household_code','sp_household_id','sp_household_name','sp_household_invite_code','cn_restore_undo_available','cn_restore_undo_at','cn_last_backup_at','cn_last_investment_income_wallet','cn_device_name'].forEach(k=>localStorage.removeItem(k));if(state.channel){sb.removeChannel(state.channel);state.channel=null}}
 async function restoreHousehold(){const id=localStorage.getItem('fin_household_id');if(!id)return false;if(!navigator.onLine)return restoreHouseholdFromLocal();const {data,error}=await sb.from('households').select('id,name,invite_code').eq('id',id).maybeSingle();if(error){console.warn('Household cloud check failed, using cache',error);return restoreHouseholdFromLocal()}if(!data){forgetHousehold();return false}saveHousehold({id:data.id,name:data.name,inviteCode:data.invite_code||localStorage.getItem('fin_household_code')||''});return true}
 async function joinHousehold(code,deviceName){if(!navigator.onLine)throw new Error('Internet diperlukan untuk bergabung.');const normalized=normalizeCode(code),cleanDeviceName=(deviceName||'Perangkat CN MONEY').trim();const {data,error}=await sb.rpc('join_household',{p_invite_code:normalized,p_device_name:cleanDeviceName});if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row?.household_id)throw new Error('Kode tidak valid.');localStorage.setItem('cn_device_name',cleanDeviceName);saveHousehold({id:row.household_id,name:row.household_name||'Household',inviteCode:normalized});const [seed,shopSeed]=await Promise.all([sb.rpc('finance_seed_categories',{p_household_id:row.household_id}),sb.rpc('shopping_seed_categories',{p_household_id:row.household_id})]);if(seed.error)throw seed.error;if(shopSeed.error)throw shopSeed.error;await loadAll({rerender:false});subscribeRealtime()}
+
+function catalogCacheKey(){return state.household?.id?`cn_catalog_cache_${state.household.id}`:'cn_catalog_cache'}
+function hydrateCatalogCache(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(catalogCacheKey())||'null');
+    if(saved&&typeof saved==='object'){
+      state.catalog={
+        categories:Array.isArray(saved.categories)?saved.categories:[],
+        subcategories:Array.isArray(saved.subcategories)?saved.subcategories:[],
+        items:Array.isArray(saved.items)?saved.items:[],
+        brands:Array.isArray(saved.brands)?saved.brands:[],
+        visibility:saved.visibility&&typeof saved.visibility==='object'?saved.visibility:{}
+      };
+    }
+  }catch(err){console.warn('Catalog cache',err)}
+}
+function persistCatalogCache(){
+  try{localStorage.setItem(catalogCacheKey(),JSON.stringify(state.catalog||{}))}catch(err){console.warn('Catalog cache save',err)}
+}
+async function loadCatalogSnapshot(){
+  if(!state.household?.id)return state.catalog;
+  if(!state.online){
+    hydrateCatalogCache();
+    return state.catalog;
+  }
+  try{
+    const {data,error}=await sb.rpc('cn_catalog_get_snapshot',{p_household_id:state.household.id});
+    if(error)throw error;
+    const row=Array.isArray(data)?data[0]:data;
+    if(row&&typeof row==='object'){
+      state.catalog={
+        categories:Array.isArray(row.categories)?row.categories:[],
+        subcategories:Array.isArray(row.subcategories)?row.subcategories:[],
+        items:Array.isArray(row.items)?row.items:[],
+        brands:Array.isArray(row.brands)?row.brands:[],
+        visibility:row.visibility&&typeof row.visibility==='object'?row.visibility:{}
+      };
+      persistCatalogCache();
+    }
+  }catch(err){
+    console.warn('Database catalog belum tersedia',err);
+    hydrateCatalogCache();
+  }
+  return state.catalog;
+}
+function catalogDirectVisible(kind,key){
+  const map=state.catalog?.visibility||{};
+  return map[`${kind}:${key}`]!==false;
+}
+function catalogCategoryVisible(key){return catalogDirectVisible('category',key)}
+function catalogSubcategoryVisible(entry){
+  return catalogDirectVisible('subcategory',entry.subcategory_key)&&catalogCategoryVisible(entry.category_key);
+}
+function catalogItemVisible(entry){
+  if(!catalogDirectVisible('item',entry.item_key))return false;
+  if(!catalogCategoryVisible(entry.category_key))return false;
+  const sub=(state.catalog?.subcategories||[]).find(x=>x.subcategory_key===entry.subcategory_key);
+  return !sub||catalogSubcategoryVisible(sub);
+}
+function catalogBrandVisible(entry){return catalogDirectVisible('brand',entry.brand_key)}
+function catalogVisibleCount(kind){
+  const rows=kind==='category'?state.catalog.categories:kind==='subcategory'?state.catalog.subcategories:kind==='brand'?state.catalog.brands:state.catalog.items;
+  return (rows||[]).filter(x=>kind==='category'?catalogCategoryVisible(x.category_key):kind==='subcategory'?catalogSubcategoryVisible(x):kind==='brand'?catalogBrandVisible(x):catalogItemVisible(x)).length;
+}
+function catalogSearchText(v){return String(v||'').trim().toLocaleLowerCase('id-ID')}
+function catalogRowsForSection(){
+  const section=state.catalogSection||'category',q=catalogSearchText(state.catalogSearch);
+  let rows=[];
+  if(section==='category')rows=(state.catalog.categories||[]).map(x=>({...x,_kind:'category',_key:x.category_key,_name:x.name,_group:''}));
+  if(section==='subcategory')rows=(state.catalog.subcategories||[]).map(x=>({...x,_kind:'subcategory',_key:x.subcategory_key,_name:x.name,_group:x.category_name||''}));
+  if(section==='brand')rows=(state.catalog.brands||[]).map(x=>({...x,_kind:'brand',_key:x.brand_key,_name:x.name,_group:x.category_hint||'LAINNYA'}));
+  if(section==='item')rows=(state.catalog.items||[]).map(x=>({...x,_kind:'item',_key:x.item_key,_name:x.canonical_name,_group:x.category_name||''}));
+  if(q)rows=rows.filter(x=>catalogSearchText([x._name,x._group,x.subcategory_name,x.product_hint,(x.aliases||[]).join(' ')].filter(Boolean).join(' ')).includes(q));
+  return rows;
+}
+function catalogRowActive(row){
+  return row._kind==='category'?catalogCategoryVisible(row._key):
+    row._kind==='subcategory'?catalogSubcategoryVisible(row):
+    row._kind==='brand'?catalogBrandVisible(row):
+    catalogItemVisible(row);
+}
+function renderCatalogSettings(){
+  const section=state.catalogSection||'category',rows=catalogRowsForSection();
+  const rawCount=section==='category'?(state.catalog.categories||[]).length:
+    section==='subcategory'?(state.catalog.subcategories||[]).length:
+    section==='brand'?(state.catalog.brands||[]).length:(state.catalog.items||[]).length;
+  const activeCount=catalogVisibleCount(section);
+  let body='';
+  if(!rawCount){
+    body=`<div class="catalog-loading">${state.online?'DATABASE BELUM TERSEDIA':'DATABASE TERSIMPAN BELUM TERSEDIA'}</div>`;
+  }else{
+    let lastGroup=null;
+    body=rows.map(row=>{
+      const group=section==='category'?'':String(row._group||'LAINNYA').toUpperCase();
+      const groupHead=group&&group!==lastGroup?`<div class="catalog-group">${esc(group)}</div>`:'';
+      if(group)lastGroup=group;
+      const active=catalogRowActive(row);
+      const sub=section==='item'?[row.subcategory_name,row.default_uom].filter(Boolean).join(' · '):
+        section==='brand'?String(row.product_hint||''):
+        section==='subcategory'?'':`${(state.catalog.subcategories||[]).filter(s=>s.category_key===row.category_key).length} SUB KATEGORI`;
+      return`${groupHead}<button type="button" class="catalog-row ${active?'active':''}" data-catalog-toggle="${esc(row._kind)}" data-catalog-key="${esc(row._key)}"><span class="catalog-row-main"><b>${esc(String(row._name||'').toUpperCase())}</b>${sub?`<small>${esc(String(sub).toUpperCase())}</small>`:''}</span><span class="catalog-check">✓</span></button>`;
+    }).join('')||`<div class="catalog-loading">DATA TIDAK DITEMUKAN</div>`;
+  }
+  return`<div class="modal-bg"><div class="modal catalog-settings-modal"><div class="modal-head"><div><div class="modal-title">DATABASE</div></div><button class="xbtn" data-catalog-close>×</button></div><div class="catalog-tools"><input id="catalogSearch" class="input catalog-search" value="${esc(state.catalogSearch||'')}" placeholder="Cari…" autocomplete="off" autocorrect="off" spellcheck="false"><div class="catalog-tabs">${[['category','KATEGORI'],['subcategory','SUB KATEGORI'],['brand','MEREK'],['item','BARANG']].map(([v,l])=>`<button type="button" class="catalog-tab ${section===v?'active':''}" data-catalog-section="${v}">${l}</button>`).join('')}</div><div class="catalog-count">${activeCount} AKTIF · ${rawCount} TOTAL</div></div><div class="catalog-list">${body}</div></div></div>`;
+}
+function catalogSuggestions(query){
+  const q=catalogSearchText(query);
+  if(q.length<2)return[];
+  const out=[];
+  for(const x of state.catalog.items||[]){
+    if(!catalogItemVisible(x))continue;
+    const hay=catalogSearchText([x.canonical_name,x.category_name,x.subcategory_name].join(' '));
+    if(hay.includes(q))out.push({name:x.canonical_name,type:'BARANG',score:hay.startsWith(q)?0:1});
+  }
+  for(const x of state.catalog.brands||[]){
+    if(!catalogBrandVisible(x))continue;
+    const aliases=Array.isArray(x.aliases)?x.aliases:[];
+    const hay=catalogSearchText([x.name,...aliases,x.product_hint].join(' '));
+    if(hay.includes(q))out.push({name:x.name,type:'MEREK',score:hay.startsWith(q)?0:2});
+  }
+  const seen=new Set();
+  return out.sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name,'id',{sensitivity:'base'})).filter(x=>{const k=x.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).slice(0,6);
+}
+function updateCatalogSuggestions(input){
+  const box=document.getElementById('catalogSuggestions');
+  if(!box)return;
+  const rows=catalogSuggestions(input?.value||'');
+  if(!rows.length){box.classList.remove('show');box.innerHTML='';return}
+  box.innerHTML=rows.map(x=>`<button type="button" class="catalog-suggestion" data-catalog-suggest="${esc(x.name)}"><b>${esc(x.name)}</b><small>${x.type}</small></button>`).join('');
+  box.classList.add('show');
+  box.querySelectorAll('[data-catalog-suggest]').forEach(b=>b.addEventListener('click',()=>{
+    if(input){input.value=b.dataset.catalogSuggest||'';input.focus()}
+    box.classList.remove('show');
+    box.innerHTML='';
+  }));
+}
+async function setCatalogVisibility(kind,key,next){
+  if(!state.household?.id||!state.online)return toast('INTERNET DIPERLUKAN.');
+  const map={...(state.catalog.visibility||{})};
+  map[`${kind}:${key}`]=!!next;
+  state.catalog.visibility=map;
+  persistCatalogCache();
+  render();
+  try{
+    const {error}=await sb.rpc('cn_catalog_set_visibility',{p_household_id:state.household.id,p_kind:kind,p_entry_key:key,p_is_visible:!!next});
+    if(error)throw error;
+  }catch(err){
+    console.error(err);
+    await loadCatalogSnapshot();
+    render();
+    toast('GAGAL MENYIMPAN PILIHAN.');
+  }
+}
+
 async function loadDeviceNames(){
   if(!state.household?.id||!state.online)return state.deviceNames||{};
   try{
@@ -1895,7 +2217,7 @@ async function loadAll({rerender=true,preserveCacheOnEmpty=false}={}){if(!state.
 const err=w.error||c.error||t.error||inv.error||ast.error||ws.error||b.error||sess.error||si.error||bs.error||sc.error||sp.error;if(err)throw err;
 const nw=w.data||[],nc=c.data||[],nt=t.data||[],serverInvestments=inv.data||[],ni=serverInvestments.filter(x=>!state.optimisticDeletedInvestmentIds.includes(x.id)),na=ast.data||[];state.optimisticDeletedInvestmentIds=state.optimisticDeletedInvestmentIds.filter(id=>serverInvestments.some(x=>x.id===id));/* A successful cloud response is authoritative even when the result is empty. Keeping cached rows here caused soft-deleted items to remain visible on other devices until restart. Cache fallback is handled only when the cloud request actually fails/offline. */state.wallets=nw;state.categories=nc;state.transactions=nt;state.investments=ni;state.assets=na;const wr=Array.isArray(ws.data)?ws.data[0]:ws.data;if(wr)state.wealthSummary={liquid_balance:Number(wr.liquid_balance||0),investment_cost:Number(wr.investment_cost||0),investment_value:Number(wr.investment_value||0),investment_gain_loss:Number(wr.investment_gain_loss||0),asset_value:Number(wr.asset_value||0),total_wealth:Number(wr.total_wealth||0)};
 for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=row.data;if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
-state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await loadDeviceNames();persistCaches();if(rerender&&!state.modal)render()}
+state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);persistCaches();if(rerender&&!state.modal)render()}
 function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>loadAll({rerender:!state.modal,preserveCacheOnEmpty:true}).catch(console.error);state.channel=sb.channel('fin-safety-'+id)
 .on('postgres_changes',{event:'*',schema:'public',table:'wallets',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'transactions',filter:`household_id=eq.${id}`},reload)
@@ -1907,7 +2229,8 @@ function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.
 .on('postgres_changes',{event:'*',schema:'public',table:'shopping_session_items',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'shopping_categories',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'shopping_item_profiles',filter:`household_id=eq.${id}`},reload)
-.on('postgres_changes',{event:'*',schema:'public',table:'monthly_budgets',filter:`household_id=eq.${id}`},reload).subscribe()}
+.on('postgres_changes',{event:'*',schema:'public',table:'monthly_budgets',filter:`household_id=eq.${id}`},reload)
+.on('postgres_changes',{event:'*',schema:'public',table:'cn_household_catalog_visibility',filter:`household_id=eq.${id}`},reload).subscribe()}
 async function updateBucket(bucket,value){if(!state.household?.id)throw new Error('Data bersama tidak tersedia');const {error}=await sb.from('household_data').update({data:value,updated_at:new Date().toISOString(),updated_by:state.userId}).eq('household_id',state.household.id).eq('bucket',bucket);if(error)throw error}
 function metrics(){const monthTx=state.transactions.filter(t=>String(t.transaction_date||'').startsWith(state.month));const income=monthTx.filter(t=>t.transaction_type==='income').reduce((a,t)=>a+Number(t.amount||0),0);const expense=monthTx.filter(t=>t.transaction_type==='expense').reduce((a,t)=>a+Number(t.amount||0),0);const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);const cats={};monthTx.filter(t=>t.transaction_type==='expense').forEach(t=>{const c=state.categories.find(x=>x.id===t.category_id)?.name||'Lainnya';cats[c]=(cats[c]||0)+Number(t.amount||0)});const breakdown=Object.entries(cats).sort((a,b)=>b[1]-a[1]);return{monthTx,income,expense,net:income-expense,total,breakdown}}
 function txDescription(t){if(isInvestmentIncomeTx(t)){const inv=state.investments.find(i=>String(i.id)===String(t.source_id));return`${investmentIncomeTypeLabel(t.investment_income_type)} · ${inv?.name||'INVESTASI'}`}const cat=state.categories.find(c=>c.id===t.category_id)?.name;if(t.description)return t.description;if(cat)return cat;if(t.transaction_type==='transfer')return'Transfer antar dompet';if(t.transaction_type==='adjustment')return'Saldo awal';return txLabel(t.transaction_type)}
@@ -2016,7 +2339,7 @@ function renderShopCheckout(){
   scheduleShoppingCompletedExpiry(done);
   const activeRows=active.map(x=>`<div class="shop-item clean-list-item"><button class="shop-main shop-tap" data-checkout="${esc(x.id)}" aria-label="Checkout ${esc(x.name)}"><div class="shop-name">${esc(x.name)}</div></button><div class="shop-side"><button class="icon-action primary" data-shopcat="${esc(x.id)}" aria-label="Edit barang" title="Edit">${uiIcon('edit')}</button><button class="icon-action trash-action" data-delete-shop="${esc(x.id)}" aria-label="Hapus barang" title="Hapus">${uiIcon('trash')}</button></div></div>`).join('');
   const doneRows=done.slice(0,30).map(x=>`<div class="shop-item clean-list-item purchased"><div class="shop-main"><div class="shop-name">${esc(x.name)}</div></div><div class="shop-side">${x.shoppingSessionId?`<button class="icon-action danger" data-cancel-checkout="${esc(x.shoppingSessionId)}" aria-label="Batalkan checkout" title="Batalkan checkout">${uiIcon('undo')}</button>`:''}</div></div>`).join('');
-  return`${shopTabs()}<div class="card shopping-add"><input id="shopInput" class="input" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" spellcheck="false"><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div class="section-head"><div><div class="section-title">DAFTAR BELANJA</div><div class="section-sub">${active.length} BELUM DIBELI</div></div></div>${active.length?`<div class="card shop-clean-list">${activeRows}</div>`:`<div class="card empty empty-minimal"><div class="big">${uiIcon('shopping')}</div><b>DAFTAR KOSONG</b></div>`}${done.length?`<div class="section-head"><div><div class="section-title">SUDAH DIBELI</div></div></div><div class="card shop-clean-list">${doneRows}</div>`:''}`}
+  return`${shopTabs()}<div class="shopping-add-wrap"><div class="card shopping-add"><input id="shopInput" class="input" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" spellcheck="false"><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div id="catalogSuggestions" class="catalog-suggestions"></div></div><div class="section-head"><div><div class="section-title">DAFTAR BELANJA</div><div class="section-sub">${active.length} BELUM DIBELI</div></div></div>${active.length?`<div class="card shop-clean-list">${activeRows}</div>`:`<div class="card empty empty-minimal"><div class="big">${uiIcon('shopping')}</div><b>DAFTAR KOSONG</b></div>`}${done.length?`<div class="section-head"><div><div class="section-title">SUDAH DIBELI</div></div></div><div class="card shop-clean-list">${doneRows}</div>`:''}`}
 
 function dataItemCard(x){
   const cat=shoppingCategoryFor(x.name,x.category),priority=shoppingPriorityFor(x.name,x.priority,cat);
@@ -2287,6 +2610,7 @@ function closeFloatingPicker(){document.querySelectorAll('.picker-overlay').forE
 function openChoicePicker(trigger){closeFloatingPicker();const kind=trigger.dataset.choiceKind,target=trigger.dataset.choiceTarget,context=trigger.dataset.choiceContext||'',input=document.getElementById(target);if(!input)return;const options=pickerOptionsFor(kind,context,target),current=String(input.value||'');const overlay=document.createElement('div');overlay.className='picker-overlay';overlay.innerHTML=`<div class="picker-sheet"><div class="picker-sheet-head"><div class="picker-sheet-title">${esc(pickerTitle(kind))}</div><button type="button" class="picker-close" aria-label="Tutup">×</button></div><div class="picker-options">${options.map(o=>`<button type="button" class="picker-option ${String(o.value)===current?'active':''}" data-choice-value="${esc(o.value)}"><span><b>${esc(o.label)}</b>${o.sub?`<small>${esc(o.sub)}</small>`:''}</span><span class="picker-check">${String(o.value)===current?'✓':''}</span></button>`).join('')}</div></div>`;document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.picker-close'))return closeFloatingPicker();const opt=e.target.closest('[data-choice-value]');if(!opt)return;const val=opt.dataset.choiceValue||'',chosen=options.find(o=>String(o.value)===String(val));input.value=val;trigger.querySelector('.picker-value').textContent=chosen?.label||val;closeFloatingPicker();if(kind==='history-group'){state.historyGroup=val;render()}})}
 function openDatePicker(trigger){closeFloatingPicker();const target=trigger.dataset.dateTarget,input=document.getElementById(target);if(!input)return;let selected=input.value||today(),parts=selected.split('-').map(Number),viewYear=parts[0]||new Date().getFullYear(),viewMonth=(parts[1]||new Date().getMonth()+1)-1;const overlay=document.createElement('div');overlay.className='picker-overlay';overlay.innerHTML='<div class="picker-sheet"></div>';document.body.appendChild(overlay);const sheet=overlay.querySelector('.picker-sheet');const draw=()=>{const first=new Date(viewYear,viewMonth,1),days=new Date(viewYear,viewMonth+1,0).getDate(),offset=(first.getDay()+6)%7,now=today();let cells='';for(let i=0;i<offset;i++)cells+='<button class="date-day" type="button" disabled></button>';for(let d=1;d<=days;d++){const val=`${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells+=`<button class="date-day ${val===selected?'active':''} ${val===now?'today':''}" type="button" data-date-value="${val}">${d}</button>`}sheet.innerHTML=`<div class="picker-sheet-head"><div class="picker-sheet-title">PILIH TANGGAL</div><button type="button" class="picker-close">×</button></div><div class="date-picker-nav"><button type="button" data-date-step="-1">−</button><div class="date-picker-label">${esc(MONTH_NAMES[viewMonth])} ${viewYear}</div><button type="button" data-date-step="1">+</button></div><div class="date-week"><span>SEN</span><span>SEL</span><span>RAB</span><span>KAM</span><span>JUM</span><span>SAB</span><span>MIN</span></div><div class="date-grid">${cells}</div><button type="button" class="btn btn-soft btn-block date-today" data-date-today>HARI INI</button>`};draw();overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.picker-close'))return closeFloatingPicker();const step=e.target.closest('[data-date-step]');if(step){viewMonth+=Number(step.dataset.dateStep);if(viewMonth<0){viewMonth=11;viewYear--}if(viewMonth>11){viewMonth=0;viewYear++}draw();return}const todayBtn=e.target.closest('[data-date-today]');const day=e.target.closest('[data-date-value]');const val=todayBtn?today():day?.dataset.dateValue;if(!val)return;selected=val;input.value=val;trigger.querySelector('.picker-value').textContent=dateLabel(val);closeFloatingPicker()})}
 function renderModal(){if(!state.modal)return'';
+if(state.modal==='catalogSettings')return renderCatalogSettings();
 if(state.modal==='receiptPeriodPicker'){const base=String(state.receiptMonth||today().slice(0,7)),baseYear=Number(base.slice(0,4))||new Date().getFullYear(),baseMonth=Number(base.slice(5,7))||1,year=Number(state.receiptPickerYear||baseYear),month=Number(state.receiptPickerMonth||baseMonth),years=Array.from({length:11},(_,i)=>baseYear-5+i);return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PERIODE RECEIPT</div></div><button class="xbtn" data-receipt-period-close>×</button></div><div class="receipt-period-grid"><div class="receipt-period-column"><div class="receipt-period-title">BULAN</div><div class="receipt-period-scroll">${MONTH_NAMES.map((name,i)=>{const m=i+1;return`<button type="button" class="receipt-period-choice ${m===month?'active':''}" data-receipt-period-month="${m}">${name}</button>`}).join('')}</div></div><div class="receipt-period-column"><div class="receipt-period-title">TAHUN</div><div class="receipt-period-scroll">${years.map(y=>`<button type="button" class="receipt-period-choice year ${y===year?'active':''}" data-receipt-period-year="${y}">${y}</button>`).join('')}</div></div></div><div class="receipt-period-actions"><button type="button" class="btn btn-soft" data-receipt-period-current>BULAN INI</button><button type="button" class="btn btn-primary" data-receipt-period-apply>TERAPKAN</button></div></div></div>`}
 if(state.modal==='monthPicker'){const selectedYear=Number(String(state.month||today().slice(0,7)).slice(0,4))||new Date().getFullYear(),year=Number(state.monthPickerYear||selectedYear),selectedMonth=Number(String(state.month||'').slice(5,7))||1,currentMonth=today().slice(0,7),years=Array.from({length:9},(_,i)=>selectedYear-4+i);return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PERIODE</div></div><button class="xbtn" data-close>×</button></div><div class="period-picker"><div class="period-label">TAHUN</div><div class="period-rail" data-period-rail="year">${years.map(y=>`<button type="button" class="period-chip year ${y===year?'active':''}" data-period-year="${y}">${y}</button>`).join('')}</div><div class="period-label">BULAN</div><div class="period-rail" data-period-rail="month">${MONTH_NAMES.map((name,i)=>{const m=i+1,active=year===selectedYear&&m===selectedMonth;return`<button type="button" class="period-chip ${active?'active':''}" data-picker-month="${String(m).padStart(2,'0')}">${name}</button>`}).join('')}</div><button type="button" class="btn btn-soft btn-block period-current" data-picker-current="${currentMonth}">BULAN INI</button></div></div></div>`}
 
@@ -2314,7 +2638,7 @@ if(state.modal.startsWith('tx:')){const type=state.modal.split(':')[1],isTransfe
 if(state.modal.startsWith('checkout:')){const id=state.modal.slice(9),item=state.checklist.find(x=>String(x.id)===id);if(!item)return'';const db=state.itemDb[item.normalized]||{},smart=smartItem(item.name),uom=normalizeUom(db.uom||smart.uom||'Pcs'),lastWallet=localStorage.getItem('cn_last_checkout_wallet')||'',wallet=state.wallets.find(w=>String(w.id)===String(lastWallet))||state.wallets.find(w=>String(w.id)===String(smart.lastWalletId))||state.wallets[0],defaultPrice=Number(db.lastPrice||smart.lastPrice||0),defaultStore=normalizeStoreName(db.lastStore||smart.lastStore||'');return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">${esc(item.name)}</div></div><button class="xbtn" data-close>×</button></div><form id="checkoutForm" data-itemid="${esc(item.id)}"><div class="field checkout-price"><label class="label">Harga per Satuan</label>${numericInput('checkoutPrice',groupDigits(defaultPrice||''))}</div><div class="checkout-grid"><div class="field"><label class="label">Jumlah</label><div class="qty-row"><button class="qty-btn" type="button" id="qtyMinus">−</button><input id="checkoutQty" class="input" type="number" min="0.01" step="any" inputmode="decimal" value="1" style="text-align:center;font-weight:950"><button class="qty-btn" type="button" id="qtyPlus">+</button></div></div><div class="field"><label class="label">Satuan</label>${choiceTrigger('checkoutUom',uom,uom,'uom')}</div></div><div class="field"><label class="label">Tempat Beli</label><input id="checkoutStore" class="input" value="${esc(defaultStore)}" placeholder="Tempat beli" autocomplete="off" autocorrect="off" spellcheck="false"></div><div class="field"><label class="label">Dompet</label>${choiceTrigger('checkoutWallet',wallet?.id||'',wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div>${!state.wallets.length?'<div class="notice" style="margin-bottom:12px">Buat dompet terlebih dahulu di tab Kekayaan.</div>':''}<button class="btn btn-primary btn-block checkout-submit" type="submit" ${!state.wallets.length||!state.online?'disabled':''}>CHECKOUT</button></form></div></div>`}
 if(state.modal==='restorePreview'){const p=state.restoreCandidate;if(!p)return'';const s=backupSummary(p);return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">RESTORE DATA</div><div class="section-sub">${esc(backupDateTime(p.exported_at))}</div></div><button class="xbtn" data-restore-cancel>×</button></div><div class="restore-summary"><div class="cell"><span>DOMPET</span><b>${s.wallets}</b></div><div class="cell"><span>TRANSAKSI</span><b>${s.transactions}</b></div><div class="cell"><span>INVESTASI</span><b>${s.investments}</b></div><div class="cell"><span>ASET</span><b>${s.assets}</b></div><div class="cell"><span>SESI BELANJA</span><b>${s.shoppingSessions}</b></div><div class="cell"><span>ITEM BELANJA</span><b>${s.shoppingItems}</b></div></div><div class="restore-warning"><b>Restore mengganti kondisi data aktif Household dengan isi backup ini.</b><br>Checkpoint kondisi sekarang dibuat otomatis sebelum proses dimulai.</div><div class="restore-actions"><button class="btn btn-soft" data-restore-cancel ${state.loading?'disabled':''}>BATAL</button><button id="restoreExecuteBtn" class="btn btn-danger" ${state.loading?'disabled':''}>${state.loading?'MEMULIHKAN…':'RESTORE DATA'}</button></div></div></div>`}
 if(state.modal==='guide'){return`<div class="modal-bg"><div class="modal guide-modal"><div class="modal-head"><div><div class="modal-title">GUIDE CN MONEY</div></div><button class="xbtn" data-guide-close>×</button></div><div class="guide-stack"><div class="guide-card"><div class="guide-card-title">MULAI</div><p><b>DASHBOARD</b> buat lihat saldo, budget, aktivitas, dan insight. Tombol <b>+</b> dipakai untuk Pemasukan, Pengeluaran, atau Transfer.</p></div><div class="guide-card"><div class="guide-card-title">LIST BELANJAAN</div><p>Ketik nama barang lalu tambah. Tap barang untuk <b>Quick Checkout</b>. Barang yang sudah dibeli tetap terlihat sementara supaya bisa di-undo, lalu <b>hilang otomatis setelah 24 jam</b> dari List Belanjaan.</p><p>Receipt dan History pembeliannya tetap tersimpan.</p></div><div class="guide-card"><div class="guide-card-title">SMART LEARNING</div><p>CN MONEY mengingat koreksi <b>Kategori, Prioritas, dan UOM</b> yang lo simpan di Data Barang. Profil itu tersimpan di Household/Supabase dan dipakai lagi di perangkat lain.</p><p>Harga, toko, UOM, dan dompet terakhir juga diambil dari riwayat pembelian. Barang baru yang belum dikenal memakai aturan internal. <b>Tidak memakai AI/search internet di background.</b></p></div><div class="guide-card"><div class="guide-card-title">DATA BARANG & RECEIPT</div><p><b>DATA BARANG</b> berisi profil dan riwayat harga. <b>RECEIPT</b> berisi sesi checkout dan bisa diexport ke PDF thermal 80mm.</p></div><div class="guide-card"><div class="guide-card-title">KEKAYAAN</div><p><b>DOMPET</b> untuk kas/rekening, <b>INVESTASI</b> untuk nilai dan pendapatan investasi, dan <b>ASET</b> untuk barang bernilai. TOTAL ASET menggabungkan semuanya.</p></div><div class="guide-card"><div class="guide-card-title">BACKUP & RESTORE</div><p><b>BACKUP</b> menyimpan snapshot penuh ke file .cnmoney. <b>RESTORE</b> hanya menerima backup Household yang sama dan membuat checkpoint otomatis sebelum data dipulihkan.</p><p><b>BATALKAN RESTORE</b> hanya muncul setelah Restore benar-benar dilakukan.</p></div><div class="guide-card"><div class="guide-card-title">NOTIFIKASI</div><p>Notifikasi Household dikirim untuk <b>Pemasukan, Pengeluaran, dan item baru List Belanjaan</b>. Transfer dan Checkout tidak mengirim notifikasi.</p></div></div></div></div>`}
-if(state.modal==='settings'){const darkNow=document.documentElement.classList.contains('dark'),soundOn=soundIsOn(),pushOn=pushActive(),canUndo=Number(localStorage.getItem('cn_restore_undo_at')||0)>0;return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PENGATURAN</div></div><button class="xbtn" data-close>×</button></div><div class="card"><div class="setting-row"><div><div class="setting-title">HOUSEHOLD</div></div><div class="setting-status"><span class="dot ${state.online?'':'offline'}"></span><span class="household-name">${esc(state.household?.name||'RUMAH')}</span><span>· ${state.online?'ONLINE':'OFFLINE'}</span></div></div><div class="setting-row"><div><div class="setting-title">GUIDE APLIKASI</div></div><button type="button" id="guideBtn" class="btn btn-soft">BUKA</button></div><div class="setting-row"><div><div class="setting-title">TAMPILAN</div></div><button type="button" id="themeToggle" class="tap-toggle ${darkNow?'active':''}" aria-label="Ganti tampilan">${darkNow?'DARK':'LIGHT'}</button></div><div class="setting-row"><div><div class="setting-title">SUARA</div></div><button type="button" id="soundToggle" class="tap-toggle ${soundOn?'sound-on':'sound-off'}" aria-label="Aktifkan atau matikan suara">${soundOn?'ON':'OFF'}</button></div><div class="setting-row"><div><div class="setting-title">NOTIFIKASI</div></div><button type="button" id="notificationToggle" class="tap-toggle ${pushOn?'notification-on':'notification-off'}" aria-label="Aktifkan atau matikan notifikasi">${pushOn?'ON':'OFF'}</button></div><div class="setting-row"><div><div class="setting-title">BACKUP DATA</div></div><div class="setting-actions"><button id="backupBtn" class="btn btn-soft">BACKUP</button><button id="restoreBtn" class="btn btn-soft">RESTORE</button></div><input id="restoreFile" type="file" accept=".cnmoney,application/octet-stream,application/json" hidden></div>${canUndo?`<div class="setting-row"><div><div class="setting-title">RESTORE TERAKHIR</div></div><button id="rollbackRestoreBtn" class="btn btn-soft">BATALKAN</button></div>`:''}</div><div class="section-head"><div><div class="section-title red">DATA PERANGKAT</div></div></div><div class="card danger-card"><div class="setting-row"><div><div class="setting-title">HAPUS DATA PERANGKAT INI</div><div class="setting-sub">Keluar dari CN MONEY di HP ini. Data di perangkat lain tetap aman.</div></div><button id="clearDeviceBtn" class="btn btn-danger">HAPUS</button></div></div></div></div>`}
+if(state.modal==='settings'){const darkNow=document.documentElement.classList.contains('dark'),soundOn=soundIsOn(),pushOn=pushActive(),canUndo=Number(localStorage.getItem('cn_restore_undo_at')||0)>0;return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PENGATURAN</div></div><button class="xbtn" data-close>×</button></div><div class="card"><div class="setting-row"><div><div class="setting-title">HOUSEHOLD</div></div><div class="setting-status"><span class="dot ${state.online?'':'offline'}"></span><span class="household-name">${esc(state.household?.name||'RUMAH')}</span><span>· ${state.online?'ONLINE':'OFFLINE'}</span></div></div><div class="setting-row"><div><div class="setting-title">GUIDE APLIKASI</div></div><button type="button" id="guideBtn" class="btn btn-soft">BUKA</button></div><div class="setting-row"><div><div class="setting-title">DATABASE</div></div><button type="button" id="catalogSettingsBtn" class="btn btn-soft">ATUR</button></div><div class="setting-row"><div><div class="setting-title">TAMPILAN</div></div><button type="button" id="themeToggle" class="tap-toggle ${darkNow?'active':''}" aria-label="Ganti tampilan">${darkNow?'DARK':'LIGHT'}</button></div><div class="setting-row"><div><div class="setting-title">SUARA</div></div><button type="button" id="soundToggle" class="tap-toggle ${soundOn?'sound-on':'sound-off'}" aria-label="Aktifkan atau matikan suara">${soundOn?'ON':'OFF'}</button></div><div class="setting-row"><div><div class="setting-title">NOTIFIKASI</div></div><button type="button" id="notificationToggle" class="tap-toggle ${pushOn?'notification-on':'notification-off'}" aria-label="Aktifkan atau matikan notifikasi">${pushOn?'ON':'OFF'}</button></div><div class="setting-row"><div><div class="setting-title">BACKUP DATA</div></div><div class="setting-actions"><button id="backupBtn" class="btn btn-soft">BACKUP</button><button id="restoreBtn" class="btn btn-soft">RESTORE</button></div><input id="restoreFile" type="file" accept=".cnmoney,application/octet-stream,application/json" hidden></div>${canUndo?`<div class="setting-row"><div><div class="setting-title">RESTORE TERAKHIR</div></div><button id="rollbackRestoreBtn" class="btn btn-soft">BATALKAN</button></div>`:''}</div><div class="section-head"><div><div class="section-title red">DATA PERANGKAT</div></div></div><div class="card danger-card"><div class="setting-row"><div><div class="setting-title">HAPUS DATA PERANGKAT INI</div><div class="setting-sub">Keluar dari CN MONEY di HP ini. Data di perangkat lain tetap aman.</div></div><button id="clearDeviceBtn" class="btn btn-danger">HAPUS</button></div></div></div></div>`}
 return''}
 function uiIcon(name){const icons={
  dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
@@ -2381,9 +2705,21 @@ document.querySelectorAll('[data-receipt-period-apply]').forEach(b=>b.addEventLi
   render();
 }));
 document.querySelectorAll('[data-export-receipt]').forEach(b=>b.addEventListener('click',()=>exportReceiptPdf(b.dataset.exportReceipt)));document.querySelectorAll('[data-shopcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.shopcat);render()}));document.querySelectorAll('[data-dbdetail]').forEach(b=>b.addEventListener('click',()=>{state.modal='dbdetail:'+b.dataset.dbdetail;render()}));document.querySelectorAll('[data-purchase-detail]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.purchaseDetail;if(!id)return;state.modal='purchase:'+id;render()}));document.querySelectorAll('[data-cancel-purchase-session]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.cancelPurchaseSession;if(!id)return;state.modal=null;render();handleCancelCheckout(id)}));document.querySelectorAll('[data-detail-edit-db]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=b.dataset.detailEditKey||null;state.modal='shopcat:'+encodeURIComponent(b.dataset.detailEditDb);render()}));document.querySelectorAll('[data-detail-delete-db]').forEach(b=>b.addEventListener('click',()=>{const payload={key:b.dataset.detailDeleteDb,name:b.dataset.detailDeleteName||''};state.modal=null;render();handleDeleteDbItem(payload)}));document.querySelectorAll('[data-dbcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.dbcat);render()}));document.querySelectorAll('[data-delete-db]').forEach(b=>b.addEventListener('click',()=>handleDeleteDbItem({key:b.dataset.deleteDb,name:b.dataset.deleteDbName||''})));document.querySelectorAll('[data-priority-choice]').forEach(b=>b.addEventListener('click',()=>{const v=(b.dataset.priorityChoice||'').toUpperCase();const input=document.getElementById('shopPriorityValue');if(input)input.value=v;document.querySelectorAll('[data-priority-choice]').forEach(x=>x.classList.toggle('active',(x.dataset.priorityChoice||'').toUpperCase()===v));}));document.getElementById('checkoutStore')?.addEventListener('blur',e=>{e.target.value=normalizeStoreName(e.target.value)});document.getElementById('addTx')?.addEventListener('click',()=>{if(!state.wallets.length){toast('Buat dompet dulu di Kekayaan.');return}state.modal='txPicker';render()});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{state.modal=null;state.txClientId=null;shopEditReturnKey=null;render()}));document.querySelector('.modal-bg')?.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg')){state.modal=null;state.txClientId=null;render()}});document.querySelectorAll('[data-txtype]').forEach(b=>b.addEventListener('click',()=>{state.txClientId=makeId();state.modal='tx:'+b.dataset.txtype;render()}));document.querySelectorAll('[data-checkout]').forEach(b=>b.addEventListener('click',()=>{state.modal='checkout:'+b.dataset.checkout;render()}));document.querySelectorAll('[data-delete-shop]').forEach(b=>b.addEventListener('click',async()=>{const id=b.dataset.deleteShop;state.checklist=state.checklist.filter(x=>String(x.id)!==id);persistCaches();render();try{await updateBucket('checklist',state.checklist)}catch(e){toast('Gagal sync hapus item.')}}));
-const addShop=async()=>{const input=document.getElementById('shopInput'),raw=input?.value.trim();if(!raw)return;const rec=smartItem(raw),item={id:makeId(),originalInput:raw,name:rec.name,normalized:normalizeItemName(rec.name).toLowerCase(),category:rec.category,priority:rec.priority,uom:rec.uom,addedAt:new Date().toISOString(),purchased:false};state.checklist=[item,...state.checklist];persistCaches();playShopClick();render();try{await updateBucket('checklist',state.checklist);queueShoppingPush(rec.name)}catch(e){console.error(e);toast('Item tersimpan lokal, sync gagal.')}};document.getElementById('shopAdd')?.addEventListener('click',addShop);document.getElementById('shopInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addShop()}});document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
+const addShop=async()=>{const input=document.getElementById('shopInput'),raw=input?.value.trim();if(!raw)return;const rec=smartItem(raw),item={id:makeId(),originalInput:raw,name:rec.name,normalized:normalizeItemName(rec.name).toLowerCase(),category:rec.category,priority:rec.priority,uom:rec.uom,addedAt:new Date().toISOString(),purchased:false};state.checklist=[item,...state.checklist];persistCaches();playShopClick();render();try{await updateBucket('checklist',state.checklist);queueShoppingPush(rec.name)}catch(e){console.error(e);toast('Item tersimpan lokal, sync gagal.')}};document.getElementById('shopAdd')?.addEventListener('click',addShop);const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('input',()=>updateCatalogSuggestions(shopInputEl));shopInputEl?.addEventListener('focus',()=>updateCatalogSuggestions(shopInputEl));shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addShop()}});document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
 document.getElementById('qtyMinus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=Math.max(.01,(parseFloat(el.value)||1)-1)});document.getElementById('qtyPlus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=(parseFloat(el.value)||0)+1});bindMoneyInputs();document.getElementById('walletForm')?.addEventListener('submit',handleWalletSubmit);document.getElementById('walletEditForm')?.addEventListener('submit',handleWalletEditSubmit);document.getElementById('budgetForm')?.addEventListener('submit',handleBudgetSubmit);document.getElementById('txForm')?.addEventListener('submit',handleTxSubmit);document.getElementById('txEditForm')?.addEventListener('submit',handleTxEditSubmit);document.getElementById('checkoutForm')?.addEventListener('submit',handleCheckoutSubmit);document.getElementById('shopCategoryForm')?.addEventListener('submit',handleShopCategorySubmit);document.getElementById('investmentForm')?.addEventListener('submit',handleInvestmentSubmit);document.getElementById('investmentIncomeForm')?.addEventListener('submit',handleInvestmentIncomeSubmit);document.getElementById('investmentEditForm')?.addEventListener('submit',handleInvestmentEditSubmit);document.getElementById('assetForm')?.addEventListener('submit',handleAssetSubmit);document.getElementById('assetEditForm')?.addEventListener('submit',handleAssetEditSubmit);
-document.getElementById('themeToggle')?.addEventListener('click',()=>{const darkNow=document.documentElement.classList.contains('dark');localStorage.setItem('fin_theme',darkNow?'light':'dark');applyTheme();render()});document.getElementById('soundToggle')?.addEventListener('click',()=>{const next=soundIsOn()?'off':'on';localStorage.setItem('cn_sound',next);if(next==='on')playShopClick();render()});document.getElementById('guideBtn')?.addEventListener('click',()=>{state.modal='guide';render()});document.querySelectorAll('[data-guide-close]').forEach(el=>el.addEventListener('click',()=>{state.modal='settings';render()}));document.getElementById('notificationToggle')?.addEventListener('click',()=>{if(pushActive())disablePushNotifications();else enablePushNotifications()});document.getElementById('backupBtn')?.addEventListener('click',backupData);document.getElementById('restoreBtn')?.addEventListener('click',()=>document.getElementById('restoreFile')?.click());document.getElementById('restoreFile')?.addEventListener('change',e=>{const file=e.target.files?.[0];e.target.value='';handleRestoreFile(file)});document.querySelectorAll('[data-restore-cancel]').forEach(el=>el.addEventListener('click',()=>{state.restoreCandidate=null;state.modal='settings';render()}));document.getElementById('restoreExecuteBtn')?.addEventListener('click',executeRestore);document.getElementById('rollbackRestoreBtn')?.addEventListener('click',()=>askConfirm('rollbackRestore',null,'Batalkan restore terakhir?','Data akan kembali ke checkpoint sebelum restore terakhir.','BATALKAN RESTORE'));document.getElementById('clearDeviceBtn')?.addEventListener('click',()=>askConfirm('clearDevice',null,'Hapus data perangkat ini?','Perangkat ini akan keluar dari CN MONEY. Data di perangkat lain tidak dihapus.','HAPUS DARI PERANGKAT'));document.querySelector('[data-confirm-cancel]')?.addEventListener('click',()=>{state.confirmation=null;render()});document.querySelector('[data-confirm-ok]')?.addEventListener('click',async()=>{const c=state.confirmation;if(!c)return;state.confirmation=null;render();if(c.action==='deleteWallet')return handleDeleteWallet(c.payload,true);if(c.action==='deleteInvestment')return handleDeleteInvestment(c.payload,true);if(c.action==='deleteAsset')return handleDeleteAsset(c.payload,true);if(c.action==='deleteDbItem')return handleDeleteDbItem(c.payload,true);if(c.action==='undoTransaction')return handleUndoTransaction(c.payload,true);if(c.action==='cancelCheckout')return handleCancelCheckout(c.payload,true);if(c.action==='rollbackRestore')return undoLastRestore();if(c.action==='clearDevice'){await disablePushNotifications({silent:true});forgetHousehold();state.wallets=[];state.categories=[];state.transactions=[];state.investments=[];state.assets=[];state.checklist=[];state.itemDb={};state.shoppingSessions=[];state.shoppingItems=[];state.modal=null;render()}})}
+document.getElementById('themeToggle')?.addEventListener('click',()=>{const darkNow=document.documentElement.classList.contains('dark');localStorage.setItem('fin_theme',darkNow?'light':'dark');applyTheme();render()});document.getElementById('soundToggle')?.addEventListener('click',()=>{const next=soundIsOn()?'off':'on';localStorage.setItem('cn_sound',next);if(next==='on')playShopClick();render()});document.getElementById('guideBtn')?.addEventListener('click',()=>{state.modal='guide';render()});
+document.getElementById('catalogSettingsBtn')?.addEventListener('click',()=>{state.catalogSearch='';state.catalogSection='category';state.modal='catalogSettings';render()});
+document.querySelectorAll('[data-catalog-close]').forEach(b=>b.addEventListener('click',()=>{state.catalogSearch='';state.modal='settings';render()}));
+document.querySelectorAll('[data-catalog-section]').forEach(b=>b.addEventListener('click',()=>{state.catalogSection=b.dataset.catalogSection||'category';state.catalogSearch='';render()}));
+document.querySelectorAll('[data-catalog-toggle]').forEach(b=>b.addEventListener('click',()=>{
+  const kind=b.dataset.catalogToggle,key=b.dataset.catalogKey;
+  const current=kind==='category'?catalogCategoryVisible(key):
+    kind==='subcategory'?catalogDirectVisible('subcategory',key):
+    kind==='brand'?catalogDirectVisible('brand',key):catalogDirectVisible('item',key);
+  setCatalogVisibility(kind,key,!current);
+}));
+document.getElementById('catalogSearch')?.addEventListener('input',e=>{state.catalogSearch=e.target.value;const pos=e.target.selectionStart;render();requestAnimationFrame(()=>{const n=document.getElementById('catalogSearch');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}})});
+document.querySelectorAll('[data-guide-close]').forEach(el=>el.addEventListener('click',()=>{state.modal='settings';render()}));document.getElementById('notificationToggle')?.addEventListener('click',()=>{if(pushActive())disablePushNotifications();else enablePushNotifications()});document.getElementById('backupBtn')?.addEventListener('click',backupData);document.getElementById('restoreBtn')?.addEventListener('click',()=>document.getElementById('restoreFile')?.click());document.getElementById('restoreFile')?.addEventListener('change',e=>{const file=e.target.files?.[0];e.target.value='';handleRestoreFile(file)});document.querySelectorAll('[data-restore-cancel]').forEach(el=>el.addEventListener('click',()=>{state.restoreCandidate=null;state.modal='settings';render()}));document.getElementById('restoreExecuteBtn')?.addEventListener('click',executeRestore);document.getElementById('rollbackRestoreBtn')?.addEventListener('click',()=>askConfirm('rollbackRestore',null,'Batalkan restore terakhir?','Data akan kembali ke checkpoint sebelum restore terakhir.','BATALKAN RESTORE'));document.getElementById('clearDeviceBtn')?.addEventListener('click',()=>askConfirm('clearDevice',null,'Hapus data perangkat ini?','Perangkat ini akan keluar dari CN MONEY. Data di perangkat lain tidak dihapus.','HAPUS DARI PERANGKAT'));document.querySelector('[data-confirm-cancel]')?.addEventListener('click',()=>{state.confirmation=null;render()});document.querySelector('[data-confirm-ok]')?.addEventListener('click',async()=>{const c=state.confirmation;if(!c)return;state.confirmation=null;render();if(c.action==='deleteWallet')return handleDeleteWallet(c.payload,true);if(c.action==='deleteInvestment')return handleDeleteInvestment(c.payload,true);if(c.action==='deleteAsset')return handleDeleteAsset(c.payload,true);if(c.action==='deleteDbItem')return handleDeleteDbItem(c.payload,true);if(c.action==='undoTransaction')return handleUndoTransaction(c.payload,true);if(c.action==='cancelCheckout')return handleCancelCheckout(c.payload,true);if(c.action==='rollbackRestore')return undoLastRestore();if(c.action==='clearDevice'){await disablePushNotifications({silent:true});forgetHousehold();state.wallets=[];state.categories=[];state.transactions=[];state.investments=[];state.assets=[];state.checklist=[];state.itemDb={};state.shoppingSessions=[];state.shoppingItems=[];state.modal=null;render()}})}
 async function handleBudgetSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const month=state.month||today().slice(0,7),amount=num(document.getElementById('budgetAmount').value);state.loading=true;const {error}=await sb.rpc('finance_set_monthly_budget',{p_household_id:state.household.id,p_month:month+'-01',p_amount:amount});state.loading=false;if(error)return toast(error.message||'Gagal menyimpan anggaran.');state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Anggaran belanja berhasil disimpan.')}
 async function handleInvestmentIncomeSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const investmentId=e.currentTarget.dataset.id,clientId=e.currentTarget.dataset.clientid||makeId(),incomeType=e.currentTarget.dataset.type,amount=num(document.getElementById('investmentIncomeAmount').value),walletId=document.getElementById('investmentIncomeWallet').value,date=document.getElementById('investmentIncomeDate').value||today();if(!incomeType)return toast('JENIS PENDAPATAN TIDAK TERSEDIA.');if(amount<=0)return toast('NOMINAL WAJIB LEBIH DARI 0.');if(!walletId)return toast('PILIH DOMPET.');state.loading=true;const {error}=await sb.rpc('finance_add_investment_income',{p_household_id:state.household.id,p_investment_id:investmentId,p_income_type:incomeType,p_wallet_id:walletId,p_amount:amount,p_description:null,p_transaction_date:date,p_client_transaction_id:clientId});state.loading=false;if(error)return toast(error.message||'GAGAL MENYIMPAN PENDAPATAN.');localStorage.setItem('cn_last_investment_income_wallet',walletId);state.txClientId=null;const invName=state.investments.find(i=>String(i.id)===String(investmentId))?.name||'INVESTASI';state.modal='investmentDetail:'+investmentId;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();playCashRegister();toast('PENDAPATAN INVESTASI DISIMPAN.');sendHouseholdPush({event_type:'income',title:'PEMASUKAN INVESTASI',body:`${investmentIncomeTypeLabel(incomeType)} ${rupiah(amount)} · ${invName}`,dedupe_key:clientId})}
 async function handleInvestmentSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('investmentName').value.trim(),type=document.getElementById('investmentType').value,amount=num(document.getElementById('investmentAmount').value),wallet=document.getElementById('investmentWallet').value||null;if(!name)return toast('Nama investasi wajib diisi.');if(amount<0)return toast('Nilai tidak valid.');state.loading=true;const {error}=await sb.rpc('finance_create_investment',{p_household_id:state.household.id,p_name:name,p_investment_type:type,p_amount:amount,p_source_wallet_id:wallet});state.loading=false;if(error)return toast(error.message||'Gagal membuat investasi.');state.modal=null;state.tab='wealth';state.wealthTab='investments';await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast(wallet?'Investasi dibeli dari dompet.':'Investasi dicatat.')}
@@ -2479,9 +2815,9 @@ let shopEditReturnKey=null;
 let startupSyncing=true,reconnectPromise=null;
 async function recoverOnline(){if(reconnectPromise)return reconnectPromise;reconnectPromise=(async()=>{state.online=true;try{await ensureSession();if(!state.household)restoreHouseholdFromLocal();if(state.household){await restoreHousehold();await loadAll({rerender:false,preserveCacheOnEmpty:true});subscribeRealtime();persistCaches()}render();repairPushState()}catch(err){console.error('Reconnect failed',err);render();toast('Belum bisa sync. Data lokal tetap aman.')}})();try{return await reconnectPromise}finally{reconnectPromise=null}}
 window.addEventListener('online',()=>{if(!startupSyncing)recoverOnline()});window.addEventListener('offline',()=>{state.online=false;render()});window.addEventListener('pageshow',()=>{if(!startupSyncing&&state.household&&navigator.onLine)recoverOnline()});document.addEventListener('visibilitychange',()=>{if(!startupSyncing&&document.visibilityState==='visible'&&state.household&&navigator.onLine)recoverOnline()});
-history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(refs.modal){if(state.modal==='restorePreview'){state.restoreCandidate=null;state.modal='settings'}else if(state.modal==='guide'){state.modal='settings'}else if(state.modal==='receiptPeriodPicker'){state.receiptPickerMonth=null;state.receiptPickerYear=null;state.modal=null}else{state.modal=null;state.restoreCandidate=null}state.confirmation=null;state.txClientId=null;render();history.pushState({finGuard:true},'');return}if(refs.tab!=='dashboard'){state.tab='dashboard';render();history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
+history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(refs.modal){if(state.modal==='restorePreview'){state.restoreCandidate=null;state.modal='settings'}else if(state.modal==='guide'){state.modal='settings'}else if(state.modal==='catalogSettings'){state.catalogSearch='';state.modal='settings'}else if(state.modal==='receiptPeriodPicker'){state.receiptPickerMonth=null;state.receiptPickerYear=null;state.modal=null}else{state.modal=null;state.restoreCandidate=null}state.confirmation=null;state.txClientId=null;render();history.pushState({finGuard:true},'');return}if(refs.tab!=='dashboard'){state.tab='dashboard';render();history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
 async function seedMissingCategories(){if(!state.household?.id||!navigator.onLine)return;const jobs=[];if(!state.categories.length)jobs.push(sb.rpc('finance_seed_categories',{p_household_id:state.household.id}));if(!state.shoppingCategories.length)jobs.push(sb.rpc('shopping_seed_categories',{p_household_id:state.household.id}));if(!jobs.length)return;const results=await Promise.all(jobs);const err=results.find(x=>x?.error)?.error;if(err)throw err;await loadAll({rerender:false,preserveCacheOnEmpty:true})}
-async function boot(){const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
+async function boot(){const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).catch(console.warn))}boot();
 })();
 </script>
