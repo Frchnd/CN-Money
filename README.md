@@ -1,10 +1,15 @@
-# CN MONEY v2.3.7
+# CN MONEY v2.3.8
 
-KEYBOARD / INPUT FOCUS PATCH
+KEYBOARD / FOCUS FIX — REBUILT
 
-- LIST: setelah tekan Enter untuk menambah barang, input langsung kosong dan tetap fokus. Keyboard tidak sengaja ditutup.
-- Tombol + juga mengembalikan fokus ke input untuk input cepat.
-- PANDUAN KATEGORI: pencarian tidak lagi me-render ulang modal setiap huruf.
-- Hasil pencarian diperbarui langsung di list, sehingga keyboard tetap terbuka dan fokus tidak berkedip.
-- Tidak ada SQL baru.
-- Tetap memakai Supabase v2.3.5.
+- LIST input tidak dirender ulang saat Enter.
+- Enter hanya memperbarui area daftar di bawah input.
+- Input LIST tetap terpasang di DOM, dikosongkan, lalu tetap fokus.
+- Realtime sync tidak full-render halaman saat input LIST aktif.
+- Input LIST memakai one-line textarea agar Enter tidak diperlakukan sebagai tombol Done.
+- Klik di luar input tetap membolehkan keyboard tertutup.
+- Search PANDUAN KATEGORI hanya memperbarui hasil, bukan modal/input.
+- Service worker mengecek update saat app dibuka.
+
+Tidak ada SQL baru.
+Tetap memakai Supabase v2.3.5.

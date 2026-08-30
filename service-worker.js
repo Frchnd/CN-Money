@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.3.7-shell';
+const CACHE='cn-money-v2.3.8-shell';
 const CORE=[
   '/',
   '/index.html',

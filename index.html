@@ -2193,6 +2193,17 @@
     .db-compact-name{min-width:0;font-size:12.5px;line-height:1.2;font-weight:950;letter-spacing:.01em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .db-group-head{margin:14px 3px 7px;color:var(--muted);font-size:9px;line-height:1.2;font-weight:1000;letter-spacing:.065em;text-transform:uppercase}
 
+
+    /* CN MONEY v2.3.8 — stable rapid LIST typing */
+    .shop-fast-input{
+      resize:none!important;
+      overflow:hidden!important;
+      white-space:nowrap!important;
+      line-height:normal!important;
+      min-height:0!important;
+      height:100%!important;
+      font-family:inherit!important;
+    }
 </style>
 </head>
 <body>
@@ -2206,7 +2217,7 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.3.7';
+const CN_MONEY_VERSION='2.3.8';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -2524,7 +2535,7 @@ const err=w.error||c.error||t.error||inv.error||ast.error||ws.error||b.error||se
 const nw=w.data||[],nc=c.data||[],nt=t.data||[],serverInvestments=inv.data||[],ni=serverInvestments.filter(x=>!state.optimisticDeletedInvestmentIds.includes(x.id)),na=ast.data||[];state.optimisticDeletedInvestmentIds=state.optimisticDeletedInvestmentIds.filter(id=>serverInvestments.some(x=>x.id===id));/* A successful cloud response is authoritative even when the result is empty. Keeping cached rows here caused soft-deleted items to remain visible on other devices until restart. Cache fallback is handled only when the cloud request actually fails/offline. */state.wallets=nw;state.categories=nc;state.transactions=nt;state.investments=ni;state.assets=na;const wr=Array.isArray(ws.data)?ws.data[0]:ws.data;if(wr)state.wealthSummary={liquid_balance:Number(wr.liquid_balance||0),investment_cost:Number(wr.investment_cost||0),investment_value:Number(wr.investment_value||0),investment_gain_loss:Number(wr.investment_gain_loss||0),asset_value:Number(wr.asset_value||0),total_wealth:Number(wr.total_wealth||0)};
 for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=row.data;if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
 state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);persistCaches();if(rerender&&!state.modal)render()}
-function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>loadAll({rerender:!state.modal,preserveCacheOnEmpty:true}).catch(console.error);state.channel=sb.channel('fin-safety-'+id)
+function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>{const keepTyping=shopFastInputActive();loadAll({rerender:!state.modal&&!keepTyping,preserveCacheOnEmpty:true}).then(()=>{if(keepTyping)refreshShopListLive()}).catch(console.error)};state.channel=sb.channel('fin-safety-'+id)
 .on('postgres_changes',{event:'*',schema:'public',table:'wallets',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'transactions',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'investments',filter:`household_id=eq.${id}`},reload)
@@ -2760,21 +2771,64 @@ function dataEntryHasPurchase(key,db){
   return (state.shoppingItems||[]).some(i=>sessions.has(String(i.session_id))&&names.has(normalizeItemName(i.item_name||'').toLocaleLowerCase('id-ID')));
 }
 
-function renderShopCheckout(){
+function renderShopListLive(){
   const alpha=(a,b)=>String(a?.name||'').localeCompare(String(b?.name||''),'id',{sensitivity:'base'});
   const active=state.checklist.filter(x=>!x.purchased).sort(alpha),listMode=state.listView||'alpha',estimate=shoppingListEstimate(active);
   const estimateHtml=active.length?`<div class="shop-estimate"><span>ESTIMASI TOTAL</span><b>${estimate.known?rupiah(estimate.total):'—'}</b><small>${estimate.unknown?`${estimate.unknown} ITEM TANPA HARGA`:'HARGA TERAKHIR'}</small></div>`:'';
-  const done=state.checklist.filter(x=>x.purchased).sort(alpha).filter(x=>shoppingCompletedVisible(x));scheduleShoppingCompletedExpiry(done);
+  const done=state.checklist.filter(x=>x.purchased).sort(alpha).filter(x=>shoppingCompletedVisible(x));
+  scheduleShoppingCompletedExpiry(done);
+
   const row=x=>`<div class="shop-item clean-list-item"><button class="shop-main shop-tap" data-checkout="${esc(x.id)}" aria-label="Checkout ${esc(x.name)}"><div class="shop-name">${esc(x.name)}</div></button><div class="shop-side"><button class="icon-action primary" data-shopcat="${esc(x.id)}" aria-label="Edit barang" title="Edit">${uiIcon('edit')}</button><button class="icon-action trash-action" data-delete-shop="${esc(x.id)}" aria-label="Hapus barang" title="Hapus">${uiIcon('trash')}</button></div></div>`;
+
   let activeContent='';
   if(active.length&&listMode==='category'){
-    const groups={};active.forEach(x=>{const c=listParentCategory(x)||'LAINNYA';(groups[c]||(groups[c]=[])).push(x)});
+    const groups={};
+    active.forEach(x=>{const c=listParentCategory(x)||'LAINNYA';(groups[c]||(groups[c]=[])).push(x)});
     const order=(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>c.name);
-    activeContent=Object.keys(groups).sort((a,b)=>{const ai=order.indexOf(a),bi=order.indexOf(b);return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'})}).map(c=>`<div class="db-group-head">${esc(c)}</div><div class="card shop-clean-list">${groups[c].sort(alpha).map(row).join('')}</div>`).join('');
-  }else if(active.length)activeContent=`<div class="card shop-clean-list">${active.map(row).join('')}</div>`;
-  else activeContent=`<div class="card empty empty-minimal"><div class="big">${uiIcon('shopping')}</div><b>DAFTAR KOSONG</b></div>`;
+    activeContent=Object.keys(groups)
+      .sort((a,b)=>{
+        const ai=order.indexOf(a),bi=order.indexOf(b);
+        return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'});
+      })
+      .map(c=>`<div class="db-group-head">${esc(c)}</div><div class="card shop-clean-list">${groups[c].sort(alpha).map(row).join('')}</div>`)
+      .join('');
+  }else if(active.length){
+    activeContent=`<div class="card shop-clean-list">${active.map(row).join('')}</div>`;
+  }else{
+    activeContent=`<div class="card empty empty-minimal"><div class="big">${uiIcon('shopping')}</div><b>DAFTAR KOSONG</b></div>`;
+  }
+
   const doneRows=done.slice(0,30).map(x=>`<div class="shop-item clean-list-item purchased"><div class="shop-main"><div class="shop-name">${esc(x.name)}</div></div><div class="shop-side">${x.shoppingSessionId?`<button class="icon-action danger" data-cancel-checkout="${esc(x.shoppingSessionId)}" aria-label="Batalkan checkout" title="Batalkan checkout">${uiIcon('undo')}</button>`:''}</div></div>`).join('');
-  return`${shopTabs()}<div class="card shopping-add"><input id="shopInput" class="input" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" spellcheck="false"><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div class="list-filter-row"><button type="button" class="list-filter-chip ${listMode==='alpha'?'active':''}" data-listview="alpha">A - Z</button><button type="button" class="list-filter-chip ${listMode==='category'?'active':''}" data-listview="category">KATEGORI</button></div><div class="section-head shopping-list-head"><div><div class="section-title">DAFTAR BELANJA</div><div class="section-sub">${active.length} BELUM DIBELI</div></div>${estimateHtml}</div>${activeContent}${done.length?`<div class="section-head"><div><div class="section-title">SUDAH DIBELI</div></div></div><div class="card shop-clean-list">${doneRows}</div>`:''}`
+
+  return`<div class="list-filter-row"><button type="button" class="list-filter-chip ${listMode==='alpha'?'active':''}" data-listview="alpha">A - Z</button><button type="button" class="list-filter-chip ${listMode==='category'?'active':''}" data-listview="category">KATEGORI</button></div><div class="section-head shopping-list-head"><div><div class="section-title">DAFTAR BELANJA</div><div class="section-sub">${active.length} BELUM DIBELI</div></div>${estimateHtml}</div>${activeContent}${done.length?`<div class="section-head"><div><div class="section-title">SUDAH DIBELI</div></div></div><div class="card shop-clean-list">${doneRows}</div>`:''}`;
+}
+function renderShopCheckout(){
+  return`${shopTabs()}<div class="card shopping-add"><textarea id="shopInput" class="input shop-fast-input" rows="1" enterkeyhint="enter" placeholder="Tambah barang belanja…" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false"></textarea><button id="shopAdd" class="btn btn-primary btn-square" aria-label="Tambah barang">+</button></div><div id="shopListLive">${renderShopListLive()}</div>`
+}
+function shopFastInputActive(){
+  const input=document.getElementById('shopInput');
+  return !!(input&&document.activeElement===input&&state.tab==='shopping'&&state.shopTab==='checkout'&&!state.modal);
+}
+function bindShopListLive(){
+  const root=document.getElementById('shopListLive');
+  if(!root)return;
+  root.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';refreshShopListLive()}));
+  root.querySelectorAll('[data-checkout]').forEach(b=>b.addEventListener('click',()=>{state.modal='checkout:'+b.dataset.checkout;render()}));
+  root.querySelectorAll('[data-shopcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.shopcat);render()}));
+  root.querySelectorAll('[data-delete-shop]').forEach(b=>b.addEventListener('click',async()=>{
+    const id=b.dataset.deleteShop;
+    state.checklist=state.checklist.filter(x=>String(x.id)!==String(id));
+    persistCaches();
+    refreshShopListLive();
+    try{await updateBucket('checklist',state.checklist)}catch(e){console.error(e);toast('Gagal sync hapus item.')}
+  }));
+  root.querySelectorAll('[data-cancel-checkout]').forEach(b=>b.addEventListener('click',()=>handleCancelCheckout(b.dataset.cancelCheckout)));
+}
+function refreshShopListLive(){
+  const root=document.getElementById('shopListLive');
+  if(!root)return;
+  root.innerHTML=renderShopListLive();
+  bindShopListLive();
 }
 
 function dataItemCard(x){
@@ -3143,29 +3197,30 @@ document.querySelectorAll('[data-receipt-period-apply]').forEach(b=>b.addEventLi
   render();
 }));
 document.querySelectorAll('[data-export-receipt]').forEach(b=>b.addEventListener('click',()=>exportReceiptPdf(b.dataset.exportReceipt)));document.querySelectorAll('[data-shopcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.shopcat);render()}));document.querySelectorAll('[data-dbdetail]').forEach(b=>b.addEventListener('click',()=>{state.modal='dbdetail:'+b.dataset.dbdetail;render()}));document.querySelectorAll('[data-purchase-detail]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.purchaseDetail;if(!id)return;state.modal='purchase:'+id;render()}));document.querySelectorAll('[data-cancel-purchase-session]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.cancelPurchaseSession;if(!id)return;state.modal=null;render();handleCancelCheckout(id)}));document.querySelectorAll('[data-detail-edit-db]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=b.dataset.detailEditKey||null;state.modal='shopcat:'+encodeURIComponent(b.dataset.detailEditDb);render()}));document.querySelectorAll('[data-detail-delete-db]').forEach(b=>b.addEventListener('click',()=>{const payload={key:b.dataset.detailDeleteDb,name:b.dataset.detailDeleteName||''};state.modal=null;render();handleDeleteDbItem(payload)}));document.querySelectorAll('[data-dbcat]').forEach(b=>b.addEventListener('click',()=>{shopEditReturnKey=null;state.modal='shopcat:'+encodeURIComponent(b.dataset.dbcat);render()}));document.querySelectorAll('[data-delete-db]').forEach(b=>b.addEventListener('click',()=>handleDeleteDbItem({key:b.dataset.deleteDb,name:b.dataset.deleteDbName||''})));document.querySelectorAll('[data-priority-choice]').forEach(b=>b.addEventListener('click',()=>{const v=(b.dataset.priorityChoice||'').toUpperCase();const input=document.getElementById('shopPriorityValue');if(input)input.value=v;document.querySelectorAll('[data-priority-choice]').forEach(x=>x.classList.toggle('active',(x.dataset.priorityChoice||'').toUpperCase()===v));}));document.getElementById('checkoutStore')?.addEventListener('blur',e=>{e.target.value=normalizeStoreName(e.target.value)});document.getElementById('addTx')?.addEventListener('click',()=>{if(!state.wallets.length){toast('Buat dompet dulu di Kekayaan.');return}state.modal='txPicker';render()});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{state.modal=null;state.txClientId=null;shopEditReturnKey=null;render()}));document.querySelector('.modal-bg')?.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg')){state.modal=null;state.txClientId=null;render()}});document.querySelectorAll('[data-txtype]').forEach(b=>b.addEventListener('click',()=>{state.txClientId=makeId();state.modal='tx:'+b.dataset.txtype;render()}));document.querySelectorAll('[data-checkout]').forEach(b=>b.addEventListener('click',()=>{state.modal='checkout:'+b.dataset.checkout;render()}));document.querySelectorAll('[data-delete-shop]').forEach(b=>b.addEventListener('click',async()=>{const id=b.dataset.deleteShop;state.checklist=state.checklist.filter(x=>String(x.id)!==id);persistCaches();render();try{await updateBucket('checklist',state.checklist)}catch(e){toast('Gagal sync hapus item.')}}));
-const addShop=async()=>{
+const addShop=async({keepFocus=false}={})=>{
   const input=document.getElementById('shopInput'),raw=input?.value.trim();
   if(!raw)return;
   const rec=smartItem(raw),item={id:makeId(),originalInput:raw,name:rec.name,normalized:normalizeItemName(rec.name).toLowerCase(),category:rec.category,priority:rec.priority,uom:rec.uom,addedAt:new Date().toISOString(),purchased:false};
   state.checklist=[item,...state.checklist];
   persistCaches();
   playShopClick();
-  if(input)input.value='';
-  render();
-  const nextInput=document.getElementById('shopInput');
-  if(nextInput){
-    try{nextInput.focus({preventScroll:true})}catch(_){nextInput.focus()}
-  }
+  if(input){input.value='';input.scrollTop=0}
+  refreshShopListLive();
+  if(keepFocus&&input){try{input.focus({preventScroll:true})}catch(_){input.focus()}}
   try{await updateBucket('checklist',state.checklist);queueShoppingPush(rec.name)}catch(e){console.error(e);toast('Item tersimpan lokal, sync gagal.')}
-};document.getElementById('shopAdd')?.addEventListener('click',addShop);const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(e.repeat)return;addShop()}});document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
+};
+document.getElementById('shopAdd')?.addEventListener('click',()=>addShop({keepFocus:false}));const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(e.repeat)return;addShop({keepFocus:true})}});bindShopListLive();document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
 document.getElementById('qtyMinus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=Math.max(.01,(parseFloat(el.value)||1)-1)});document.getElementById('qtyPlus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=(parseFloat(el.value)||0)+1});bindMoneyInputs();document.getElementById('walletForm')?.addEventListener('submit',handleWalletSubmit);document.getElementById('walletEditForm')?.addEventListener('submit',handleWalletEditSubmit);document.getElementById('budgetForm')?.addEventListener('submit',handleBudgetSubmit);document.getElementById('txForm')?.addEventListener('submit',handleTxSubmit);document.getElementById('txEditForm')?.addEventListener('submit',handleTxEditSubmit);document.getElementById('checkoutForm')?.addEventListener('submit',handleCheckoutSubmit);document.getElementById('shopCategoryForm')?.addEventListener('submit',handleShopCategorySubmit);document.getElementById('investmentForm')?.addEventListener('submit',handleInvestmentSubmit);document.getElementById('investmentIncomeForm')?.addEventListener('submit',handleInvestmentIncomeSubmit);document.getElementById('investmentEditForm')?.addEventListener('submit',handleInvestmentEditSubmit);document.getElementById('assetForm')?.addEventListener('submit',handleAssetSubmit);document.getElementById('assetEditForm')?.addEventListener('submit',handleAssetEditSubmit);
 document.getElementById('themeToggle')?.addEventListener('click',()=>{const darkNow=document.documentElement.classList.contains('dark');localStorage.setItem('fin_theme',darkNow?'light':'dark');applyTheme();render()});document.getElementById('soundToggle')?.addEventListener('click',()=>{const next=soundIsOn()?'off':'on';localStorage.setItem('cn_sound',next);if(next==='on')playShopClick();render()});document.getElementById('guideBtn')?.addEventListener('click',()=>{state.modal='guide';render()});
 document.getElementById('categoryGuideBtn')?.addEventListener('click',()=>{state.categoryGuideSearch='';state.modal='categoryGuide';render()});
 document.querySelectorAll('[data-category-guide-close]').forEach(b=>b.addEventListener('click',()=>{state.categoryGuideSearch='';state.modal='settings';render()}));
 document.getElementById('categoryGuideSearch')?.addEventListener('input',e=>{
   state.categoryGuideSearch=e.target.value;
-  const list=document.querySelector('.category-guide-list');
-  if(list)list.innerHTML=renderCategoryGuideBody(state.categoryGuideSearch);
+  cancelAnimationFrame(refs.categoryGuideFrame||0);
+  refs.categoryGuideFrame=requestAnimationFrame(()=>{
+    const list=document.querySelector('.category-guide-list');
+    if(list)list.innerHTML=renderCategoryGuideBody(state.categoryGuideSearch);
+  });
 });
 
 document.getElementById('catalogSettingsBtn')?.addEventListener('click',()=>{state.catalogSearch='';state.catalogSection='category';state.modal='catalogSettings';render()});
@@ -3625,7 +3680,7 @@ window.addEventListener('online',()=>{if(!startupSyncing)recoverOnline()});windo
 history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(refs.modal){if(state.modal==='restorePreview'){state.restoreCandidate=null;state.modal='settings'}else if(state.modal==='guide'){state.modal='settings'}else if(state.modal==='categoryGuide'){state.categoryGuideSearch='';state.modal='settings'}else if(state.modal==='catalogSettings'){state.catalogSearch='';state.modal='settings'}else if(state.modal==='receiptPeriodPicker'){state.receiptPickerMonth=null;state.receiptPickerYear=null;state.modal=null}else{state.modal=null;state.restoreCandidate=null}state.confirmation=null;state.txClientId=null;render();history.pushState({finGuard:true},'');return}if(refs.tab!=='dashboard'){state.tab='dashboard';render();history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
 async function seedMissingCategories(){if(!state.household?.id||!navigator.onLine)return;const jobs=[];if(!state.categories.length)jobs.push(sb.rpc('finance_seed_categories',{p_household_id:state.household.id}));if(!state.shoppingCategories.length)jobs.push(sb.rpc('shopping_seed_categories',{p_household_id:state.household.id}));if(!jobs.length)return;const results=await Promise.all(jobs);const err=results.find(x=>x?.error)?.error;if(err)throw err;await loadAll({rerender:false,preserveCacheOnEmpty:true})}
 async function boot(){const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
-if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).catch(console.warn))}boot();
+if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).then(r=>r.update()).catch(console.warn))}boot();
 })();
 </script>
 </body>
