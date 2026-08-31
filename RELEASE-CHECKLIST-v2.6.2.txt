@@ -1,0 +1,9 @@
+CN MONEY v2.6.2
+[ ] RECEIPT tab scrolls with main page
+[ ] App receipt uses normal UI font
+[ ] PDF still uses thermal/monospace style
+[ ] Filter flow compact: date -> store -> items
+[ ] Item list collapsed until needed
+[ ] Existing custom receipt filters still combine correctly
+[ ] Export PDF matches active filters
+[ ] No SQL migration

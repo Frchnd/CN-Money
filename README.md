@@ -1,13 +1,11 @@
-# CN MONEY v2.6.1 — CUSTOM COMBINED RECEIPT
+# CN MONEY v2.6.2 — RECEIPT UX REFINEMENT
 
-## Scope
-- Tab RECEIPT tidak lagi membuat satu card untuk setiap checkout.
-- Semua data pembelian tetap disimpan per transaksi asli untuk audit/cancel, tetapi tampilan RECEIPT dibangun dinamis dari filter.
-- Filter bisa digabung: TANGGAL + TOKO + BARANG.
-- BARANG mendukung pemilihan satu atau beberapa item.
-- Hasil filter ditampilkan sebagai satu receipt gabungan, dikelompokkan per tanggal/toko/dompet agar asal pembelian tetap jelas.
-- EXPORT PDF mengikuti receipt kustom yang sedang tampil.
-- Tidak ada SQL baru dan tidak ada perubahan transaksi finansial.
+Scope sempit: UI tab RECEIPT saja.
 
-## Catatan
-Data checkout asli tidak di-merge atau dihapus. Perubahan hanya pada cara data receipt dibaca dan ditampilkan.
+- Tab RECEIPT memakai font normal CN MONEY.
+- Font thermal/monospace hanya dipakai pada hasil PDF.
+- Seluruh tab RECEIPT mengikuti scroll utama aplikasi; tidak ada scroll internal pada card hasil.
+- Filter dibuat lebih compact dan berurutan: Tanggal → Toko → Barang.
+- Daftar barang hanya dibuka saat diperlukan.
+- Logic custom combined receipt dan export PDF v2.6.1 tetap dipertahankan.
+- Tidak ada SQL baru.
