@@ -1,0 +1,11 @@
+CN MONEY v2.7.0 — PERFORMANCE PHASE 1
+
+[ ] Buka app online sekali setelah deploy (service worker v2.7.0 terpasang)
+[ ] Force-close lalu buka lagi: shell/dashboard harus terasa lebih cepat
+[ ] Ketik cepat di LIST: autocorrect/normalisasi tetap benar
+[ ] Tambah/hapus/undo/edit item: tidak ada regression
+[ ] Dashboard + / Saku + / Investasi + / Aset + tetap berfungsi
+[ ] Offline boot tetap masuk
+[ ] Sync 2 HP tetap bekerja
+[ ] Receipt custom + Export PDF tetap bekerja
+[ ] DATABASE kategori/subkategori tetap save dan filter BELANJA

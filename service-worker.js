@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.6.3-shell';
+const CACHE='cn-money-v2.7.0-shell';
 const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const CORE=[
   '/',
@@ -46,6 +46,23 @@ async function networkFirst(request,fallback='/index.html'){
   }
 }
 
+
+async function navigationFast(request){
+  const cache=await caches.open(CACHE);
+  const cachedPromise=(async()=>await cache.match(request)||await cache.match('/index.html'))();
+  const network=fetch(request,{cache:'no-store'})
+    .then(response=>{
+      if(response&&response.ok){cache.put(request,response.clone()).catch(()=>{});cache.put('/index.html',response.clone()).catch(()=>{})}
+      return response;
+    })
+    .catch(()=>null);
+  const fresh=await Promise.race([network,new Promise(resolve=>setTimeout(()=>resolve(null),650))]);
+  if(fresh)return fresh;
+  const cached=await cachedPromise;
+  if(cached)return cached;
+  return await network||Response.error();
+}
+
 async function staticFirst(request){
   const cache=await caches.open(CACHE);
   const cached=await cache.match(request);
@@ -70,13 +87,13 @@ self.addEventListener('fetch',event=>{
   if(url.origin!==self.location.origin){
     // The public Supabase JS library may use the runtime cache after a successful load.
     if(request.url===SUPABASE_LIB || (url.hostname==='cdn.jsdelivr.net' && url.pathname.includes('@supabase/supabase-js'))){
-      event.respondWith(networkFirst(request,null));
+      event.respondWith(staticFirst(request));
     }
     return;
   }
 
   if(request.mode==='navigate'){
-    event.respondWith(networkFirst(request,'/index.html'));
+    event.respondWith(navigationFast(request));
     return;
   }
 

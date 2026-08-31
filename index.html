@@ -2480,6 +2480,7 @@
 
 
     /* v2.6.3 — compact receipt filter action; normal app typography */
+    /* v2.7.0 — performance: preindexed shopping master/catalog + deferred cloud-cache writes */
     .receipt-custom-toolbar{display:flex;gap:7px;align-items:center;justify-content:flex-end;margin:8px 0 8px}
     .receipt-filter-trigger{width:auto!important;min-width:0!important;min-height:32px!important;padding:0 10px!important;border-radius:11px!important;font-size:9px!important;line-height:1!important;gap:6px!important;white-space:nowrap!important;flex:0 0 auto!important}
     .receipt-filter-trigger svg{width:14px!important;height:14px!important;display:block!important;flex:0 0 14px!important}
@@ -2568,7 +2569,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.6.3';
+const CN_MONEY_VERSION='2.7.0';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,receiptDateFilter:'',receiptStoreFilter:'',receiptItemFilters:[],receiptAllItems:true,receiptFilterDraft:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
@@ -2663,6 +2664,8 @@ function applyTheme(){const pref=localStorage.getItem('fin_theme')||'system';con
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if((localStorage.getItem('fin_theme')||'system')==='system'){applyTheme();render()}});
 function hydrateCaches(){try{const f=JSON.parse(localStorage.getItem(financeCacheKey())||'null');if(f){if(Array.isArray(f.wallets))state.wallets=f.wallets;if(Array.isArray(f.categories))state.categories=f.categories;if(Array.isArray(f.transactions))state.transactions=f.transactions;if(Array.isArray(f.investments))state.investments=f.investments;if(Array.isArray(f.assets))state.assets=f.assets;if(f.wealthSummary&&typeof f.wealthSummary==='object')state.wealthSummary=f.wealthSummary;if(f.budgetSummary&&typeof f.budgetSummary==='object')state.budgetSummary=f.budgetSummary;if(f.deviceNames&&typeof f.deviceNames==='object')state.deviceNames=f.deviceNames}const x=JSON.parse(localStorage.getItem(shopCacheKey())||'null');if(x){if(Array.isArray(x.checklist))state.checklist=x.checklist;if(x.itemDb&&typeof x.itemDb==='object')state.itemDb=x.itemDb;if(Array.isArray(x.legacyHistory))state.legacyHistory=x.legacyHistory;if(Array.isArray(x.shoppingSessions))state.shoppingSessions=x.shoppingSessions;if(Array.isArray(x.shoppingItems))state.shoppingItems=x.shoppingItems;if(Array.isArray(x.shoppingCategories))state.shoppingCategories=x.shoppingCategories;if(Array.isArray(x.shoppingProfiles))state.shoppingProfiles=x.shoppingProfiles}}catch(e){console.warn('Cache error',e)}}
 function persistCaches(){try{localStorage.setItem(financeCacheKey(),JSON.stringify({wallets:state.wallets,categories:state.categories,transactions:state.transactions,investments:state.investments,assets:state.assets,wealthSummary:state.wealthSummary,budgetSummary:state.budgetSummary,deviceNames:state.deviceNames,savedAt:Date.now()}));localStorage.setItem(shopCacheKey(),JSON.stringify({checklist:state.checklist,itemDb:state.itemDb,legacyHistory:state.legacyHistory,shoppingSessions:state.shoppingSessions,shoppingItems:state.shoppingItems,shoppingCategories:state.shoppingCategories,shoppingProfiles:state.shoppingProfiles,savedAt:Date.now()}))}catch(e){console.warn('Cache save error',e)}}
+let persistCachesTimer=null;
+function schedulePersistCaches(delay=220){clearTimeout(persistCachesTimer);persistCachesTimer=setTimeout(()=>{persistCachesTimer=null;persistCaches()},Math.max(0,Number(delay)||0))}
 function clearLocalCaches(){if(financeCacheKey())localStorage.removeItem(financeCacheKey());if(shopCacheKey())localStorage.removeItem(shopCacheKey())}
 async function ensureSession(){await ensureSupabaseClient();const {data,error}=await sb.auth.getSession();if(error)throw error;if(data.session){state.userId=data.session.user.id;return data.session}const res=await sb.auth.signInAnonymously();if(res.error)throw res.error;state.userId=res.data.session?.user?.id||res.data.user?.id;return res.data.session}
 function saveHousehold(h){state.household=h;localStorage.setItem('fin_household_id',h.id);localStorage.setItem('fin_household_name',h.name||'Household');if(h.inviteCode)localStorage.setItem('fin_household_code',h.inviteCode);localStorage.setItem('sp_household_id',h.id);localStorage.setItem('sp_household_name',h.name||'Household');if(h.inviteCode)localStorage.setItem('sp_household_invite_code',h.inviteCode)}
@@ -2683,12 +2686,15 @@ function hydrateCatalogCache(){
         brands:Array.isArray(saved.brands)?saved.brands:[],
         visibility:saved.visibility&&typeof saved.visibility==='object'?saved.visibility:{}
       };
+      rebuildCatalogLookupIndex();
     }
   }catch(err){console.warn('Catalog cache',err)}
 }
 function persistCatalogCache(){
   try{localStorage.setItem(catalogCacheKey(),JSON.stringify(state.catalog||{}))}catch(err){console.warn('Catalog cache save',err)}
 }
+let persistCatalogCacheTimer=null;
+function schedulePersistCatalogCache(delay=260){clearTimeout(persistCatalogCacheTimer);persistCatalogCacheTimer=setTimeout(()=>{persistCatalogCacheTimer=null;persistCatalogCache()},Math.max(0,Number(delay)||0))}
 function sanitizeCatalogVisibilityV2418(map){
   const out={};
   for(const [key,value] of Object.entries(map&&typeof map==='object'?map:{})){
@@ -2712,28 +2718,31 @@ function applyCatalogVisibilityV2418(){
 }
 
 let shoppingMasterData={ready:false,categories:[],subcategories:[],items:[],aliases:{},unknown:{category_name:'Lainnya',subcategory_name:'Lainnya',default_uom:'PCS',default_priority:'SEKUNDER'},itemByKey:{}};
-let shoppingMasterPromise=null;
+let shoppingMasterPromise=null,shoppingMasterPhraseCandidates=[],shoppingMasterPhraseCache=new Map();
 function shoppingMasterKey(value){return String(value||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('id-ID')}
 function shoppingLocalSlug(value){return shoppingMasterKey(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'lainnya'}
 function shoppingLocalKey(kind,...parts){return`local:${kind}:${parts.map(shoppingLocalSlug).join(':')}`}
 function shoppingMasterPhraseInfo(value){
   const clean=normalizeItemName(value),key=shoppingMasterKey(clean);if(!key)return{name:'',family:'',matched:''};
+  const cached=shoppingMasterPhraseCache.get(key);if(cached)return cached;
+  let result;
   const exactAlias=shoppingMasterData.aliases?.[key];
-  if(exactAlias)return{name:normalizeItemName(exactAlias),family:normalizeItemName(exactAlias),matched:key,aliasApplied:true};
-  const exactItem=shoppingMasterData.itemByKey?.[key];
-  if(exactItem)return{name:String(exactItem.canonical_name),family:String(exactItem.canonical_name),matched:key,aliasApplied:false};
-  const candidates=[];
-  for(const [alias,target] of Object.entries(shoppingMasterData.aliases||{}))candidates.push({term:shoppingMasterKey(alias),target:String(target),alias:true});
-  for(const row of shoppingMasterData.items||[])candidates.push({term:shoppingMasterKey(row.canonical_name),target:String(row.canonical_name),alias:false});
-  candidates.sort((a,b)=>b.term.length-a.term.length);
-  for(const candidate of candidates){
-    if(!candidate.term||candidate.term.length<3)continue;
-    const escaped=candidate.term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
-    if(!rx.test(key))continue;
-    const display=candidate.alias?normalizeItemName(clean.replace(rx,(m,prefix)=>prefix+candidate.target)):clean;
-    return{name:display,family:normalizeItemName(candidate.target),matched:candidate.term,aliasApplied:candidate.alias};
+  if(exactAlias)result={name:normalizeItemName(exactAlias),family:normalizeItemName(exactAlias),matched:key,aliasApplied:true};
+  else{
+    const exactItem=shoppingMasterData.itemByKey?.[key];
+    if(exactItem)result={name:String(exactItem.canonical_name),family:String(exactItem.canonical_name),matched:key,aliasApplied:false};
   }
-  return{name:clean,family:'',matched:'',aliasApplied:false};
+  if(!result){
+    for(const candidate of shoppingMasterPhraseCandidates){
+      if(!candidate.rx||!candidate.rx.test(key))continue;
+      const display=candidate.alias?normalizeItemName(clean.replace(candidate.rx,(m,prefix)=>prefix+candidate.target)):clean;
+      result={name:display,family:normalizeItemName(candidate.target),matched:candidate.term,aliasApplied:candidate.alias};break;
+    }
+  }
+  if(!result)result={name:clean,family:'',matched:'',aliasApplied:false};
+  if(shoppingMasterPhraseCache.size>3000)shoppingMasterPhraseCache.clear();
+  shoppingMasterPhraseCache.set(key,result);
+  return result;
 }
 function shoppingMasterCanonicalName(value){return shoppingMasterPhraseInfo(value).name}
 function loadShoppingMasterData(){
@@ -2745,6 +2754,17 @@ function loadShoppingMasterData(){
       const items=Array.isArray(data?.items)?data.items:[];
       const itemByKey={};
       for(const row of items)itemByKey[shoppingMasterKey(row.canonical_name)]=row;
+      const phraseCandidates=[];
+      for(const [alias,target] of Object.entries(data?.aliases||{}))phraseCandidates.push({term:shoppingMasterKey(alias),target:String(target),alias:true});
+      for(const row of items)phraseCandidates.push({term:shoppingMasterKey(row.canonical_name),target:String(row.canonical_name),alias:false});
+      phraseCandidates.sort((a,b)=>b.term.length-a.term.length);
+      for(const candidate of phraseCandidates){
+        if(!candidate.term||candidate.term.length<3){candidate.rx=null;continue}
+        const escaped=candidate.term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        candidate.rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
+      }
+      shoppingMasterPhraseCandidates=phraseCandidates;
+      shoppingMasterPhraseCache.clear();
       shoppingMasterData={
         ready:true,
         categories:Array.isArray(data?.categories)?data.categories:[],
@@ -2811,16 +2831,22 @@ function applyShoppingMasterCatalog(){
   }
   for(const def of shoppingMasterData.items)if(!seen.has(shoppingMasterKey(def.canonical_name)))addItem(def,{});
   state.catalog={categories,subcategories,items,brands:Array.isArray(current.brands)?current.brands:[],visibility:current.visibility&&typeof current.visibility==='object'?current.visibility:{}};
+  rebuildCatalogLookupIndex();
   return state.catalog;
 }
-async function loadCatalogSnapshot(){
+let catalogSnapshotLoadedAt=0;
+async function loadCatalogSnapshot({force=false}={}){
   await loadShoppingMasterData().catch(()=>{});
-  if(!state.household?.id){applyShoppingMasterCatalog();return state.catalog}
+  if(!state.household?.id){applyShoppingMasterCatalog();applyCatalogVisibilityV2418();return state.catalog}
   if(!state.online){
-    hydrateCatalogCache();
+    if(!(state.catalog?.items||[]).length)hydrateCatalogCache();
     applyShoppingMasterCatalog();
     applyCatalogVisibilityV2418();
-    persistCatalogCache();
+    schedulePersistCatalogCache();
+    return state.catalog;
+  }
+  if(!force&&catalogSnapshotLoadedAt&&Date.now()-catalogSnapshotLoadedAt<180000){
+    applyCatalogVisibilityV2418();
     return state.catalog;
   }
   try{
@@ -2836,13 +2862,14 @@ async function loadCatalogSnapshot(){
         visibility:row.visibility&&typeof row.visibility==='object'?row.visibility:{}
       };
     }
+    catalogSnapshotLoadedAt=Date.now();
   }catch(err){
     console.warn('Database catalog belum tersedia',err);
-    hydrateCatalogCache();
+    if(!(state.catalog?.items||[]).length)hydrateCatalogCache();
   }
   applyShoppingMasterCatalog();
   applyCatalogVisibilityV2418();
-  persistCatalogCache();
+  schedulePersistCatalogCache();
   return state.catalog;
 }
 let catalogDraftVisibility=null;
@@ -2971,13 +2998,29 @@ async function saveCatalogDraft(){
     state.loading=false;setCatalogSaveBusy(false);
   }
 }
+let catalogLookupIndex={itemByName:new Map(),subcategoryByKey:new Map(),brandByForm:new Map(),brandTerms:[]};
+function rebuildCatalogLookupIndex(){
+  const itemByName=new Map(),subcategoryByKey=new Map(),brandByForm=new Map(),brandTerms=[];
+  for(const sub of state.catalog?.subcategories||[])subcategoryByKey.set(String(sub.subcategory_key),sub);
+  for(const item of state.catalog?.items||[]){const k=shoppingAutocorrectKey(item.canonical_name||'');if(k&&!itemByName.has(k))itemByName.set(k,item)}
+  for(const brand of state.catalog?.brands||[]){
+    for(const form of [brand.name,...(Array.isArray(brand.aliases)?brand.aliases:[])]){
+      const term=shoppingAutocorrectKey(form);if(!term)continue;
+      if(!brandByForm.has(term))brandByForm.set(term,brand);
+      if(term.length>=3){const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');brandTerms.push({brand,term,rx:new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i')})}
+    }
+  }
+  brandTerms.sort((a,b)=>b.term.length-a.term.length);
+  catalogLookupIndex={itemByName,subcategoryByKey,brandByForm,brandTerms};
+  return catalogLookupIndex;
+}
 function catalogCategoryVisible(key){return catalogDirectVisible('category',key)}
 function catalogSubcategoryVisible(entry){
   return catalogDirectVisible('subcategory',entry.subcategory_key)&&catalogCategoryVisible(entry.category_key);
 }
 function catalogItemVisible(entry){
   if(!catalogCategoryVisible(entry.category_key))return false;
-  const sub=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(entry.subcategory_key));
+  const sub=catalogLookupIndex.subcategoryByKey.get(String(entry.subcategory_key));
   return !sub||catalogSubcategoryVisible(sub);
 }
 function catalogBrandVisible(){return true}
@@ -3055,8 +3098,10 @@ function renderCatalogSettings(){
   }
   return`<div class="modal-bg"><div class="modal catalog-settings-modal"><div class="modal-head"><div><div class="modal-title">DATABASE</div></div><button class="xbtn" data-catalog-close>×</button></div><div class="catalog-tools"><input id="catalogSearch" class="input catalog-search" value="${esc(state.catalogSearch||'')}" placeholder="Cari kategori / sub kategori…" autocomplete="off" autocorrect="off" spellcheck="false"><div class="catalog-tabs">${[['category','KATEGORI'],['subcategory','SUB KATEGORI']].map(([v,l])=>`<button type="button" class="catalog-tab ${section===v?'active':''}" data-catalog-section="${v}">${l}</button>`).join('')}</div><div class="catalog-count">${activeCount} AKTIF · ${rawCount} TOTAL</div><div class="catalog-bulk-actions"><button type="button" class="catalog-bulk-btn ${allSelected?'active':''}" data-catalog-select-all>SELECT ALL</button><button type="button" class="catalog-bulk-btn catalog-save-btn" data-catalog-save ${state.loading?'disabled':''}>${state.loading?'MENYIMPAN…':'SIMPAN'}</button></div></div><div class="catalog-list">${body}</div></div></div>`;
 }
-async function loadDeviceNames(){
+let deviceNamesLoadedAt=0;
+async function loadDeviceNames({force=false}={}){
   if(!state.household?.id||!state.online)return state.deviceNames||{};
+  if(!force&&deviceNamesLoadedAt&&Date.now()-deviceNamesLoadedAt<180000)return state.deviceNames||{};
   try{
     const {data,error}=await sb.rpc('finance_get_household_devices',{p_household_id:state.household.id});
     if(error)throw error;
@@ -3065,6 +3110,7 @@ async function loadDeviceNames(){
       if(row?.user_id)map[String(row.user_id)]=String(row.device_name||'PERANGKAT').trim()||'PERANGKAT';
     }
     state.deviceNames=map;
+    deviceNamesLoadedAt=Date.now();
     return map;
   }catch(err){
     console.warn('Device names unavailable',err);
@@ -3099,7 +3145,7 @@ async function loadAll({rerender=true,preserveCacheOnEmpty=false}={}){if(!state.
 const err=w.error||c.error||t.error||inv.error||ast.error||ws.error||b.error||sess.error||si.error||bs.error||sc.error||sp.error;if(err)throw err;if(generation!==loadAllGeneration)return false;
 const nw=w.data||[],nc=c.data||[],nt=t.data||[],serverInvestments=inv.data||[],ni=serverInvestments.filter(x=>!state.optimisticDeletedInvestmentIds.includes(x.id)),na=ast.data||[];state.optimisticDeletedInvestmentIds=state.optimisticDeletedInvestmentIds.filter(id=>serverInvestments.some(x=>x.id===id));/* A successful cloud response is authoritative even when the result is empty. Keeping cached rows here caused soft-deleted items to remain visible on other devices until restart. Cache fallback is handled only when the cloud request actually fails/offline. */state.wallets=nw;state.categories=nc;state.transactions=nt;state.investments=ni;state.assets=na;const wr=Array.isArray(ws.data)?ws.data[0]:ws.data;if(wr)state.wealthSummary={liquid_balance:Number(wr.liquid_balance||0),investment_cost:Number(wr.investment_cost||0),investment_value:Number(wr.investment_value||0),investment_gain_loss:Number(wr.investment_gain_loss||0),asset_value:Number(wr.asset_value||0),total_wealth:Number(wr.total_wealth||0)};
 for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=extractCatalogVisibilityFromDatabase(row.data);if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
-state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);if(generation!==loadAllGeneration)return false;applyPendingBucketMutations();migrateLegacyShoppingTaxonomyV2416();persistCaches();if(rerender&&!state.modal)render();return true}
+state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);if(generation!==loadAllGeneration)return false;applyPendingBucketMutations();migrateLegacyShoppingTaxonomyV2416();schedulePersistCaches();if(rerender&&!state.modal)render();return true}
 let realtimeReloadTimer=null;
 function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>{clearTimeout(realtimeReloadTimer);realtimeReloadTimer=setTimeout(()=>{const keepTyping=shopFastInputActive();loadAll({rerender:!state.modal&&!keepTyping,preserveCacheOnEmpty:true}).then(()=>{if(keepTyping)refreshShopListLive()}).catch(console.error)},140)};state.channel=sb.channel('fin-safety-'+id)
 .on('postgres_changes',{event:'*',schema:'public',table:'wallets',filter:`household_id=eq.${id}`},reload)
@@ -3228,48 +3274,38 @@ async function warmShoppingAutocorrect(maxWait=260){
   await Promise.race([load,new Promise(resolve=>setTimeout(resolve,maxWait))]);
   return shoppingAutocorrectData;
 }
+let shoppingAutocorrectWarmupScheduled=false;
+function scheduleShoppingAutocorrectWarmup(){
+  if(shoppingAutocorrectData.ready||shoppingAutocorrectPromise||shoppingAutocorrectWarmupScheduled)return;
+  shoppingAutocorrectWarmupScheduled=true;
+  const run=()=>{shoppingAutocorrectWarmupScheduled=false;loadShoppingAutocorrect().catch(()=>{})};
+  if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1600});
+  else setTimeout(run,650);
+}
 function exactVisibleCatalogItem(name){
   const key=shoppingAutocorrectKey(name);if(!key)return null;
-  return(state.catalog?.items||[]).find(x=>catalogItemVisible(x)&&shoppingAutocorrectKey(x.canonical_name||'')===key)||null;
+  const item=catalogLookupIndex.itemByName.get(key)||null;
+  return item&&catalogItemVisible(item)?item:null;
 }
 function exactVisibleCatalogBrand(name){
   const key=shoppingAutocorrectKey(name);if(!key)return null;
-  return(state.catalog?.brands||[]).find(x=>{
-    if(!catalogBrandVisible(x))return false;
-    if(shoppingAutocorrectKey(x.name||'')===key)return true;
-    return(Array.isArray(x.aliases)?x.aliases:[]).some(a=>shoppingAutocorrectKey(a)===key);
-  })||null;
+  const brand=catalogLookupIndex.brandByForm.get(key)||null;
+  return brand&&catalogBrandVisible(brand)?brand:null;
 }
 function visibleCatalogBrandWithin(name){
   const key=shoppingAutocorrectKey(name),exact=exactVisibleCatalogBrand(name);if(exact||!key)return exact;
-  const hits=[];
-  for(const brand of(state.catalog?.brands||[])){
-    if(!catalogBrandVisible(brand))continue;
-    for(const form of [brand.name,...(Array.isArray(brand.aliases)?brand.aliases:[])]){
-      const term=shoppingAutocorrectKey(form);if(term.length<3)continue;
-      const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
-      if(rx.test(key))hits.push({brand,term});
-    }
-  }
-  hits.sort((a,b)=>b.term.length-a.term.length);
-  return hits[0]?.brand||null;
+  for(const hit of catalogLookupIndex.brandTerms)if(catalogBrandVisible(hit.brand)&&hit.rx.test(key))return hit.brand;
+  return null;
 }
 function catalogAnyItemForName(name){
   const phrase=shoppingMasterPhraseInfo(name),key=shoppingMasterKey(phrase.family||phrase.name);if(!key)return null;
-  return(state.catalog?.items||[]).find(x=>shoppingMasterKey(x.canonical_name||'')===key)||null;
+  return catalogLookupIndex.itemByName.get(key)||null;
 }
 function catalogAnyBrandWithin(name){
   const key=shoppingAutocorrectKey(name);if(!key)return null;
-  const hits=[];
-  for(const brand of(state.catalog?.brands||[])){
-    for(const form of [brand.name,...(Array.isArray(brand.aliases)?brand.aliases:[])]){
-      const term=shoppingAutocorrectKey(form);if(term.length<3)continue;
-      const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
-      if(rx.test(key))hits.push({brand,term});
-    }
-  }
-  hits.sort((a,b)=>b.term.length-a.term.length);
-  return hits[0]?.brand||null;
+  const exact=catalogLookupIndex.brandByForm.get(key);if(exact)return exact;
+  for(const hit of catalogLookupIndex.brandTerms)if(hit.rx.test(key))return hit.brand;
+  return null;
 }
 function catalogKnownHiddenReason(name){
   const manual=householdDbInfo(name);
@@ -4819,12 +4855,12 @@ let shopEditReturnKey=null;
 let purchaseReturnDbKey=null;
 function consumeInAppBack(){return performAppBack()}
 let startupSyncing=true,reconnectPromise=null;
-async function recoverOnline(){if(reconnectPromise)return reconnectPromise;reconnectPromise=(async()=>{state.online=true;try{await ensureSession();if(!state.household)restoreHouseholdFromLocal();if(state.household){await restoreHousehold();await flushPendingBucketMutations();await flushPendingFinanceOps();await loadAll({rerender:false,preserveCacheOnEmpty:true});await resumePendingCheckoutCancels({silent:true});subscribeRealtime();persistCaches()}render();repairPushState()}catch(err){console.error('Reconnect failed',err);applyPendingBucketMutations();persistCaches();render();toast('Belum bisa sync. Data lokal tetap aman dan akan dicoba lagi.')}})();try{return await reconnectPromise}finally{reconnectPromise=null}}
+async function recoverOnline(){if(reconnectPromise)return reconnectPromise;reconnectPromise=(async()=>{state.online=true;try{await ensureSession();if(!state.household)restoreHouseholdFromLocal();if(state.household){await restoreHousehold();await flushPendingBucketMutations();await flushPendingFinanceOps();await loadAll({rerender:false,preserveCacheOnEmpty:true});await resumePendingCheckoutCancels({silent:true});subscribeRealtime();schedulePersistCaches()}render();repairPushState()}catch(err){console.error('Reconnect failed',err);applyPendingBucketMutations();persistCaches();render();toast('Belum bisa sync. Data lokal tetap aman dan akan dicoba lagi.')}})();try{return await reconnectPromise}finally{reconnectPromise=null}}
 window.addEventListener('online',()=>{if(!startupSyncing)recoverOnline()});window.addEventListener('offline',()=>{state.online=false;render()});window.addEventListener('pageshow',()=>{if(!startupSyncing&&state.household&&navigator.onLine)recoverOnline()});document.addEventListener('visibilitychange',()=>{if(!startupSyncing&&document.visibilityState==='visible'&&state.household&&navigator.onLine)recoverOnline()});
 history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(performAppBack()){history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&consumeInAppBack())e.preventDefault()});
 async function seedMissingCategories(){if(!state.household?.id||!navigator.onLine)return;const jobs=[];if(!state.categories.length)jobs.push(sb.rpc('finance_seed_categories',{p_household_id:state.household.id}));if(!state.shoppingCategories.length)jobs.push(sb.rpc('shopping_seed_categories',{p_household_id:state.household.id}));if(!jobs.length)return;const results=await Promise.all(jobs);const err=results.find(x=>x?.error)?.error;if(err)throw err;await loadAll({rerender:false,preserveCacheOnEmpty:true})}
-async function boot(){loadShoppingAutocorrect().catch(()=>{});loadShoppingMasterData().then(()=>{applyShoppingMasterCatalog();if(state.household?.id){migrateLegacyShoppingTaxonomyV2416();persistCaches()}if(state.ready)render()}).catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await flushPendingBucketMutations();await flushPendingFinanceOps();await loadAll({rerender:false,preserveCacheOnEmpty:true});await resumePendingCheckoutCancels({silent:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();applyPendingBucketMutations();persistCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
+async function boot(){scheduleShoppingAutocorrectWarmup();loadShoppingMasterData().then(()=>{applyShoppingMasterCatalog();if(state.household?.id){migrateLegacyShoppingTaxonomyV2416();schedulePersistCaches()}if(state.ready)render()}).catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await flushPendingBucketMutations();await flushPendingFinanceOps();await loadAll({rerender:false,preserveCacheOnEmpty:true});await resumePendingCheckoutCancels({silent:true});await seedMissingCategories();subscribeRealtime();schedulePersistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();applyPendingBucketMutations();persistCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).then(r=>r.update()).catch(console.warn))}boot();
 })();
 </script>
