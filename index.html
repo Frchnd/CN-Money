@@ -2270,7 +2270,7 @@
     }
 
 
-    /* CN MONEY v2.4.14 — DATABASE selection draft + SELECT ALL */
+    /* CN MONEY v2.4.15 — DATABASE selection draft + SELECT ALL */
     .brand-block{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
     .app-status{margin-top:4px;display:inline-flex;align-items:center;gap:7px;font-size:9px;font-weight:950;letter-spacing:.11em;color:var(--muted);line-height:1}
     .app-status .dot{width:6px;height:6px;box-shadow:0 0 0 2px rgba(16,185,129,.12)}
@@ -2315,7 +2315,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.14';
+const CN_MONEY_VERSION='2.4.15';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const appBackStack=[];
@@ -2664,6 +2664,49 @@ function catalogAllVisibilityEntries(){
     ...(state.catalog?.items||[]).map(x=>['item',x.item_key])
   ];
 }
+function catalogDraftActiveByKindKey(kind,key){
+  if(kind==='category')return catalogDraftCategoryVisible(key);
+  if(kind==='subcategory'){
+    const row=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(key));
+    return !!row&&catalogDraftSubcategoryVisible(row);
+  }
+  if(kind==='brand'){
+    const row=(state.catalog?.brands||[]).find(x=>String(x.brand_key)===String(key));
+    return !!row&&catalogDraftBrandVisible(row);
+  }
+  if(kind==='item'){
+    const row=(state.catalog?.items||[]).find(x=>String(x.item_key)===String(key));
+    return !!row&&catalogDraftItemVisible(row);
+  }
+  return false;
+}
+function syncCatalogDraftDom(){
+  if(state.modal!=='catalogSettings')return;
+  document.querySelectorAll('[data-catalog-toggle]').forEach(btn=>{
+    const active=catalogDraftActiveByKindKey(btn.dataset.catalogToggle,btn.dataset.catalogKey);
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-pressed',active?'true':'false');
+  });
+  const section=state.catalogSection||'category';
+  const rawCount=section==='category'?(state.catalog.categories||[]).length:
+    section==='subcategory'?(state.catalog.subcategories||[]).length:
+    section==='brand'?(state.catalog.brands||[]).length:(state.catalog.items||[]).length;
+  const count=document.querySelector('.catalog-count');
+  if(count)count.textContent=`${catalogDraftVisibleCount(section)} AKTIF · ${rawCount} TOTAL`;
+  const all=document.querySelector('[data-catalog-select-all]');
+  if(all){
+    const active=catalogDraftSectionAllSelected(section);
+    all.classList.toggle('active',active);
+    all.setAttribute('aria-pressed',active?'true':'false');
+  }
+}
+function setCatalogSaveBusy(busy){
+  const save=document.querySelector('[data-catalog-save]');
+  if(save){save.disabled=!!busy;save.textContent=busy?'MENYIMPAN…':'SIMPAN'}
+  const selectAll=document.querySelector('[data-catalog-select-all]');
+  if(selectAll)selectAll.disabled=!!busy;
+  document.querySelectorAll('[data-catalog-toggle],[data-catalog-section]').forEach(x=>x.disabled=!!busy);
+}
 async function saveCatalogDraft(){
   if(state.loading)return;
   if(!state.household?.id||!state.online)return toast('INTERNET DIPERLUKAN UNTUK MENYIMPAN.');
@@ -2675,26 +2718,25 @@ async function saveCatalogDraft(){
     if(before!==after)changes.push({kind,key,next:after});
   }
   if(!changes.length)return toast('TIDAK ADA PERUBAHAN.');
-  state.loading=true;render();
+  state.loading=true;setCatalogSaveBusy(true);
   try{
-    const concurrency=8;
-    for(let i=0;i<changes.length;i+=concurrency){
-      const chunk=changes.slice(i,i+concurrency);
-      const results=await Promise.all(chunk.map(x=>sb.rpc('cn_catalog_set_visibility',{p_household_id:state.household.id,p_kind:x.kind,p_entry_key:x.key,p_is_visible:x.next})));
-      const failed=results.find(x=>x?.error);
-      if(failed?.error)throw failed.error;
-    }
+    const {error}=await sb.rpc('cn_catalog_set_visibility_batch_v1',{
+      p_household_id:state.household.id,
+      p_changes:changes
+    });
+    if(error)throw error;
     state.catalog.visibility={...draft};
     persistCatalogCache();
     beginCatalogDraft();
+    syncCatalogDraftDom();
     toast('PILIHAN DATABASE DISIMPAN.');
   }catch(err){
-    console.error(err);
-    await loadCatalogSnapshot();
-    beginCatalogDraft();
-    toast('GAGAL MENYIMPAN PILIHAN.');
+    console.error('Catalog visibility save failed',err);
+    // The batch RPC is atomic. Keep the draft exactly as the user selected so
+    // they can retry; never reload a partially-saved snapshot into the modal.
+    toast('GAGAL MENYIMPAN PILIHAN. COBA LAGI.');
   }finally{
-    state.loading=false;render();
+    state.loading=false;setCatalogSaveBusy(false);
   }
 }
 function catalogCategoryVisible(key){return catalogDirectVisible('category',key)}
@@ -2988,6 +3030,49 @@ function visibleCatalogBrandWithin(name){
   hits.sort((a,b)=>b.term.length-a.term.length);
   return hits[0]?.brand||null;
 }
+function catalogAnyItemForName(name){
+  const phrase=shoppingMasterPhraseInfo(name),key=shoppingMasterKey(phrase.family||phrase.name);if(!key)return null;
+  return(state.catalog?.items||[]).find(x=>shoppingMasterKey(x.canonical_name||'')===key)||null;
+}
+function catalogAnyBrandWithin(name){
+  const key=shoppingAutocorrectKey(name);if(!key)return null;
+  const hits=[];
+  for(const brand of(state.catalog?.brands||[])){
+    for(const form of [brand.name,...(Array.isArray(brand.aliases)?brand.aliases:[])]){
+      const term=shoppingAutocorrectKey(form);if(term.length<3)continue;
+      const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
+      if(rx.test(key))hits.push({brand,term});
+    }
+  }
+  hits.sort((a,b)=>b.term.length-a.term.length);
+  return hits[0]?.brand||null;
+}
+function catalogKnownHiddenReason(name){
+  const manual=householdDbInfo(name);
+  if(manual){
+    const cat=(state.catalog?.categories||[]).find(x=>String(x.category_key)===String(manual.categoryKey));
+    const sub=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(manual.subcategoryKey));
+    if((cat&&!catalogCategoryVisible(cat.category_key))||(sub&&!catalogSubcategoryVisible(sub)))return'KATEGORI / SUB KATEGORI DINONAKTIFKAN DI DATABASE.';
+  }
+  const item=catalogAnyItemForName(name);
+  if(item&&!catalogItemVisible(item))return'BARANG / KATEGORI / SUB KATEGORI DINONAKTIFKAN DI DATABASE.';
+  const brand=catalogAnyBrandWithin(name);
+  if(brand&&!catalogBrandVisible(brand))return'MEREK DINONAKTIFKAN DI DATABASE.';
+  if(!manual&&!item){
+    const fallbackCat=masterCategoryEntryByName('Lainnya'),fallbackSub=masterSubcategoryEntry('Lainnya','Lainnya');
+    if((fallbackCat&&!catalogCategoryVisible(fallbackCat.category_key))||(fallbackSub&&!catalogSubcategoryVisible(fallbackSub)))return'KATEGORI LAINNYA DINONAKTIFKAN DI DATABASE.';
+  }
+  return'';
+}
+function catalogCategoryNameVisible(name){
+  const row=masterCategoryEntryByName(name);
+  return !row||catalogCategoryVisible(row.category_key);
+}
+function catalogSubcategoryNameVisible(categoryName,subcategoryName){
+  const row=masterSubcategoryEntry(categoryName,subcategoryName);
+  return !row||catalogSubcategoryVisible(row);
+}
+
 function shoppingEditDistance(a,b){
   a=shoppingAutocorrectKey(a);b=shoppingAutocorrectKey(b);
   const n=a.length,m=b.length;if(!n)return m;if(!m)return n;
@@ -3294,7 +3379,7 @@ function renderShopListLive(){
   let activeContent='';
   if(active.length&&listMode==='category'){
     const groups={};
-    active.forEach(x=>{const c=listParentCategory(x)||'LAINNYA';(groups[c]||(groups[c]=[])).push(x)});
+    active.forEach(x=>{const c=listParentCategory(x)||'LAINNYA';if(!catalogCategoryNameVisible(c))return;(groups[c]||(groups[c]=[])).push(x)});
     const order=(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>c.name);
     activeContent=Object.keys(groups)
       .sort((a,b)=>{
@@ -3383,6 +3468,7 @@ function renderShopData(){
     base.forEach(x=>{
       const master=masterShoppingInfo(x.name);
       const cat=master?.categoryName||masterCategoryForItemName(x.name,shoppingBroadCategoryName(shoppingCategoryFor(x.name,x.category)));
+      if(!catalogCategoryNameVisible(cat))return;
       (groups[cat]||(groups[cat]=[])).push(x)
     });
     const order=(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>c.name);
@@ -3393,7 +3479,8 @@ function renderShopData(){
   }else if(mode==='subcategory'){
     const groups={};
     base.forEach(x=>{
-      const cat=masterShoppingInfo(x.name)?.subcategoryName||shoppingCategoryFor(x.name,x.category);
+      const info=masterShoppingInfo(x.name),cat=info?.subcategoryName||shoppingCategoryFor(x.name,x.category),parent=info?.categoryName||masterCategoryForItemName(x.name,'Lainnya');
+      if(!catalogCategoryNameVisible(parent)||!catalogSubcategoryNameVisible(parent,cat))return;
       (groups[cat]||(groups[cat]=[])).push(x)
     });
     const order=(state.catalog?.subcategories||[]).filter(catalogSubcategoryVisible).map(c=>c.name);
@@ -3752,6 +3839,13 @@ const addShop=async({keepFocus=false,resolvedName=null,originalRaw=null,skipReso
 
   const finalName=normalizeItemName(resolved.name||typed);
   if(!finalName)return;
+  const hiddenReason=catalogKnownHiddenReason(finalName)||catalogKnownHiddenReason(typed);
+  if(hiddenReason){
+    clearShopAmbiguity();
+    toast(hiddenReason);
+    if(keepFocus&&input){try{input.focus({preventScroll:true})}catch(_){input.focus()}}
+    return;
+  }
 
   clearShopAmbiguity();
 
@@ -3804,8 +3898,18 @@ document.getElementById('categoryGuideSearch')?.addEventListener('input',e=>{
 document.getElementById('catalogSettingsBtn')?.addEventListener('click',()=>{state.catalogSearch='';state.catalogSection='category';beginCatalogDraft();state.modal='catalogSettings';render()});
 document.querySelectorAll('[data-catalog-close]').forEach(b=>b.addEventListener('click',()=>{state.catalogSearch='';discardCatalogDraft();performAppBack()}));
 document.querySelectorAll('[data-catalog-section]').forEach(b=>b.addEventListener('click',()=>{state.catalogSection=b.dataset.catalogSection||'category';state.catalogSearch='';render()}));
-document.querySelectorAll('[data-catalog-toggle]').forEach(b=>b.addEventListener('click',()=>{catalogDraftToggle(b.dataset.catalogToggle,b.dataset.catalogKey);render()}));
-document.querySelector('[data-catalog-select-all]')?.addEventListener('click',()=>{catalogDraftToggleAll(state.catalogSection||'category');render()});
+document.querySelectorAll('[data-catalog-toggle]').forEach(b=>b.addEventListener('click',()=>{
+  const list=document.querySelector('.catalog-list'),scrollTop=list?.scrollTop||0;
+  catalogDraftToggle(b.dataset.catalogToggle,b.dataset.catalogKey);
+  syncCatalogDraftDom();
+  if(list)list.scrollTop=scrollTop;
+}));
+document.querySelector('[data-catalog-select-all]')?.addEventListener('click',()=>{
+  const list=document.querySelector('.catalog-list'),scrollTop=list?.scrollTop||0;
+  catalogDraftToggleAll(state.catalogSection||'category');
+  syncCatalogDraftDom();
+  if(list)list.scrollTop=scrollTop;
+});
 document.querySelector('[data-catalog-save]')?.addEventListener('click',saveCatalogDraft);
 document.getElementById('catalogSearch')?.addEventListener('input',e=>{state.catalogSearch=e.target.value;const pos=e.target.selectionStart;render();requestAnimationFrame(()=>{const n=document.getElementById('catalogSearch');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}})});
 document.querySelectorAll('[data-guide-close]').forEach(el=>el.addEventListener('click',()=>performAppBack()));document.getElementById('notificationToggle')?.addEventListener('click',()=>{if(pushActive())disablePushNotifications();else enablePushNotifications()});document.getElementById('backupBtn')?.addEventListener('click',backupData);document.getElementById('restoreBtn')?.addEventListener('click',()=>document.getElementById('restoreFile')?.click());document.getElementById('restoreFile')?.addEventListener('change',e=>{const file=e.target.files?.[0];e.target.value='';handleRestoreFile(file)});document.querySelectorAll('[data-restore-cancel]').forEach(el=>el.addEventListener('click',()=>{state.restoreCandidate=null;state.modal='settings';render()}));document.getElementById('restoreExecuteBtn')?.addEventListener('click',executeRestore);document.getElementById('rollbackRestoreBtn')?.addEventListener('click',()=>askConfirm('rollbackRestore',null,'Batalkan restore terakhir?','Data akan kembali ke checkpoint sebelum restore terakhir.','BATALKAN RESTORE'));document.getElementById('clearDeviceBtn')?.addEventListener('click',()=>askConfirm('clearDevice',null,'Hapus data perangkat ini?','Perangkat ini akan keluar dari CN MONEY. Data di perangkat lain tidak dihapus.','HAPUS DARI PERANGKAT'));document.querySelector('[data-confirm-cancel]')?.addEventListener('click',()=>{state.confirmation=null;render()});document.querySelector('[data-confirm-ok]')?.addEventListener('click',async()=>{const c=state.confirmation;if(!c)return;state.confirmation=null;const closesParent=['deleteWallet','deleteInvestment','deleteAsset','deleteDbItem','cancelCheckout'].includes(c.action);if(closesParent){state.modal=null;shopEditReturnKey=null;purchaseReturnDbKey=null}render();if(c.action==='deleteWallet')return handleDeleteWallet(c.payload,true);if(c.action==='deleteInvestment')return handleDeleteInvestment(c.payload,true);if(c.action==='deleteAsset')return handleDeleteAsset(c.payload,true);if(c.action==='deleteDbItem')return handleDeleteDbItem(c.payload,true);if(c.action==='undoTransaction')return handleUndoTransaction(c.payload,true);if(c.action==='cancelCheckout')return handleCancelCheckout(c.payload,true);if(c.action==='rollbackRestore')return undoLastRestore();if(c.action==='clearDevice'){await disablePushNotifications({silent:true});playDeleteUndo();forgetHousehold();state.wallets=[];state.categories=[];state.transactions=[];state.investments=[];state.assets=[];state.checklist=[];state.itemDb={};state.shoppingSessions=[];state.shoppingItems=[];state.modal=null;render()}})}

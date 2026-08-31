@@ -1,12 +1,30 @@
-CN MONEY v2.4.14 — DATABASE SELECTION CHECK
+CN MONEY v2.4.15 — DATABASE VISIBILITY CHECK
 
-1. Pengaturan > DATABASE > KATEGORI: tap item aktif -> harus bisa unselect; tap lagi -> select.
-2. Jangan tekan SIMPAN, tutup DATABASE, buka lagi -> perubahan tadi tidak boleh tersimpan.
-3. KATEGORI > SELECT ALL -> semua kategori aktif dan semua subkategori di dalamnya ikut aktif.
-4. Tekan SELECT ALL lagi -> semua kategori dan seluruh subkategori nonaktif.
-5. SUB KATEGORI > SELECT ALL dua kali -> semua on, lalu semua off.
-6. MEREK > SELECT ALL dua kali -> semua on, lalu semua off.
-7. BARANG > SELECT ALL dua kali -> semua on, lalu semua off.
-8. Buat kombinasi pilihan > SIMPAN -> tutup DATABASE > buka lagi -> pilihan harus tetap.
-9. Tes search di DATABASE saat draft berubah; input harus tetap fokus dan state draft tidak hilang.
-10. Tidak ada SQL baru untuk v2.4.14.
+PRE-DEPLOY
+1. Backup .cnmoney.
+2. Jalankan SUPABASE-v2.4.15-CATALOG-VISIBILITY-BATCH.sql di Supabase SQL Editor.
+3. Pastikan SQL selesai tanpa error, baru deploy/install v2.4.15.
+
+SCROLL / DRAFT
+4. DATABASE > KATEGORI: scroll jauh ke bawah, select/unselect beberapa row -> posisi daftar harus tetap di tempat yang sama.
+5. Ulangi di SUB KATEGORI, MEREK, dan BARANG.
+6. SELECT ALL / toggle lagi -> tidak boleh lompat ke atas.
+7. Ubah beberapa pilihan lalu tutup dengan X/Back tanpa SIMPAN -> perubahan draft harus dibuang.
+
+ATOMIC SAVE
+8. Ubah banyak kategori/subkategori/merek/barang sekaligus -> SIMPAN -> harus muncul "PILIHAN DATABASE DISIMPAN" tanpa error.
+9. Tutup DATABASE lalu buka lagi -> pilihan harus persis sama.
+10. Tidak boleh ada kondisi sebagian pilihan tersimpan ketika save gagal.
+
+BELANJA VISIBILITY
+11. Nonaktifkan satu KATEGORI -> SIMPAN -> kategori itu tidak boleh muncul di picker/group KATEGORI BELANJA.
+12. Nonaktifkan satu SUB KATEGORI -> SIMPAN -> subkategori itu tidak boleh muncul di picker/group SUB KATEGORI.
+13. Nonaktifkan satu BARANG master -> SIMPAN -> input barang tersebut tidak boleh diperlakukan sebagai master/autocorrect aktif.
+14. Nonaktifkan satu MEREK -> SIMPAN -> brand tersebut tidak boleh dipakai untuk brand matching.
+15. Aktifkan kembali -> SIMPAN -> semuanya harus muncul/berfungsi lagi.
+
+REGRESSION
+16. LIST/DATA/RECEIPT lama tidak boleh terhapus.
+17. Dashboard +, Saku +, Investasi +, Aset + tetap berfungsi.
+18. Back Android tetap mundur satu tampilan.
+19. Offline boot dan sync dua HP tetap berfungsi.
