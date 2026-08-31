@@ -13,7 +13,6 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#eef2f7;--surface:#fff;--surface2:#f8fafc;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--primary:#4f46e5;--primary2:#6366f1;--green:#059669;--red:#dc2626;--blue:#2563eb;--amber:#d97706;--shadow:0 14px 38px rgba(15,23,42,.09)}
     html.dark{--bg:#050914;--surface:#111827;--surface2:#0b1220;--text:#f8fafc;--muted:#94a3b8;--line:#263246;--primary:#a5b4fc;--primary2:#6366f1;--green:#34d399;--red:#fb7185;--blue:#60a5fa;--amber:#fbbf24;--shadow:0 18px 46px rgba(0,0,0,.28);color-scheme:dark}
@@ -2252,11 +2251,36 @@
 'use strict';
 const SUPABASE_URL='https://gfhxpketrfdgfbvadxwl.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ZQnRso9t-n05jS73PgljTQ_bJ5SDCFT';
+const SUPABASE_LIB_URL='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr-fy_5FCCrYsRa4uJMSK0Anz1jzIcbfdgS66Q';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+let sb=null,supabaseLoadPromise=null;
+function makeSupabaseClient(){
+  if(sb)return sb;
+  if(!window.supabase?.createClient)throw new Error('SUPABASE LIBRARY BELUM TERSEDIA.');
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+  return sb;
+}
+async function ensureSupabaseClient(){
+  if(sb)return sb;
+  if(window.supabase?.createClient)return makeSupabaseClient();
+  if(!navigator.onLine)throw new Error('OFFLINE');
+  if(supabaseLoadPromise)return supabaseLoadPromise;
+  supabaseLoadPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-cn-supabase]');
+    const script=existing||document.createElement('script');
+    let settled=false;
+    const finish=(ok,err)=>{if(settled)return;settled=true;clearTimeout(timer);script.onload=null;script.onerror=null;if(ok){try{resolve(makeSupabaseClient())}catch(e){reject(e)}}else{if(script?.parentNode)script.remove();reject(err||new Error('GAGAL MEMUAT SUPABASE.'))}};
+    const timer=setTimeout(()=>finish(false,new Error('KONEKSI CLOUD TIMEOUT.')),7000);
+    script.onload=()=>finish(true);
+    script.onerror=()=>finish(false,new Error('CLOUD LIBRARY TIDAK TERJANGKAU.'));
+    if(!existing){script.src=SUPABASE_LIB_URL;script.async=true;script.dataset.cnSupabase='1';document.head.appendChild(script)}
+    else if(window.supabase?.createClient)finish(true);
+  }).finally(()=>{supabaseLoadPromise=null});
+  return supabaseLoadPromise;
+}
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.8';
+const CN_MONEY_VERSION='2.4.9';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -2332,7 +2356,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if((
 function hydrateCaches(){try{const f=JSON.parse(localStorage.getItem(financeCacheKey())||'null');if(f){if(Array.isArray(f.wallets))state.wallets=f.wallets;if(Array.isArray(f.categories))state.categories=f.categories;if(Array.isArray(f.transactions))state.transactions=f.transactions;if(Array.isArray(f.investments))state.investments=f.investments;if(Array.isArray(f.assets))state.assets=f.assets;if(f.wealthSummary&&typeof f.wealthSummary==='object')state.wealthSummary=f.wealthSummary;if(f.budgetSummary&&typeof f.budgetSummary==='object')state.budgetSummary=f.budgetSummary;if(f.deviceNames&&typeof f.deviceNames==='object')state.deviceNames=f.deviceNames}const x=JSON.parse(localStorage.getItem(shopCacheKey())||'null');if(x){if(Array.isArray(x.checklist))state.checklist=x.checklist;if(x.itemDb&&typeof x.itemDb==='object')state.itemDb=x.itemDb;if(Array.isArray(x.legacyHistory))state.legacyHistory=x.legacyHistory;if(Array.isArray(x.shoppingSessions))state.shoppingSessions=x.shoppingSessions;if(Array.isArray(x.shoppingItems))state.shoppingItems=x.shoppingItems;if(Array.isArray(x.shoppingCategories))state.shoppingCategories=x.shoppingCategories;if(Array.isArray(x.shoppingProfiles))state.shoppingProfiles=x.shoppingProfiles}}catch(e){console.warn('Cache error',e)}}
 function persistCaches(){try{localStorage.setItem(financeCacheKey(),JSON.stringify({wallets:state.wallets,categories:state.categories,transactions:state.transactions,investments:state.investments,assets:state.assets,wealthSummary:state.wealthSummary,budgetSummary:state.budgetSummary,deviceNames:state.deviceNames,savedAt:Date.now()}));localStorage.setItem(shopCacheKey(),JSON.stringify({checklist:state.checklist,itemDb:state.itemDb,legacyHistory:state.legacyHistory,shoppingSessions:state.shoppingSessions,shoppingItems:state.shoppingItems,shoppingCategories:state.shoppingCategories,shoppingProfiles:state.shoppingProfiles,savedAt:Date.now()}))}catch(e){console.warn('Cache save error',e)}}
 function clearLocalCaches(){if(financeCacheKey())localStorage.removeItem(financeCacheKey());if(shopCacheKey())localStorage.removeItem(shopCacheKey())}
-async function ensureSession(){const {data,error}=await sb.auth.getSession();if(error)throw error;if(data.session){state.userId=data.session.user.id;return data.session}const res=await sb.auth.signInAnonymously();if(res.error)throw res.error;state.userId=res.data.session?.user?.id||res.data.user?.id;return res.data.session}
+async function ensureSession(){await ensureSupabaseClient();const {data,error}=await sb.auth.getSession();if(error)throw error;if(data.session){state.userId=data.session.user.id;return data.session}const res=await sb.auth.signInAnonymously();if(res.error)throw res.error;state.userId=res.data.session?.user?.id||res.data.user?.id;return res.data.session}
 function saveHousehold(h){state.household=h;localStorage.setItem('fin_household_id',h.id);localStorage.setItem('fin_household_name',h.name||'Household');if(h.inviteCode)localStorage.setItem('fin_household_code',h.inviteCode);localStorage.setItem('sp_household_id',h.id);localStorage.setItem('sp_household_name',h.name||'Household');if(h.inviteCode)localStorage.setItem('sp_household_invite_code',h.inviteCode)}
 function restoreHouseholdFromLocal(){const id=localStorage.getItem('fin_household_id');if(!id)return false;saveHousehold({id,name:localStorage.getItem('fin_household_name')||'Household',inviteCode:localStorage.getItem('fin_household_code')||localStorage.getItem('sp_household_invite_code')||''});return true}
 function forgetHousehold(){const oldCatalogKey=catalogCacheKey(),oldPendingKey=state.household?.id?'cn_pending_bucket_v247_'+state.household.id:null,oldFinancePendingKey=state.household?.id?'cn_pending_finance_v1_'+state.household.id:null;clearLocalCaches();localStorage.removeItem(oldCatalogKey);if(oldPendingKey)localStorage.removeItem(oldPendingKey);if(oldFinancePendingKey)localStorage.removeItem(oldFinancePendingKey);state.household=null;['fin_household_id','fin_household_name','fin_household_code','sp_household_id','sp_household_name','sp_household_invite_code','cn_restore_undo_available','cn_restore_undo_at','cn_last_backup_at','cn_last_investment_income_wallet','cn_device_name'].forEach(k=>localStorage.removeItem(k));if(state.channel){sb.removeChannel(state.channel);state.channel=null}}

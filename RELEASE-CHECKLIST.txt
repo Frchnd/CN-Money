@@ -1,38 +1,13 @@
-CN MONEY v2.4.8 — RELEASE CHECKLIST
+CN MONEY v2.4.9 — RELEASE CHECKLIST
 
-PRE-DEPLOY
-[ ] Backup .cnmoney
-[ ] SUPABASE-v2.4.7-STABILITY-SYNC.sql sudah pernah sukses
-[ ] Jalankan SUPABASE-v2.4.8-FINANCE-IDEMPOTENCY.sql
-[ ] SQL selesai tanpa error
-[ ] Baru deploy/install v2.4.8
-
-NORMAL FINANCE
-[ ] Tambah pemasukan sekali -> 1 transaksi, saldo naik sekali
-[ ] Tambah pengeluaran sekali -> 1 transaksi, saldo turun sekali
-[ ] Transfer A -> B -> saldo kedua dompet berubah sekali
-[ ] Tambah pendapatan investasi -> saldo + history bertambah sekali
-[ ] Koreksi saldo dompet -> hanya 1 adjustment di History
-
-CREATE ENTITY
-[ ] Buat dompet dengan saldo awal -> hanya 1 dompet / 1 saldo awal
-[ ] Buat investasi dari dompet -> hanya 1 investasi dan saldo terpotong sekali
-[ ] Buat investasi tanpa sumber dompet -> hanya 1 investasi
-[ ] Buat aset -> hanya 1 aset
-
-CRASH / RESPONSE-LOSS TEST (paling penting)
-[ ] Saat submit pemasukan, segera force-close; reopen online -> maksimal 1 transaksi
-[ ] Saat submit pengeluaran, segera force-close; reopen online -> maksimal 1 transaksi
-[ ] Saat transfer, segera force-close; reopen online -> transfer maksimal sekali
-[ ] Saat buat dompet, segera force-close; reopen online -> maksimal 1 dompet
-[ ] Saat beli investasi dari dompet, segera force-close; reopen online -> maksimal 1 investasi dan debit sekali
-[ ] Saat buat aset, segera force-close; reopen online -> maksimal 1 aset
-
-NETWORK TEST
-[ ] Submit lalu matikan internet secepat mungkin; hidupkan lagi -> operation akhirnya muncul maksimal sekali
-[ ] Reopen beberapa kali saat operation pending -> tidak membuat duplikat
-
-REGRESSION
-[ ] Checkout masih bekerja
-[ ] LIST/DATA sync dua HP v2.4.7 masih bekerja
-[ ] Backup .cnmoney masih berhasil
+[ ] Backup .cnmoney bila memungkinkan
+[ ] TIDAK ada SQL baru untuk v2.4.9
+[ ] Deploy/install frontend v2.4.9
+[ ] Buka sekali ONLINE sampai dashboard/data muncul
+[ ] Force close aplikasi
+[ ] Matikan Wi-Fi + data seluler / Airplane mode
+[ ] Buka aplikasi: TIDAK boleh stuck di "Menyiapkan aplikasi"
+[ ] Dashboard/Shopping/Data/Wealth menampilkan cache terakhir
+[ ] Tambah item LIST saat offline -> force close -> reopen offline -> item tetap ada
+[ ] Nyalakan internet -> item pending sync ke device lain
+[ ] Reopen online -> finance v2.4.8 tetap tidak duplikat

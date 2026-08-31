@@ -1,4 +1,5 @@
-const CACHE='cn-money-v2.4.8-shell';
+const CACHE='cn-money-v2.4.9-shell';
+const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const CORE=[
   '/',
   '/index.html',
@@ -68,7 +69,7 @@ self.addEventListener('fetch',event=>{
   // Never cache/intercept application data from Supabase or other remote APIs.
   if(url.origin!==self.location.origin){
     // The public Supabase JS library may use the runtime cache after a successful load.
-    if(url.hostname==='cdn.jsdelivr.net' && url.pathname.includes('@supabase/supabase-js')){
+    if(request.url===SUPABASE_LIB || (url.hostname==='cdn.jsdelivr.net' && url.pathname.includes('@supabase/supabase-js'))){
       event.respondWith(networkFirst(request,null));
     }
     return;

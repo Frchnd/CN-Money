@@ -1,52 +1,39 @@
-CN MONEY v2.4.8 — FINANCE IDEMPOTENCY / CRASH-REOPEN PHASE 2
+CN MONEY v2.4.9 — OFFLINE BOOT FIX
 
-Fokus release
-- Freeze fitur. Tidak menambah fitur produk baru.
-- Menutup risiko transaksi finansial dobel saat request sudah commit di Supabase tetapi app kehilangan respons karena koneksi putus / force-close / reopen.
-- Membuat create Dompet, Investasi, dan Aset retry-safe.
-- Membuat Pemasukan, Pengeluaran, Transfer, Pendapatan Investasi, dan koreksi saldo Dompet memakai durable pending operation di perangkat.
+Tujuan
+- Memperbaiki aplikasi yang berhenti di layar "Menyiapkan aplikasi" saat dibuka tanpa internet.
+- Menjaga seluruh patch stability v2.4.7 dan finance idempotency v2.4.8 tetap utuh.
 
-WAJIB sebelum deploy v2.4.8
-1. Backup .cnmoney dari Settings.
-2. Pastikan migration v2.4.7 sudah pernah dijalankan.
-3. Jalankan SUPABASE-v2.4.8-FINANCE-IDEMPOTENCY.sql di Supabase SQL Editor.
-4. Pastikan query selesai tanpa error.
-5. Baru deploy/install frontend v2.4.8.
+Akar masalah
+- v2.4.8 memuat Supabase JS sebagai <script> CDN yang blocking sebelum boot lokal berjalan.
+- Saat CDN tidak bisa dijangkau, kode aplikasi berhenti sebelum cache lokal/household lokal sempat dirender.
 
-SQL migration v2.4.8
-- Tidak mengubah kolom/tabel finance existing.
-- Tidak memigrasikan saldo, transaksi, receipt, investasi, aset, budget, atau master barang.
-- Menambah schema internal cn_internal jika belum ada.
-- Menambah cn_internal.finance_operation_guard_v1 yang hanya menyimpan Household ID, random operation ID, jenis operasi, user ID, dan timestamp.
-- Menambah RPC public.cn_finance_create_once_v1 untuk create wallet/investment/asset sekali saja per operation ID.
-- RPC memakai SECURITY INVOKER. Existing finance RPC + RLS/authorization tetap menjadi sumber kebenaran.
-- Guard row dan create finance berada di transaksi database yang sama: kalau create gagal, guard ikut rollback.
+Perubahan v2.4.9
+1. Supabase JS tidak lagi blocking saat startup.
+   - Library dimuat lazy hanya ketika cloud benar-benar dibutuhkan.
+   - Saat offline, app shell + cache lokal bisa boot tanpa Supabase JS.
+2. Loader cloud punya timeout 7 detik.
+   - Kondisi navigator.onLine=true tetapi internet sebenarnya mati tidak boleh menggantung library loader selamanya.
+3. Service worker v2.4.9.
+   - Shell/cache version dibump.
+   - Runtime cache tetap boleh menyimpan library Supabase setelah berhasil dimuat online.
+   - Instalasi offline shell tidak bergantung pada CDN Supabase.
+4. Tidak ada perubahan SQL/schema Supabase.
+5. Tidak ada perubahan master data, taxonomy, LIST/DATA mutation, finance RPC, saldo, transaksi, investasi, atau aset.
 
-Durable finance queue frontend
-- Pending operation disimpan di localStorage per Household sebelum RPC dikirim.
-- Kalau error terdeteksi sebagai network/timeout/server sementara, operation tetap disimpan.
-- Saat online/reopen/pageshow, pending finance operation dicoba ulang sebelum load data final.
-- Kalau backend sudah commit sebelumnya, operation ID yang sama membuat retry menjadi no-op/dedupe, bukan create kedua.
-- Error bisnis definitif (mis. input/backend menolak) tidak diretry tanpa batas.
+Cara update
+- Tidak perlu menjalankan SQL baru.
+- Deploy/install frontend v2.4.9 seperti update biasa.
+- Buka sekali dengan internet setelah update agar service worker v2.4.9 aktif dan shell terbaru tersimpan.
 
-Dilindungi v2.4.8
-- Pemasukan: finance_add_income_v2 + durable client transaction ID.
-- Pengeluaran: finance_add_expense_v2 + durable client transaction ID.
-- Transfer: finance_transfer_v2 + durable client transaction ID.
-- Pendapatan investasi: finance_add_investment_income + durable client transaction ID.
-- Koreksi saldo Dompet: finance_update_wallet_v2 + durable client transaction ID.
-- Create Dompet: cn_finance_create_once_v1.
-- Create Investasi: cn_finance_create_once_v1; termasuk pembelian dari Dompet supaya debit tidak terulang saat retry.
-- Create Aset: cn_finance_create_once_v1.
-
-Sudah aman dari phase sebelumnya
-- Checkout sudah memiliki clientCheckoutId yang disimpan di checklist sebelum finance_complete_checkout_v2 dipanggil.
-- LIST/DATA bucket pending queue + atomic mutation v2.4.7 tetap dipakai.
-- Taxonomy/autocorrect/search DATA v2.4.6 tetap dipakai.
-
-Belum diklaim selesai
-- Phase berikutnya tetap audit edit/delete/undo/cancel secara menyeluruh dan Back Navigation. v2.4.8 fokus pada create/add money flows dan crash-reopen idempotency.
-
-Backup/Restore interlock
-- Backup dan Restore mencoba flush durable finance queue terlebih dahulu.
-- Jika masih ada operasi uang yang belum bisa sync, Backup/Restore ditahan agar snapshot/restore tidak bertabrakan dengan operasi pending.
+Tes utama
+A. Online sekali -> force close -> matikan internet -> buka CN MONEY.
+   Expected: langsung masuk memakai data terakhir, bukan stuck loading.
+B. Saat offline, pindah tab Dashboard / Shopping / Data / Wealth.
+   Expected: data cache terakhir tetap bisa dibaca; operasi yang memang butuh internet boleh ditolak/pending sesuai desain.
+C. Offline -> tambah LIST item -> force close -> reopen masih offline.
+   Expected: item tetap ada lokal.
+D. Nyalakan internet.
+   Expected: app reconnect dan pending sync jalan tanpa reload manual.
+E. Simulasikan jaringan buruk/captive connection.
+   Expected: app yang sudah punya cache lokal tetap usable; cloud sync boleh gagal dan retry kemudian.
