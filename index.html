@@ -2279,6 +2279,7 @@
 
 
 
+    /* CN MONEY v2.4.18 — DATABASE category/subcategory visibility persistence */
     /* CN MONEY v2.4.17 — DATA detail purchase-history refinement */
     .db-detail-title-wrap .shop-uom-inline{
       display:inline-flex;align-items:center;justify-content:center;
@@ -2346,9 +2347,11 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.17';
+const CN_MONEY_VERSION='2.4.18';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
+const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
+let catalogHouseholdVisibilityV2418=null;
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const appBackStack=[];
 function appViewSnapshot(){return{tab:state.tab,shopTab:state.shopTab,wealthTab:state.wealthTab,receiptSessionId:state.receiptSessionId,modal:state.modal,confirmation:null,monthPickerYear:state.monthPickerYear,receiptPickerMonth:state.receiptPickerMonth,receiptPickerYear:state.receiptPickerYear,catalogSection:state.catalogSection,catalogSearch:state.catalogSearch,categoryGuideSearch:state.categoryGuideSearch,dataSearch:state.dataSearch,dataView:state.dataView}}
@@ -2464,6 +2467,27 @@ function hydrateCatalogCache(){
 function persistCatalogCache(){
   try{localStorage.setItem(catalogCacheKey(),JSON.stringify(state.catalog||{}))}catch(err){console.warn('Catalog cache save',err)}
 }
+function sanitizeCatalogVisibilityV2418(map){
+  const out={};
+  for(const [key,value] of Object.entries(map&&typeof map==='object'?map:{})){
+    if((key.startsWith('category:')||key.startsWith('subcategory:'))&&value===false)out[key]=false;
+  }
+  return out;
+}
+function extractCatalogVisibilityFromDatabase(raw){
+  const source=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+  const stored=source[CN_CATALOG_VISIBILITY_KEY];
+  if(stored&&typeof stored==='object'&&stored.visibility&&typeof stored.visibility==='object'){
+    catalogHouseholdVisibilityV2418=sanitizeCatalogVisibilityV2418(stored.visibility);
+  }else catalogHouseholdVisibilityV2418=null;
+  const clean={...source};delete clean[CN_CATALOG_VISIBILITY_KEY];
+  return clean;
+}
+function applyCatalogVisibilityV2418(){
+  if(catalogHouseholdVisibilityV2418&&typeof catalogHouseholdVisibilityV2418==='object')state.catalog.visibility={...catalogHouseholdVisibilityV2418};
+  else state.catalog.visibility=sanitizeCatalogVisibilityV2418(state.catalog?.visibility||{});
+  return state.catalog.visibility;
+}
 
 let shoppingMasterData={ready:false,categories:[],subcategories:[],items:[],aliases:{},unknown:{category_name:'Lainnya',subcategory_name:'Lainnya',default_uom:'PCS',default_priority:'SEKUNDER'},itemByKey:{}};
 let shoppingMasterPromise=null;
@@ -2573,6 +2597,7 @@ async function loadCatalogSnapshot(){
   if(!state.online){
     hydrateCatalogCache();
     applyShoppingMasterCatalog();
+    applyCatalogVisibilityV2418();
     persistCatalogCache();
     return state.catalog;
   }
@@ -2594,6 +2619,7 @@ async function loadCatalogSnapshot(){
     hydrateCatalogCache();
   }
   applyShoppingMasterCatalog();
+  applyCatalogVisibilityV2418();
   persistCatalogCache();
   return state.catalog;
 }
@@ -2613,21 +2639,12 @@ function catalogDraftSet(kind,key,next){
 }
 function catalogDraftCategoryVisible(key){return catalogDraftDirectVisible('category',key)}
 function catalogDraftSubcategoryVisible(entry){return catalogDraftDirectVisible('subcategory',entry.subcategory_key)&&catalogDraftCategoryVisible(entry.category_key)}
-function catalogDraftItemVisible(entry){
-  if(!catalogDraftDirectVisible('item',entry.item_key))return false;
-  if(!catalogDraftCategoryVisible(entry.category_key))return false;
-  const sub=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(entry.subcategory_key));
-  return !sub||catalogDraftSubcategoryVisible(sub);
-}
-function catalogDraftBrandVisible(entry){return catalogDraftDirectVisible('brand',entry.brand_key)}
 function catalogDraftVisibleCount(kind){
-  const rows=kind==='category'?state.catalog.categories:kind==='subcategory'?state.catalog.subcategories:kind==='brand'?state.catalog.brands:state.catalog.items;
-  return (rows||[]).filter(x=>kind==='category'?catalogDraftCategoryVisible(x.category_key):kind==='subcategory'?catalogDraftSubcategoryVisible(x):kind==='brand'?catalogDraftBrandVisible(x):catalogDraftItemVisible(x)).length;
+  const rows=kind==='subcategory'?(state.catalog?.subcategories||[]):(state.catalog?.categories||[]);
+  return (rows||[]).filter(x=>kind==='subcategory'?catalogDraftSubcategoryVisible(x):catalogDraftCategoryVisible(x.category_key)).length;
 }
 function catalogDraftRowActive(row){
-  return row._kind==='category'?catalogDraftCategoryVisible(row._key):
-    row._kind==='subcategory'?catalogDraftSubcategoryVisible(row):
-    row._kind==='brand'?catalogDraftBrandVisible(row):catalogDraftItemVisible(row);
+  return row._kind==='subcategory'?catalogDraftSubcategoryVisible(row):catalogDraftCategoryVisible(row._key);
 }
 function catalogDraftToggle(kind,key){
   if(!catalogDraftVisibility)beginCatalogDraft();
@@ -2643,74 +2660,38 @@ function catalogDraftToggle(kind,key){
     const next=!catalogDraftSubcategoryVisible(sub);
     if(next)catalogDraftSet('category',sub.category_key,true);
     catalogDraftSet('subcategory',key,next);
-    return;
-  }
-  if(kind==='item'){
-    const item=(state.catalog?.items||[]).find(x=>String(x.item_key)===String(key));
-    if(!item)return;
-    const next=!catalogDraftItemVisible(item);
-    if(next){
-      catalogDraftSet('category',item.category_key,true);
-      if(item.subcategory_key)catalogDraftSet('subcategory',item.subcategory_key,true);
+    if(!next){
+      const siblings=(state.catalog?.subcategories||[]).filter(x=>String(x.category_key)===String(sub.category_key));
+      if(siblings.length&&!siblings.some(catalogDraftSubcategoryVisible))catalogDraftSet('category',sub.category_key,false);
     }
-    catalogDraftSet('item',key,next);
-    return;
   }
-  if(kind==='brand')catalogDraftSet('brand',key,!catalogDraftDirectVisible('brand',key));
 }
 function catalogDraftSectionAllSelected(section){
-  const rows=section==='category'?(state.catalog?.categories||[]):section==='subcategory'?(state.catalog?.subcategories||[]):section==='brand'?(state.catalog?.brands||[]):(state.catalog?.items||[]);
+  const rows=section==='subcategory'?(state.catalog?.subcategories||[]):(state.catalog?.categories||[]);
   if(!rows.length)return false;
-  return rows.every(row=>section==='category'?catalogDraftCategoryVisible(row.category_key):section==='subcategory'?catalogDraftSubcategoryVisible(row):section==='brand'?catalogDraftBrandVisible(row):catalogDraftItemVisible(row));
+  return rows.every(row=>section==='subcategory'?catalogDraftSubcategoryVisible(row):catalogDraftCategoryVisible(row.category_key));
 }
 function catalogDraftToggleAll(section){
   if(!catalogDraftVisibility)beginCatalogDraft();
   const next=!catalogDraftSectionAllSelected(section);
-  if(section==='category'){
+  if(section==='subcategory'){
     for(const cat of state.catalog?.categories||[])catalogDraftSet('category',cat.category_key,next);
     for(const sub of state.catalog?.subcategories||[])catalogDraftSet('subcategory',sub.subcategory_key,next);
     return;
   }
-  if(section==='subcategory'){
-    if(next)for(const cat of state.catalog?.categories||[])catalogDraftSet('category',cat.category_key,true);
-    for(const sub of state.catalog?.subcategories||[])catalogDraftSet('subcategory',sub.subcategory_key,next);
-    return;
-  }
-  if(section==='brand'){
-    for(const brand of state.catalog?.brands||[])catalogDraftSet('brand',brand.brand_key,next);
-    return;
-  }
-  if(section==='item'){
-    if(next){
-      for(const cat of state.catalog?.categories||[])catalogDraftSet('category',cat.category_key,true);
-      for(const sub of state.catalog?.subcategories||[])catalogDraftSet('subcategory',sub.subcategory_key,true);
-    }
-    for(const item of state.catalog?.items||[])catalogDraftSet('item',item.item_key,next);
-  }
+  for(const cat of state.catalog?.categories||[])catalogDraftSet('category',cat.category_key,next);
+  for(const sub of state.catalog?.subcategories||[])catalogDraftSet('subcategory',sub.subcategory_key,next);
 }
 function catalogAllVisibilityEntries(){
   return [
     ...(state.catalog?.categories||[]).map(x=>['category',x.category_key]),
-    ...(state.catalog?.subcategories||[]).map(x=>['subcategory',x.subcategory_key]),
-    ...(state.catalog?.brands||[]).map(x=>['brand',x.brand_key]),
-    ...(state.catalog?.items||[]).map(x=>['item',x.item_key])
+    ...(state.catalog?.subcategories||[]).map(x=>['subcategory',x.subcategory_key])
   ];
 }
 function catalogDraftActiveByKindKey(kind,key){
   if(kind==='category')return catalogDraftCategoryVisible(key);
-  if(kind==='subcategory'){
-    const row=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(key));
-    return !!row&&catalogDraftSubcategoryVisible(row);
-  }
-  if(kind==='brand'){
-    const row=(state.catalog?.brands||[]).find(x=>String(x.brand_key)===String(key));
-    return !!row&&catalogDraftBrandVisible(row);
-  }
-  if(kind==='item'){
-    const row=(state.catalog?.items||[]).find(x=>String(x.item_key)===String(key));
-    return !!row&&catalogDraftItemVisible(row);
-  }
-  return false;
+  const row=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(key));
+  return !!row&&catalogDraftSubcategoryVisible(row);
 }
 function syncCatalogDraftDom(){
   if(state.modal!=='catalogSettings')return;
@@ -2720,9 +2701,7 @@ function syncCatalogDraftDom(){
     btn.setAttribute('aria-pressed',active?'true':'false');
   });
   const section=state.catalogSection||'category';
-  const rawCount=section==='category'?(state.catalog.categories||[]).length:
-    section==='subcategory'?(state.catalog.subcategories||[]).length:
-    section==='brand'?(state.catalog.brands||[]).length:(state.catalog.items||[]).length;
+  const rawCount=section==='subcategory'?(state.catalog.subcategories||[]).length:(state.catalog.categories||[]).length;
   const count=document.querySelector('.catalog-count');
   if(count)count.textContent=`${catalogDraftVisibleCount(section)} AKTIF · ${rawCount} TOTAL`;
   const all=document.querySelector('[data-catalog-select-all]');
@@ -2743,29 +2722,28 @@ async function saveCatalogDraft(){
   if(state.loading)return;
   if(!state.household?.id||!state.online)return toast('INTERNET DIPERLUKAN UNTUK MENYIMPAN.');
   if(!catalogDraftVisibility)beginCatalogDraft();
-  const saved=state.catalog?.visibility||{},draft=catalogDraftVisibility||{};
-  const changes=[];
+  const cleanVisibility={};
   for(const [kind,key] of catalogAllVisibilityEntries()){
-    const before=catalogVisibilityValue(saved,kind,key),after=catalogVisibilityValue(draft,kind,key);
-    if(before!==after)changes.push({kind,key,next:after});
+    if(!catalogVisibilityValue(catalogDraftVisibility,kind,key))cleanVisibility[`${kind}:${key}`]=false;
   }
-  if(!changes.length)return toast('TIDAK ADA PERUBAHAN.');
+  const saved=sanitizeCatalogVisibilityV2418(state.catalog?.visibility||{});
+  if(JSON.stringify(saved)===JSON.stringify(cleanVisibility))return toast('TIDAK ADA PERUBAHAN.');
   state.loading=true;setCatalogSaveBusy(true);
   try{
-    const {error}=await sb.rpc('cn_catalog_set_visibility_batch_v1',{
-      p_household_id:state.household.id,
-      p_changes:changes
+    const payload={version:1,updatedAt:new Date().toISOString(),visibility:cleanVisibility};
+    const {error}=await sb.rpc('cn_household_bucket_mutate_v1',{
+      p_household_id:state.household.id,p_bucket:'database',p_action:'set_key',
+      p_item:payload,p_item_id:null,p_key:CN_CATALOG_VISIBILITY_KEY,p_session_id:null
     });
     if(error)throw error;
-    state.catalog.visibility={...draft};
+    catalogHouseholdVisibilityV2418={...cleanVisibility};
+    state.catalog.visibility={...cleanVisibility};
     persistCatalogCache();
     beginCatalogDraft();
     syncCatalogDraftDom();
     toast('PILIHAN DATABASE DISIMPAN.');
   }catch(err){
     console.error('Catalog visibility save failed',err);
-    // The batch RPC is atomic. Keep the draft exactly as the user selected so
-    // they can retry; never reload a partially-saved snapshot into the modal.
     toast('GAGAL MENYIMPAN PILIHAN. COBA LAGI.');
   }finally{
     state.loading=false;setCatalogSaveBusy(false);
@@ -2776,33 +2754,25 @@ function catalogSubcategoryVisible(entry){
   return catalogDirectVisible('subcategory',entry.subcategory_key)&&catalogCategoryVisible(entry.category_key);
 }
 function catalogItemVisible(entry){
-  if(!catalogDirectVisible('item',entry.item_key))return false;
   if(!catalogCategoryVisible(entry.category_key))return false;
-  const sub=(state.catalog?.subcategories||[]).find(x=>x.subcategory_key===entry.subcategory_key);
+  const sub=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(entry.subcategory_key));
   return !sub||catalogSubcategoryVisible(sub);
 }
-function catalogBrandVisible(entry){return catalogDirectVisible('brand',entry.brand_key)}
+function catalogBrandVisible(){return true}
 function catalogVisibleCount(kind){
-  const rows=kind==='category'?state.catalog.categories:kind==='subcategory'?state.catalog.subcategories:kind==='brand'?state.catalog.brands:state.catalog.items;
-  return (rows||[]).filter(x=>kind==='category'?catalogCategoryVisible(x.category_key):kind==='subcategory'?catalogSubcategoryVisible(x):kind==='brand'?catalogBrandVisible(x):catalogItemVisible(x)).length;
+  const rows=kind==='subcategory'?state.catalog.subcategories:state.catalog.categories;
+  return (rows||[]).filter(x=>kind==='subcategory'?catalogSubcategoryVisible(x):catalogCategoryVisible(x.category_key)).length;
 }
 function catalogSearchText(v){return String(v||'').trim().toLocaleLowerCase('id-ID')}
 function catalogRowsForSection(){
-  const section=state.catalogSection||'category',q=catalogSearchText(state.catalogSearch);
-  let rows=[];
-  if(section==='category')rows=(state.catalog.categories||[]).map(x=>({...x,_kind:'category',_key:x.category_key,_name:x.name,_group:''}));
-  if(section==='subcategory')rows=(state.catalog.subcategories||[]).map(x=>({...x,_kind:'subcategory',_key:x.subcategory_key,_name:x.name,_group:x.category_name||''}));
-  if(section==='brand')rows=(state.catalog.brands||[]).map(x=>({...x,_kind:'brand',_key:x.brand_key,_name:x.name,_group:x.category_hint||'LAINNYA'}));
-  if(section==='item')rows=(state.catalog.items||[]).map(x=>({...x,_kind:'item',_key:x.item_key,_name:x.canonical_name,_group:x.category_name||''}));
-  if(q)rows=rows.filter(x=>catalogSearchText([x._name,x._group,x.subcategory_name,x.product_hint,(x.aliases||[]).join(' ')].filter(Boolean).join(' ')).includes(q));
+  const section=state.catalogSection==='subcategory'?'subcategory':'category',q=catalogSearchText(state.catalogSearch);
+  let rows=section==='subcategory'
+    ?(state.catalog.subcategories||[]).map(x=>({...x,_kind:'subcategory',_key:x.subcategory_key,_name:x.name,_group:x.category_name||''}))
+    :(state.catalog.categories||[]).map(x=>({...x,_kind:'category',_key:x.category_key,_name:x.name,_group:''}));
+  if(q)rows=rows.filter(x=>catalogSearchText([x._name,x._group].filter(Boolean).join(' ')).includes(q));
   return rows;
 }
-function catalogRowActive(row){
-  return row._kind==='category'?catalogCategoryVisible(row._key):
-    row._kind==='subcategory'?catalogSubcategoryVisible(row):
-    row._kind==='brand'?catalogBrandVisible(row):
-    catalogItemVisible(row);
-}
+function catalogRowActive(row){return row._kind==='subcategory'?catalogSubcategoryVisible(row):catalogCategoryVisible(row._key)}
 function categoryGuideQuery(v){return String(v||'').trim().toLocaleLowerCase('id-ID')}
 function renderCategoryGuideBody(query=state.categoryGuideSearch){
   const q=categoryGuideQuery(query);
@@ -2844,10 +2814,8 @@ function renderCategoryGuide(){
 }
 
 function renderCatalogSettings(){
-  const section=state.catalogSection||'category',rows=catalogRowsForSection();
-  const rawCount=section==='category'?(state.catalog.categories||[]).length:
-    section==='subcategory'?(state.catalog.subcategories||[]).length:
-    section==='brand'?(state.catalog.brands||[]).length:(state.catalog.items||[]).length;
+  const section=state.catalogSection==='subcategory'?'subcategory':'category',rows=catalogRowsForSection();
+  const rawCount=section==='subcategory'?(state.catalog.subcategories||[]).length:(state.catalog.categories||[]).length;
   const activeCount=catalogDraftVisibleCount(section),allSelected=catalogDraftSectionAllSelected(section);
   let body='';
   if(!rawCount){
@@ -2859,13 +2827,11 @@ function renderCatalogSettings(){
       const groupHead=group&&group!==lastGroup?`<div class="catalog-group">${esc(group)}</div>`:'';
       if(group)lastGroup=group;
       const active=catalogDraftRowActive(row);
-      const sub=section==='item'?[row.subcategory_name,row.default_uom].filter(Boolean).join(' · '):
-        section==='brand'?String(row.product_hint||''):
-        section==='subcategory'?'':`${(state.catalog.subcategories||[]).filter(s=>s.category_key===row.category_key).length} SUB KATEGORI`;
+      const sub=section==='subcategory'?'':`${(state.catalog.subcategories||[]).filter(s=>String(s.category_key)===String(row.category_key)).length} SUB KATEGORI`;
       return`${groupHead}<button type="button" class="catalog-row ${active?'active':''}" data-catalog-toggle="${esc(row._kind)}" data-catalog-key="${esc(row._key)}"><span class="catalog-row-main"><b>${esc(String(row._name||'').toUpperCase())}</b>${sub?`<small>${esc(String(sub).toUpperCase())}</small>`:''}</span><span class="catalog-check">✓</span></button>`;
     }).join('')||`<div class="catalog-loading">DATA TIDAK DITEMUKAN</div>`;
   }
-  return`<div class="modal-bg"><div class="modal catalog-settings-modal"><div class="modal-head"><div><div class="modal-title">DATABASE</div></div><button class="xbtn" data-catalog-close>×</button></div><div class="catalog-tools"><input id="catalogSearch" class="input catalog-search" value="${esc(state.catalogSearch||'')}" placeholder="Cari…" autocomplete="off" autocorrect="off" spellcheck="false"><div class="catalog-tabs">${[['category','KATEGORI'],['subcategory','SUB KATEGORI'],['brand','MEREK'],['item','BARANG']].map(([v,l])=>`<button type="button" class="catalog-tab ${section===v?'active':''}" data-catalog-section="${v}">${l}</button>`).join('')}</div><div class="catalog-count">${activeCount} AKTIF · ${rawCount} TOTAL</div><div class="catalog-bulk-actions"><button type="button" class="catalog-bulk-btn ${allSelected?'active':''}" data-catalog-select-all>SELECT ALL</button><button type="button" class="catalog-bulk-btn catalog-save-btn" data-catalog-save ${state.loading?'disabled':''}>${state.loading?'MENYIMPAN…':'SIMPAN'}</button></div></div><div class="catalog-list">${body}</div></div></div>`;
+  return`<div class="modal-bg"><div class="modal catalog-settings-modal"><div class="modal-head"><div><div class="modal-title">DATABASE</div></div><button class="xbtn" data-catalog-close>×</button></div><div class="catalog-tools"><input id="catalogSearch" class="input catalog-search" value="${esc(state.catalogSearch||'')}" placeholder="Cari kategori / sub kategori…" autocomplete="off" autocorrect="off" spellcheck="false"><div class="catalog-tabs">${[['category','KATEGORI'],['subcategory','SUB KATEGORI']].map(([v,l])=>`<button type="button" class="catalog-tab ${section===v?'active':''}" data-catalog-section="${v}">${l}</button>`).join('')}</div><div class="catalog-count">${activeCount} AKTIF · ${rawCount} TOTAL</div><div class="catalog-bulk-actions"><button type="button" class="catalog-bulk-btn ${allSelected?'active':''}" data-catalog-select-all>SELECT ALL</button><button type="button" class="catalog-bulk-btn catalog-save-btn" data-catalog-save ${state.loading?'disabled':''}>${state.loading?'MENYIMPAN…':'SIMPAN'}</button></div></div><div class="catalog-list">${body}</div></div></div>`;
 }
 async function loadDeviceNames(){
   if(!state.household?.id||!state.online)return state.deviceNames||{};
@@ -2910,7 +2876,7 @@ async function loadAll({rerender=true,preserveCacheOnEmpty=false}={}){if(!state.
 ]);
 const err=w.error||c.error||t.error||inv.error||ast.error||ws.error||b.error||sess.error||si.error||bs.error||sc.error||sp.error;if(err)throw err;if(generation!==loadAllGeneration)return false;
 const nw=w.data||[],nc=c.data||[],nt=t.data||[],serverInvestments=inv.data||[],ni=serverInvestments.filter(x=>!state.optimisticDeletedInvestmentIds.includes(x.id)),na=ast.data||[];state.optimisticDeletedInvestmentIds=state.optimisticDeletedInvestmentIds.filter(id=>serverInvestments.some(x=>x.id===id));/* A successful cloud response is authoritative even when the result is empty. Keeping cached rows here caused soft-deleted items to remain visible on other devices until restart. Cache fallback is handled only when the cloud request actually fails/offline. */state.wallets=nw;state.categories=nc;state.transactions=nt;state.investments=ni;state.assets=na;const wr=Array.isArray(ws.data)?ws.data[0]:ws.data;if(wr)state.wealthSummary={liquid_balance:Number(wr.liquid_balance||0),investment_cost:Number(wr.investment_cost||0),investment_value:Number(wr.investment_value||0),investment_gain_loss:Number(wr.investment_gain_loss||0),asset_value:Number(wr.asset_value||0),total_wealth:Number(wr.total_wealth||0)};
-for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=row.data;if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
+for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=extractCatalogVisibilityFromDatabase(row.data);if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
 state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);if(generation!==loadAllGeneration)return false;applyPendingBucketMutations();migrateLegacyShoppingTaxonomyV2416();persistCaches();if(rerender&&!state.modal)render();return true}
 let realtimeReloadTimer=null;
 function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>{clearTimeout(realtimeReloadTimer);realtimeReloadTimer=setTimeout(()=>{const keepTyping=shopFastInputActive();loadAll({rerender:!state.modal&&!keepTyping,preserveCacheOnEmpty:true}).then(()=>{if(keepTyping)refreshShopListLive()}).catch(console.error)},140)};state.channel=sb.channel('fin-safety-'+id)
@@ -3092,8 +3058,6 @@ function catalogKnownHiddenReason(name){
   }
   const item=catalogAnyItemForName(name);
   if(item&&!catalogItemVisible(item))return'BARANG / KATEGORI / SUB KATEGORI DINONAKTIFKAN DI DATABASE.';
-  const brand=catalogAnyBrandWithin(name);
-  if(brand&&!catalogBrandVisible(brand))return'MEREK DINONAKTIFKAN DI DATABASE.';
   if(!manual&&!item){
     const fallbackCat=masterCategoryEntryByName('Lainnya'),fallbackSub=masterSubcategoryEntry('Lainnya','Lainnya');
     if((fallbackCat&&!catalogCategoryVisible(fallbackCat.category_key))||(fallbackSub&&!catalogSubcategoryVisible(fallbackSub)))return'KATEGORI LAINNYA DINONAKTIFKAN DI DATABASE.';
@@ -3430,9 +3394,10 @@ function applyDbSearch(query=state.dataSearch){
 
 function renderShopListLive(){
   const alpha=(a,b)=>String(a?.name||'').localeCompare(String(b?.name||''),'id',{sensitivity:'base'});
-  const active=state.checklist.filter(x=>!x.purchased).sort(alpha),listMode=state.listView||'alpha',estimate=shoppingListEstimate(active);
+  const visibleChecklistItem=x=>{const info=masterShoppingInfo(x?.name||'');return catalogCategoryNameVisible(info?.categoryName||'Lainnya')&&catalogSubcategoryNameVisible(info?.categoryName||'Lainnya',info?.subcategoryName||'Lainnya')};
+  const active=state.checklist.filter(x=>!x.purchased&&visibleChecklistItem(x)).sort(alpha),listMode=state.listView||'alpha',estimate=shoppingListEstimate(active);
   const estimateHtml=active.length?`<div class="shop-estimate"><span>ESTIMASI TOTAL</span><b>${estimate.known?rupiah(estimate.total):'—'}</b><small>${estimate.unknown?`${estimate.unknown} ITEM TANPA HARGA`:'HARGA TERAKHIR'}</small></div>`:'';
-  const done=state.checklist.filter(x=>x.purchased).sort(alpha).filter(x=>shoppingCompletedVisible(x));
+  const done=state.checklist.filter(x=>x.purchased&&visibleChecklistItem(x)).sort(alpha).filter(x=>shoppingCompletedVisible(x));
   scheduleShoppingCompletedExpiry(done);
 
   const row=x=>`<div class="shop-item clean-list-item"><button class="shop-main shop-tap" data-checkout="${esc(x.id)}" aria-label="Checkout ${esc(x.name)}"><div class="shop-name">${esc(x.name)}</div></button><div class="shop-side"><button class="icon-action primary" data-shopcat="${esc(x.id)}" aria-label="Edit barang" title="Edit">${uiIcon('edit')}</button><button class="icon-action trash-action" data-delete-shop="${esc(x.id)}" aria-label="Hapus barang" title="Hapus">${uiIcon('trash')}</button></div></div>`;
@@ -3958,7 +3923,7 @@ document.getElementById('categoryGuideSearch')?.addEventListener('input',e=>{
 
 document.getElementById('catalogSettingsBtn')?.addEventListener('click',()=>{state.catalogSearch='';state.catalogSection='category';beginCatalogDraft();state.modal='catalogSettings';render()});
 document.querySelectorAll('[data-catalog-close]').forEach(b=>b.addEventListener('click',()=>{state.catalogSearch='';discardCatalogDraft();performAppBack()}));
-document.querySelectorAll('[data-catalog-section]').forEach(b=>b.addEventListener('click',()=>{state.catalogSection=b.dataset.catalogSection||'category';state.catalogSearch='';render()}));
+document.querySelectorAll('[data-catalog-section]').forEach(b=>b.addEventListener('click',()=>{state.catalogSection=b.dataset.catalogSection==='subcategory'?'subcategory':'category';state.catalogSearch='';render()}));
 document.querySelectorAll('[data-catalog-toggle]').forEach(b=>b.addEventListener('click',()=>{
   const list=document.querySelector('.catalog-list'),scrollTop=list?.scrollTop||0;
   catalogDraftToggle(b.dataset.catalogToggle,b.dataset.catalogKey);

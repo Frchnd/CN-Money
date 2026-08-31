@@ -1,31 +1,31 @@
-CN MONEY v2.4.16 — TAXONOMY RESET CHECK
+CN MONEY v2.4.18 — DATABASE CATEGORY VISIBILITY CHECK
 
 SEBELUM DEPLOY
 1. Backup .cnmoney.
-2. Pastikan SQL v2.4.7, v2.4.8, dan v2.4.15 sudah pernah sukses dijalankan.
-3. v2.4.16 tidak membutuhkan SQL baru.
+2. SQL v2.4.7 harus sudah pernah dijalankan (v2.4.18 tidak membutuhkan SQL baru).
 
-SETELAH DEPLOY
-1. Buka online sekali sampai DATABASE master selesai dimuat.
-2. Pengaturan > DATABASE > KATEGORI: harus ada 9 kategori baru saja.
-3. Cek setiap kategori: Lainnya harus selalu posisi paling bawah.
-4. Cek SUB KATEGORI: harus ada total 35 node dan tidak ada taxonomy lama.
-5. Input contoh:
-   - odol => Pasta Gigi => Perawatan Diri (Personal Care) > Gigi & Mulut
-   - sampo => Shampoo => Perawatan Diri (Personal Care) > Rambut & Kepala
-   - bawang putih => Bahan Segar (Fresh Goods) > Bumbu
-   - mi instan => Sembako & Bahan Kering (Pantry / Dry Goods) > Beras & Karbohidrat
-   - minyak goreng => Sembako & Bahan Kering (Pantry / Dry Goods) > Minyak & Lemak
-   - sarden => Sembako & Bahan Kering (Pantry / Dry Goods) > Awetan & Kaleng
-   - susu skm => Susu Kental Manis => Susu & Makanan Beku (Dairy & Frozen) > Susu & Olahannya
-   - nugget => Susu & Makanan Beku (Dairy & Frozen) > Frozen Food
-   - air mineral => Minuman & Camilan (Beverages & Snacks) > Minuman Cair
-   - biskuit => Minuman & Camilan (Beverages & Snacks) > Camilan
-   - parasetamol => Kesehatan & P3K (Health Care) > Obat Dalam & Vitamin
-   - minyak kayu putih => Kesehatan & P3K (Health Care) > Obat Luar & Perawatan
-   - popok bayi => Kebutuhan Khusus > Bayi & Anak
-   - makanan kucing => Kebutuhan Khusus > Hewan Peliharaan
-   - barang test xyz => Lainnya > Lainnya
-6. Cek beberapa item lama di LIST/DATA; kategori/subkategori lama harus sudah berubah ke taxonomy baru.
-7. Edit manual satu barang di DATA, simpan, reopen: manual override harus tetap.
-8. DATABASE visibility select/unselect + SELECT ALL harus tetap bekerja tanpa scroll lompat.
+TES DATABASE
+1. Pengaturan > DATABASE hanya punya KATEGORI dan SUB KATEGORI.
+2. Scroll daftar sampai bawah, toggle beberapa row: posisi scroll tidak boleh lompat ke atas.
+3. SELECT ALL sekali => semua aktif; tekan lagi => semua nonaktif.
+4. Matikan satu KATEGORI => subkategori di bawahnya ikut nonaktif dalam draft.
+5. Aktifkan satu SUB KATEGORI dari parent yang mati => parent otomatis aktif dalam draft.
+6. Keluar tanpa SIMPAN => perubahan dibuang.
+7. Ubah pilihan lalu SIMPAN => harus tampil "PILIHAN DATABASE DISIMPAN", bukan error.
+8. Tutup DATABASE lalu buka lagi => state yang disimpan harus tetap.
+
+TES BELANJA
+1. Nonaktifkan satu kategori dan SIMPAN.
+2. Kategori tersebut tidak boleh tersedia di picker/group BELANJA.
+3. Item LIST yang berada di kategori tersebut tidak boleh tampil selama kategori nonaktif.
+4. Aktifkan kembali kategori dan SIMPAN => item/kategori muncul kembali.
+5. Ulangi dengan satu SUB KATEGORI.
+
+TES SYNC
+1. Setelah save di HP A, tunggu realtime / buka ulang di HP B.
+2. DATABASE HP B harus mengikuti state KATEGORI/SUB KATEGORI yang sama.
+
+SMOKE TEST
+- Input/autocorrect barang tetap bekerja.
+- DATA detail v2.4.17 tetap normal.
+- Tombol +, Back Android, offline boot, finance tidak berubah.
