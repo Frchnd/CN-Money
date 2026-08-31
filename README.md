@@ -1,39 +1,46 @@
-CN MONEY v2.4.9 — OFFLINE BOOT FIX
+CN MONEY v2.4.10 — CANCEL / UNDO + BACK NAVIGATION STABILITY
 
-Tujuan
-- Memperbaiki aplikasi yang berhenti di layar "Menyiapkan aplikasi" saat dibuka tanpa internet.
-- Menjaga seluruh patch stability v2.4.7 dan finance idempotency v2.4.8 tetap utuh.
+Baseline
+- Melanjutkan v2.4.9 Offline Boot Fix.
+- SQL v2.4.7 dan v2.4.8 tetap dipakai dan TIDAK berubah.
+- Tidak ada SQL baru untuk v2.4.10.
 
-Akar masalah
-- v2.4.8 memuat Supabase JS sebagai <script> CDN yang blocking sebelum boot lokal berjalan.
-- Saat CDN tidak bisa dijangkau, kode aplikasi berhenti sebelum cache lokal/household lokal sempat dirender.
+Perubahan v2.4.10
+1. Cancel checkout sekarang crash-safe di sisi client.
+   - Intent pembatalan disimpan lokal sebelum RPC dijalankan.
+   - Jika server sudah membatalkan checkout tetapi aplikasi tertutup sebelum cleanup LIST/DATA selesai, cleanup dilanjutkan otomatis saat online/reopen.
+   - Cleanup LIST, legacy history, dan DATA tetap memakai mutation queue conflict-safe v2.4.7.
 
-Perubahan v2.4.9
-1. Supabase JS tidak lagi blocking saat startup.
-   - Library dimuat lazy hanya ketika cloud benar-benar dibutuhkan.
-   - Saat offline, app shell + cache lokal bisa boot tanpa Supabase JS.
-2. Loader cloud punya timeout 7 detik.
-   - Kondisi navigator.onLine=true tetapi internet sebenarnya mati tidak boleh menggantung library loader selamanya.
-3. Service worker v2.4.9.
-   - Shell/cache version dibump.
-   - Runtime cache tetap boleh menyimpan library Supabase setelah berhasil dimuat online.
-   - Instalasi offline shell tidak bergantung pada CDN Supabase.
-4. Tidak ada perubahan SQL/schema Supabase.
-5. Tidak ada perubahan master data, taxonomy, LIST/DATA mutation, finance RPC, saldo, transaksi, investasi, atau aset.
+2. Backup/Restore tidak boleh berjalan ketika pembatalan checkout masih pending.
+   - Pending cancel dicoba diselesaikan lebih dulu.
+   - Jika belum selesai, backup/restore ditahan agar snapshot tidak berada di state setengah jadi.
 
-Cara update
-- Tidak perlu menjalankan SQL baru.
-- Deploy/install frontend v2.4.9 seperti update biasa.
-- Buka sekali dengan internet setelah update agar service worker v2.4.9 aktif dan shell terbaru tersimpan.
+3. Confirmation tidak lagi membuang konteks.
+   - Tekan HAPUS/BATALKAN dari detail -> muncul konfirmasi di atas detail.
+   - Pilih BATAL -> kembali ke detail yang sama.
+   - Detail baru ditutup setelah tindakan destruktif benar-benar dikonfirmasi.
 
-Tes utama
-A. Online sekali -> force close -> matikan internet -> buka CN MONEY.
-   Expected: langsung masuk memakai data terakhir, bukan stuck loading.
-B. Saat offline, pindah tab Dashboard / Shopping / Data / Wealth.
-   Expected: data cache terakhir tetap bisa dibaca; operasi yang memang butuh internet boleh ditolak/pending sesuai desain.
-C. Offline -> tambah LIST item -> force close -> reopen masih offline.
-   Expected: item tetap ada lokal.
-D. Nyalakan internet.
-   Expected: app reconnect dan pending sync jalan tanpa reload manual.
-E. Simulasikan jaringan buruk/captive connection.
-   Expected: app yang sudah punya cache lokal tetap usable; cloud sync boleh gagal dan retry kemudian.
+4. Back navigation bertingkat.
+   - Choice/date picker -> tutup picker dulu.
+   - Form transaksi -> kembali ke pemilih jenis transaksi.
+   - Edit Dompet/Investasi/Aset -> kembali ke detail entity.
+   - Pendapatan Investasi -> kembali ke detail Investasi.
+   - Edit DATA -> kembali ke detail DATA jika dibuka dari sana.
+   - Detail pembelian -> kembali ke detail DATA jika dibuka dari riwayat barang.
+   - Detail Receipt -> kembali ke daftar Receipt.
+   - Guide/Panduan/Database Settings -> kembali ke Pengaturan.
+   - Setelah tidak ada layer/detail lagi, Back kembali mengikuti navigasi utama dan double-back untuk keluar.
+
+5. Guard double-action.
+   - Delete/Undo/Cancel yang sedang diproses tidak dapat dijalankan ulang paralel karena tap berulang.
+
+Audit alur UI
+- Entry point yang muncul di beberapa konteks tidak dihapus bila memang memperpendek akses pengguna.
+- Tidak ada redesign besar atau penambahan fitur pada release ini.
+
+Deploy
+1. Pastikan v2.4.7 SQL dan v2.4.8 SQL sudah pernah dijalankan seperti versi sebelumnya.
+2. Tidak perlu menjalankan SQL baru.
+3. Deploy/install v2.4.10.
+4. Buka sekali online agar service worker v2.4.10 mengambil shell baru.
+5. Jalankan RELEASE-CHECKLIST.txt.

@@ -1,13 +1,52 @@
-CN MONEY v2.4.9 — RELEASE CHECKLIST
+CN MONEY v2.4.10 — RELEASE CHECKLIST
 
-[ ] Backup .cnmoney bila memungkinkan
-[ ] TIDAK ada SQL baru untuk v2.4.9
-[ ] Deploy/install frontend v2.4.9
-[ ] Buka sekali ONLINE sampai dashboard/data muncul
-[ ] Force close aplikasi
-[ ] Matikan Wi-Fi + data seluler / Airplane mode
-[ ] Buka aplikasi: TIDAK boleh stuck di "Menyiapkan aplikasi"
-[ ] Dashboard/Shopping/Data/Wealth menampilkan cache terakhir
-[ ] Tambah item LIST saat offline -> force close -> reopen offline -> item tetap ada
-[ ] Nyalakan internet -> item pending sync ke device lain
-[ ] Reopen online -> finance v2.4.8 tetap tidak duplikat
+DEPLOY
+[ ] SQL v2.4.7 sudah pernah dijalankan
+[ ] SQL v2.4.8 sudah pernah dijalankan
+[ ] TIDAK ada SQL baru untuk v2.4.10
+[ ] Deploy/install frontend v2.4.10
+[ ] Buka sekali online setelah deploy
+
+BACK NAVIGATION
+[ ] Dashboard + -> pilih Pemasukan -> tekan Back: kembali ke pemilih jenis transaksi
+[ ] Buka detail Saku -> Edit -> Back: kembali ke detail Saku
+[ ] Buka detail Investasi -> Edit -> Back: kembali ke detail Investasi
+[ ] Buka detail Investasi -> Tambah Pendapatan -> Back: kembali ke detail Investasi
+[ ] Buka detail Aset -> Edit -> Back: kembali ke detail Aset
+[ ] DATA -> detail barang -> Edit -> Back: kembali ke detail barang
+[ ] DATA -> detail barang -> riwayat pembelian -> buka detail pembelian -> Back: kembali ke detail barang
+[ ] RECEIPT -> buka satu receipt -> Back: kembali ke semua Receipt
+[ ] Pengaturan -> Guide/Panduan Kategori/Database -> Back: kembali ke Pengaturan
+[ ] Buka choice picker / date picker -> Back: hanya picker yang tertutup
+[ ] Dari tab selain Dashboard, setelah semua layer tertutup -> Back kembali ke Dashboard
+[ ] Dashboard -> Back 1x memberi pesan, Back kedua keluar
+
+CONFIRM / CANCEL CONTEXT
+[ ] Detail Saku -> Hapus -> pilih BATAL: detail Saku masih terbuka
+[ ] Detail Investasi -> Hapus -> pilih BATAL: detail Investasi masih terbuka
+[ ] Detail Aset -> Hapus -> pilih BATAL: detail Aset masih terbuka
+[ ] DATA detail -> Hapus -> pilih BATAL: DATA detail masih terbuka
+[ ] Detail Pembelian -> Batalkan Sesi -> pilih BATAL: detail pembelian masih terbuka
+
+UNDO / CANCEL
+[ ] Buat pemasukan kecil -> Undo -> saldo kembali tepat satu kali
+[ ] Buat pengeluaran kecil -> Undo -> saldo kembali tepat satu kali
+[ ] Transfer kecil -> Undo -> dua saldo kembali tepat satu kali
+[ ] Checkout 1-2 item -> Batalkan Checkout -> saldo, budget, Receipt, dan LIST pulih
+[ ] Setelah cancel checkout, DATA/harga terakhir tidak lagi memakai pembelian yang dibatalkan
+
+CRASH WINDOW CANCEL CHECKOUT
+[ ] Checkout 1 item
+[ ] Tekan Batalkan Checkout dan konfirmasi
+[ ] Segera force-close aplikasi saat proses berjalan / putuskan koneksi sesaat
+[ ] Buka lagi dan nyalakan internet
+[ ] Pembatalan akhirnya selesai tanpa checkout muncul kembali
+[ ] LIST item dipulihkan menjadi belum dibeli
+[ ] Saldo/budget tidak dikembalikan dua kali
+[ ] Tidak ada duplicate item/receipt
+
+REGRESSION
+[ ] Offline boot v2.4.9 tetap berfungsi
+[ ] LIST/DATA sync dua HP v2.4.7 tetap berfungsi
+[ ] Finance idempotency v2.4.8 tetap berfungsi
+[ ] Autocorrect/taxonomy/search DATA v2.4.6 tetap berfungsi
