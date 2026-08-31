@@ -1,4 +1,4 @@
-CN MONEY v2.4.11 — RELEASE CHECKLIST
+CN MONEY v2.4.12 — RELEASE CHECKLIST
 
 1. Dashboard: tombol + membuka pilihan Pemasukan/Pengeluaran/Transfer.
 2. Pilih Pemasukan, tekan Back Android -> kembali ke pilihan transaksi.
@@ -14,4 +14,4 @@ CN MONEY v2.4.11 — RELEASE CHECKLIST
 12. Header menampilkan ONLINE/OFFLINE tepat di bawah CN MONEY.
 13. Offline boot v2.4.9, sync v2.4.7, finance idempotency v2.4.8 tetap diuji smoke-test.
 
-Tidak ada SQL baru untuk v2.4.11.
+Tidak ada SQL baru untuk v2.4.12.

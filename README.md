@@ -1,4 +1,8 @@
-# CN MONEY v2.4.11 — NAVIGATION + ACTION REGRESSION FIX
+# CN MONEY v2.4.12 — TRANSACTION PICKER UI RESTORE
+
+Hotfix visual regression: picker Tambah Transaksi dikembalikan ke desain semantic yang sudah ada sebelumnya — Pengeluaran merah, Pemasukan hijau, Transfer biru — tanpa mengubah logic navigation/stability. Tidak ada SQL baru.
+
+# CN MONEY v2.4.12 — NAVIGATION + ACTION REGRESSION FIX
 
 Hotfix setelah stability audit v2.4.10.
 
