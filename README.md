@@ -1,28 +1,20 @@
-# CN MONEY v2.4.18 — DATABASE CATEGORY VISIBILITY FIX
+# CN MONEY v2.4.19 — STALE SHOPPING ESTIMATE FIX
 
-Scope release ini sengaja sempit: memperbaiki Pengaturan > DATABASE untuk KATEGORI dan SUB KATEGORI.
+Scope release ini sengaja sempit: memperbaiki ESTIMASI TOTAL pada LIST setelah DATA barang dihapus atau checkout dibatalkan.
 
 ## Perubahan
-- DATABASE sekarang hanya menampilkan dua tab: `KATEGORI` dan `SUB KATEGORI`.
-- Tab `MEREK` dan `BARANG` dihapus dari UI DATABASE sesuai keputusan produk; master merek/barang tetap dipakai aplikasi untuk autocorrect dan auto-category.
-- Select/unselect tetap memakai draft lokal dan baru berlaku setelah `SIMPAN`.
-- Toggle individual dan `SELECT ALL` tidak melakukan render ulang list, sehingga posisi scroll tetap di tempat yang sama.
-- Penyimpanan visibility tidak lagi memakai RPC catalog lama yang bergantung pada key taxonomy server legacy.
-- Kategori/subkategori sekarang disimpan sebagai satu konfigurasi household di bucket `database` melalui RPC stabil `cn_household_bucket_mutate_v1` dari v2.4.7.
-- Karena itu taxonomy lokal v2.4.16 (termasuk key `local:*`) dapat disimpan tanpa error.
-- Visibility tersinkron antar perangkat melalui `household_data` dan ikut tercakup dalam Backup/Restore.
-- Setting visibility lama untuk `MEREK`/`BARANG` tidak lagi dipakai; merek/barang aktif mengikuti visibility kategori/subkategori induknya.
-- Item LIST yang kategori atau subkategorinya dinonaktifkan tidak ditampilkan di BELANJA dan tidak dihitung dalam estimasi list aktif.
+- ESTIMASI TOTAL sekarang mengambil harga hanya dari DATA aktif (`itemDb`), bukan menghidupkan kembali harga dari riwayat mentah.
+- Jika DATA harga suatu barang dihapus, item tersebut kembali dianggap `ITEM TANPA HARGA` sampai ada checkout valid baru.
+- Jika checkout dibatalkan, harga dari sesi yang dibatalkan tidak boleh muncul lagi pada estimasi.
+- Riwayat/Receipt tetap menjadi arsip dan tidak dihapus hanya karena DATA harga dihapus.
+- Fallback history untuk dompet terakhir hanya membaca session yang masih aktif; row dari checkout yang sudah dibatalkan diabaikan.
 
 ## Backend
-Tidak ada SQL baru untuk v2.4.18.
-
-v2.4.18 memakai RPC `cn_household_bucket_mutate_v1` yang sudah dipasang pada migration v2.4.7.
-File SQL v2.4.15 tetap disimpan di repo/ZIP hanya sebagai migration history, tetapi UI v2.4.18 tidak lagi bergantung pada RPC batch visibility v2.4.15.
+Tidak ada SQL baru untuk v2.4.19.
 
 ## Tidak disentuh
-- Master taxonomy dan 959 barang v2.4.16.
+- UI/tab/card/layout global.
 - Detail DATA v2.4.17.
-- Finance/saldo/transaksi.
-- Offline boot, sync dua HP, cancel/undo, Back navigation, backup/restore.
-- Styling/layout global aplikasi.
+- DATABASE Kategori/Subkategori v2.4.18.
+- Master taxonomy/autocorrect v2.4.16.
+- Finance, saldo, transaksi, sync dua HP, offline, Back, cancel/undo, backup/restore.

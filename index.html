@@ -2347,7 +2347,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.18';
+const CN_MONEY_VERSION='2.4.19';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
@@ -3283,11 +3283,26 @@ function shoppingPriorityFor(name,fallback='',category=''){
 }
 function priorityChip(priority){const p=normalizeShoppingPriority(priority)||'SEKUNDER';return`<span class="shop-badge priority ${p.toLowerCase()}">${p}</span>`}
 function shoppingBadges(name,categoryFallback='',priorityFallback='',uom='',showUom=true){const cat=shoppingCategoryFor(name,categoryFallback),priority=shoppingPriorityFor(name,priorityFallback,cat);return`<div class="shop-badges"><span class="shop-badge category">${esc(cat)}</span>${priorityChip(priority)}${showUom&&uom?`<span class="shop-uom-inline">${esc(normalizeUom(uom))}</span>`:''}</div>`}
-function shoppingHistoryDefaultFor(name){const target=normalizeItemName(name).toLowerCase();let best=null,bestTs=-1;for(const row of state.shoppingItems||[]){if(normalizeItemName(row.item_name||'').toLowerCase()!==target)continue;const session=(state.shoppingSessions||[]).find(s=>String(s.id)===String(row.session_id));const rawDate=session?.created_at||session?.checkout_date||row.created_at||'';const ts=Date.parse(rawDate)||0;if(ts<bestTs)continue;bestTs=ts;best={lastPrice:Number(row.unit_price||0),uom:normalizeUom(row.uom||'Pcs'),lastStore:normalizeStoreName(session?.store_name||''),lastWalletId:session?.wallet_id||'',lastPurchased:rawDate}}return best}
+/* CN MONEY v2.4.19 — stale shopping estimate guard
+   Purchase rows are historical records. A cancelled checkout or a DATA delete must not
+   resurrect a price into LIST estimates. Only active DATA state may provide price/store. */
+function shoppingHistoryDefaultFor(name){
+  const target=normalizeItemName(name).toLowerCase(),sessions=new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
+  let best=null,bestTs=-1;
+  for(const row of state.shoppingItems||[]){
+    if(normalizeItemName(row.item_name||'').toLowerCase()!==target)continue;
+    const session=sessions.get(String(row.session_id));
+    if(!session)continue; // ignore rows whose checkout/session is no longer active (cancelled/deleted)
+    const rawDate=session.created_at||session.checkout_date||row.created_at||'';
+    const ts=Date.parse(rawDate)||0;if(ts<bestTs)continue;bestTs=ts;
+    best={lastPrice:Number(row.unit_price||0),uom:normalizeUom(row.uom||'Pcs'),lastStore:normalizeStoreName(session.store_name||''),lastWalletId:session.wallet_id||'',lastPurchased:rawDate};
+  }
+  return best;
+}
 function smartItem(raw){
   const inputName=normalizeItemName(raw),match=itemDbMatch(inputName),matched=normalizeItemName(match?.entry?.name||inputName),name=shoppingMasterCanonicalName(matched),norm=name.toLocaleLowerCase('id-ID'),db=match?.entry||state.itemDb[norm]||{},history=shoppingHistoryDefaultFor(name)||{},profile=shoppingProfileFor(name),master=masterShoppingInfo(name);
-  const uom=normalizeUom(db.uom||profile?.preferred_uom||history.uom||master?.uom||'PCS'),category=shoppingCategoryFor(name,db.category||''),priority=shoppingPriorityFor(name,db.priority||'',category);
-  return{name,category,masterCategory:master?.categoryName||'Lainnya',masterSubcategory:master?.subcategoryName||'Lainnya',priority,uom,lastPrice:Number(db.lastPrice||history.lastPrice||0),lastStore:normalizeStoreName(db.lastStore||history.lastStore||''),lastWalletId:history.lastWalletId||'',lastPurchased:db.lastPurchased||history.lastPurchased||null};
+  const uom=normalizeUom(db.uom||profile?.preferred_uom||master?.uom||'PCS'),category=shoppingCategoryFor(name,db.category||''),priority=shoppingPriorityFor(name,db.priority||'',category);
+  return{name,category,masterCategory:master?.categoryName||'Lainnya',masterSubcategory:master?.subcategoryName||'Lainnya',priority,uom,lastPrice:Number(db.lastPrice||0),lastStore:normalizeStoreName(db.lastStore||''),lastWalletId:history.lastWalletId||'',lastPurchased:db.lastPurchased||null};
 }
 function shoppingProfileRowForSubcategory(sub){
   if(!sub||shoppingMasterKey(sub.name)==='lainnya')return null;
