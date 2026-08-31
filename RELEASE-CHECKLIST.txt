@@ -1,77 +1,69 @@
-CN MONEY v2.4.6 — RELEASE / REGRESSION CHECKLIST
+CN MONEY v2.4.7 — STABILITY SYNC REGRESSION CHECKLIST
 
-CORE
-1. Startup online.
-2. Tutup/buka app.
-3. Offline membuka cache terakhir.
-4. Online kembali dan sync pulih.
-5. Input cepat List: Enter menambah item tanpa menutup keyboard.
-6. Search Panduan Kategori: keyboard tidak buka/tutup tiap karakter.
-7. Delete + Undo: SFX tetap berjalan.
+PRE-DEPLOY
+[ ] 1. Backup .cnmoney berhasil di-download.
+[ ] 2. SUPABASE-v2.4.7-STABILITY-SYNC.sql dijalankan tanpa error.
+[ ] 3. Setelah SQL, v2.4.6 yang lama masih bisa dipakai normal sebelum frontend di-update.
+[ ] 4. Deploy/install v2.4.7.
+[ ] 5. Buka app dan pastikan Household/data lama tampil.
 
-CANONICAL / AUTOCORRECT
-8. odol / odlo -> Pasta Gigi.
-9. sampo / shampo / sampoo / smpo -> Shampoo.
-10. conditioner / kondisioner -> Conditioner.
-11. tissue / tisue -> Tisu.
-12. butter -> Mentega.
-13. corned / corned beef -> Kornet Sapi.
-14. cabe -> Cabai; cabe merah -> Cabai Merah; cabe rawit -> Cabai Rawit.
-15. lada -> Merica; lada bubuk -> Merica Bubuk.
-16. sikat wc / sikat kloset -> Sikat Toilet.
-17. snack / cemilan -> Camilan.
-18. skm / susu skm / susu kental manis / krimer kental manis -> Susu Kental Manis.
-19. sapo memunculkan pilihan Shampoo / Sapu.
-20. apa / ada / ayam tidak dipaksa menjadi item typo lain.
-21. sapi -> Daging Sapi melalui master alias, bukan typo ke Sapu.
+CRASH / REOPEN — BASIC
+[ ] 6. Tambah item LIST saat online -> muncul normal.
+[ ] 7. Force close app -> buka lagi -> item tetap ada.
+[ ] 8. Checkout satu item -> force close -> buka lagi -> item tetap purchased dan receipt/saldo benar.
+[ ] 9. Cancel checkout -> force close -> buka lagi -> item kembali ke LIST dan receipt/transaksi shopping sudah batal.
 
-TAXONOMY MASTER
-22. Semua kategori utama memiliki subkategori Lainnya.
-23. Unknown -> Lainnya / Lainnya.
-24. Ikan -> Bahan Segar / Ikan & Hasil Laut.
-25. Bawang, cabai, jahe, kunyit, lengkuas, serai -> Bahan Segar / Bumbu Segar.
-26. Sayur daun/umbi/sayuran umum tetap Bahan Segar / Sayur.
-27. Pembersih Toilet / Sikat Toilet / Tisu Toilet -> Kebersihan Rumah / Kamar Mandi.
-28. Tisu umum / Tisu Basah / Tisu Wajah -> Kebersihan Rumah / Tisu.
-29. Mi Instan / Bihun / Soun / Makaroni / Spaghetti -> Makanan / Mi & Pasta.
-30. Roti / Donat / Croissant / Cake / Bolu -> Makanan / Roti & Bakery.
-31. Oatmeal / Granola / Sereal Jagung -> Makanan / Sereal & Oat.
-32. Jus / soda / energi / isotonik / Yogurt Drink -> Minuman / Minuman Siap Minum.
-33. Minuman bubuk / sirup -> Minuman / Minuman Serbuk & Sirup.
-34. Susu Kental Manis -> Minuman / Susu.
-35. Krimer Bubuk -> Minuman / Krimer.
-36. Deodoran -> Perawatan Diri / Deodoran.
-37. Pisau Cukur / Krim Cukur -> Perawatan Diri / Cukur.
-38. Kebutuhan Wanita tetap memakai nama Kebutuhan Wanita.
-39. Korek Api / Korek Gas -> Perlengkapan Rumah / Peralatan Dapur.
-40. Payung / Sandal -> Perlengkapan Rumah / Lainnya.
-41. Makanan/camilan kucing-anjing -> Hewan Peliharaan / Makanan.
-42. Pasir Kucing / Shampoo Hewan -> Hewan Peliharaan / Perawatan & Kebersihan.
+OFFLINE / PENDING QUEUE
+[ ] 10. Matikan internet.
+[ ] 11. Tambah item LIST -> item tetap terlihat lokal.
+[ ] 12. Force close saat masih offline.
+[ ] 13. Buka lagi masih offline -> item masih terlihat.
+[ ] 14. Nyalakan internet -> tunggu app aktif -> item tersinkron ke cloud.
+[ ] 15. Buka HP kedua -> item yang tadi dibuat offline muncul.
+[ ] 16. Ulangi skenario offline untuk HAPUS item LIST; setelah online item tidak hidup kembali.
 
-DATA SEARCH
-43. Search tersedia di tab DATA.
-44. Search nama induk menampilkan card yang cocok.
-45. Search nama varian/produk dibeli menampilkan semua card yang mengandung varian tersebut.
-46. Search kategori/subkategori/prioritas/satuan dapat menemukan card.
-47. Search toko/dompet/tanggal/qty/harga/subtotal dari riwayat dapat menemukan card terkait.
-48. Search memfilter in-place; keyboard/fokus tidak hilang setiap karakter.
-49. Search kosong mengembalikan semua card sesuai mode filter aktif.
+DUA HP — CONCURRENT ADD
+[ ] 17. HP A dan HP B berada di Household yang sama dan LIST yang sama.
+[ ] 18. Hampir bersamaan: HP A tambah "TEST A", HP B tambah "TEST B".
+[ ] 19. Setelah sync, kedua HP harus menampilkan TEST A + TEST B.
+[ ] 20. Force close keduanya dan buka lagi -> TEST A + TEST B tetap ada.
 
-MANUAL OVERRIDE / FALLBACK
-50. Item unknown pertama kali -> Lainnya / Lainnya.
-51. Setelah user Edit di DATA, manual category/subcategory override menang.
-52. Sync 2 HP mempertahankan manual override Household.
+DUA HP — ADD + DELETE
+[ ] 21. Siapkan item TEST C di kedua HP.
+[ ] 22. Hampir bersamaan: HP A hapus TEST C, HP B tambah TEST D.
+[ ] 23. Hasil akhir kedua HP: TEST C hilang, TEST D ada.
+[ ] 24. Tidak boleh perubahan HP B menghidupkan TEST C lagi.
 
-REGRESSION DATA
-53. Wallet/saldo tidak dimigrasi.
-54. Transaksi/history lama tidak dimutasi otomatis.
-55. Receipt lama tidak berubah.
-56. Investasi/aset tidak berubah.
-57. Cancel/undo/back navigation tetap berjalan seperti build stabil sebelumnya.
+DUA HP — DATA EDIT
+[ ] 25. Edit kategori/item X di HP A.
+[ ] 26. Hampir bersamaan edit item Y yang berbeda di HP B.
+[ ] 27. Setelah sync kedua edit harus bertahan; edit X tidak boleh menimpa Y atau sebaliknya.
+[ ] 28. Hapus DATA item X di satu HP -> item hilang di HP kedua setelah realtime/reopen.
 
-VERSION / CACHE
-58. Versi aplikasi = 2.4.6.
-59. Service worker cache = cn-money-v2.4.6-shell.
-60. Dataset typo = /data/autocorrect-v246.json.
-61. Master = /data/master-catalog-v246.json.
-62. Tidak ada SQL / schema migration Supabase v2.4.6.
+REALTIME / UI
+[ ] 29. Saat HP A menambah beberapa item cepat, HP B tidak flicker/render berat berulang-ulang.
+[ ] 30. Saat mengetik cepat di input LIST, update realtime HP lain tidak mencabut fokus keyboard.
+[ ] 31. Search DATA tetap bekerja setelah update realtime.
+[ ] 32. Navigasi Back dan modal tetap normal setelah realtime update.
+
+REGRESSION v2.4.6
+[ ] 33. odol -> Pasta Gigi.
+[ ] 34. sampo -> Shampoo.
+[ ] 35. SKM -> Susu Kental Manis.
+[ ] 36. unknown item -> Lainnya / Lainnya.
+[ ] 37. Search DATA mencari sampai isi card.
+[ ] 38. Manual category override tetap bertahan.
+
+FINANCE SMOKE TEST
+[ ] 39. Tambah pemasukan.
+[ ] 40. Tambah pengeluaran.
+[ ] 41. Transfer antar dompet.
+[ ] 42. Undo transaksi.
+[ ] 43. Budget tampil benar.
+[ ] 44. Backup .cnmoney tetap berhasil.
+
+EXPECTED TECHNICAL
+[ ] 45. App version = 2.4.7.
+[ ] 46. Service worker cache = cn-money-v2.4.7-shell.
+[ ] 47. Tidak ada whole-bucket household_data UPDATE dari frontend untuk checklist/database/history.
+[ ] 48. RPC cn_household_bucket_mutate_v1 tersedia.
