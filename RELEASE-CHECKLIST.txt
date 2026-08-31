@@ -1,14 +1,12 @@
-CN MONEY v2.4.13 — QUICK REGRESSION CHECK
+CN MONEY v2.4.14 — DATABASE SELECTION CHECK
 
-1. Dashboard + -> picker Pengeluaran merah / Pemasukan hijau / Transfer biru.
-2. Tap tab Dashboard yang sudah aktif -> tidak ada flicker / modal / perubahan tampilan.
-3. Belanja -> LIST -> tap LIST lagi -> tidak ada perubahan state.
-4. Kekayaan -> Saku -> tap Saku lagi -> tidak ada perubahan state.
-5. History -> pilih filter yang aktif lagi -> tidak mengubah posisi/alur.
-6. Settings -> Guide -> Back Android/UI -> kembali Settings.
-7. Settings -> Panduan Kategori -> Back -> kembali Settings.
-8. Settings -> Database -> Back -> kembali Settings.
-9. Saku/Investasi/Aset -> Detail -> Edit -> Back -> Detail -> Back -> list.
-10. Visual utama harus sama dengan v2.4.12.
-
-Tidak ada SQL baru untuk v2.4.13.
+1. Pengaturan > DATABASE > KATEGORI: tap item aktif -> harus bisa unselect; tap lagi -> select.
+2. Jangan tekan SIMPAN, tutup DATABASE, buka lagi -> perubahan tadi tidak boleh tersimpan.
+3. KATEGORI > SELECT ALL -> semua kategori aktif dan semua subkategori di dalamnya ikut aktif.
+4. Tekan SELECT ALL lagi -> semua kategori dan seluruh subkategori nonaktif.
+5. SUB KATEGORI > SELECT ALL dua kali -> semua on, lalu semua off.
+6. MEREK > SELECT ALL dua kali -> semua on, lalu semua off.
+7. BARANG > SELECT ALL dua kali -> semua on, lalu semua off.
+8. Buat kombinasi pilihan > SIMPAN -> tutup DATABASE > buka lagi -> pilihan harus tetap.
+9. Tes search di DATABASE saat draft berubah; input harus tetap fokus dan state draft tidak hilang.
+10. Tidak ada SQL baru untuk v2.4.14.
