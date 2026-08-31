@@ -2516,7 +2516,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.5.0';
+const CN_MONEY_VERSION='2.6.0';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
@@ -3766,7 +3766,7 @@ function receiptPdfFilename(session){
   const date=String(session?.checkout_date||today()).slice(0,10);
   return `CN-MONEY-Receipt-${date}.pdf`
 }
-function buildReceiptPdf(session,items,walletName){
+function buildReceiptPdfVectorFallback(session,items,walletName){
   const pageW=226.7717,margin=13,font=8.2,lineH=11.2,maxChars=39;
   const rows=[];
   const push=(text,opt={})=>rows.push({text:receiptPdfSafeText(text),...opt});
@@ -3811,7 +3811,7 @@ function buildReceiptPdf(session,items,walletName){
   for(const row of rows){
     if(row.rule){
       const yy=y+3;
-      commands.push(`0.55 w ${margin.toFixed(2)} ${yy.toFixed(2)} m ${(pageW-margin).toFixed(2)} ${yy.toFixed(2)} l S`);
+      commands.push(`[2 2] 0 d 0.55 w ${margin.toFixed(2)} ${yy.toFixed(2)} m ${(pageW-margin).toFixed(2)} ${yy.toFixed(2)} l S [] 0 d`);
       y-=lineH;
       continue;
     }
@@ -3852,6 +3852,108 @@ function buildReceiptPdf(session,items,walletName){
   for(let i=1;i<=objects.length;i++)pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
   pdf+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return new TextEncoder().encode(pdf)
+}
+function receiptPdfAsciiBytes(value){return new TextEncoder().encode(String(value??''))}
+function receiptPdfConcatBytes(parts){
+  const total=parts.reduce((sum,p)=>sum+p.length,0),out=new Uint8Array(total);
+  let offset=0;
+  for(const part of parts){out.set(part,offset);offset+=part.length}
+  return out
+}
+function receiptPdfJpegBytes(dataUrl){
+  const base64=String(dataUrl||'').split(',')[1]||'';
+  const raw=atob(base64),out=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i)&255;
+  return out
+}
+function receiptPdfImageDocument(jpegBytes,pixelW,pixelH){
+  const pageW=226.7717,pageH=Math.max(120,pageW*(Number(pixelH)||1)/(Number(pixelW)||1));
+  const parts=[],offsets=[0];
+  let byteLength=0;
+  const add=bytes=>{parts.push(bytes);byteLength+=bytes.length};
+  const ascii=value=>receiptPdfAsciiBytes(value);
+  add(ascii('%PDF-1.4\n%CNMONEY-THERMAL\n'));
+  const addObj=(num,bodyParts)=>{
+    offsets[num]=byteLength;
+    add(ascii(`${num} 0 obj\n`));
+    for(const part of bodyParts)add(typeof part==='string'?ascii(part):part);
+    add(ascii('\nendobj\n'));
+  };
+  addObj(1,['<< /Type /Catalog /Pages 2 0 R >>']);
+  addObj(2,['<< /Type /Pages /Kids [3 0 R] /Count 1 >>']);
+  addObj(3,[`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] /Resources << /ProcSet [/PDF /ImageC] /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`]);
+  addObj(4,[`<< /Type /XObject /Subtype /Image /Width ${Math.round(pixelW)} /Height ${Math.round(pixelH)} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`,jpegBytes,'\nendstream']);
+  const content=`q\n${pageW.toFixed(2)} 0 0 ${pageH.toFixed(2)} 0 0 cm\n/Im0 Do\nQ\n`,contentBytes=ascii(content);
+  addObj(5,[`<< /Length ${contentBytes.length} >>\nstream\n`,contentBytes,'endstream']);
+  const xref=byteLength;
+  let table=`xref\n0 6\n0000000000 65535 f \n`;
+  for(let i=1;i<=5;i++)table+=String(offsets[i]||0).padStart(10,'0')+' 00000 n \n';
+  table+=`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  add(ascii(table));
+  return receiptPdfConcatBytes(parts)
+}
+function receiptPdfCanvasRows(session,items,walletName){
+  const maxChars=39,rows=[];
+  const push=(text,opt={})=>rows.push({text:receiptPdfSafeText(text),...opt});
+  const rule=()=>rows.push({rule:true});
+  const pair=(left,right,opt={})=>rows.push({left:receiptPdfSafeText(left),right:receiptPdfSafeText(right),...opt});
+  push('CN MONEY',{align:'center',bold:true,size:36});
+  push('RECEIPT',{align:'center',bold:true,size:29});
+  rule();
+  for(const line of receiptPdfWrap(String(session?.store_name||'BELANJA BULANAN').toUpperCase(),maxChars))push(line,{bold:true,size:29});
+  pair('TANGGAL',receiptPdfDate(session?.checkout_date));
+  pair('DOMPET',walletName||'DOMPET');
+  rule();
+  const safeItems=Array.isArray(items)?items:[];
+  safeItems.forEach((item,idx)=>{
+    receiptPdfWrap(String(item?.item_name||'BARANG').toUpperCase(),maxChars).forEach((line,i)=>push(line,{bold:i===0,size:i===0?28:27}));
+    const qty=Number(item?.quantity||0),uom=receiptPdfSafeText(item?.uom||'Pcs'),unit=Number(item?.unit_price||0),subtotal=Number(item?.subtotal||qty*unit||0);
+    pair(`${qty} ${uom} x ${receiptPdfMoney(unit)}`,receiptPdfMoney(subtotal));
+    if(idx<safeItems.length-1)push('',{gap:true});
+  });
+  rule();
+  pair('TOTAL',receiptPdfMoney(session?.total_amount||0),{bold:true,size:32});
+  rule();
+  push(`${safeItems.length} ITEM`,{align:'center'});
+  push('CN MONEY',{align:'center',bold:true});
+  push('TERIMA KASIH',{align:'center'});
+  return rows
+}
+function buildReceiptPdf(session,items,walletName){
+  try{
+    if(typeof document==='undefined'||!document.createElement)return buildReceiptPdfVectorFallback(session,items,walletName);
+    const width=756,margin=43,lineH=37,top=48,bottom=54,rows=receiptPdfCanvasRows(session,items,walletName);
+    const height=Math.max(560,top+bottom+rows.length*lineH);
+    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext('2d');
+    if(!ctx||typeof canvas.toDataURL!=='function')return buildReceiptPdfVectorFallback(session,items,walletName);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.fillStyle='#050505';ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.textBaseline='alphabetic';
+    const fontStack='ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    const drawText=(text,x,y,size=27,bold=false,align='left')=>{
+      ctx.font=`${bold?800:500} ${Number(size||27)}px ${fontStack}`;
+      ctx.textAlign=align;ctx.fillText(receiptPdfSafeText(text),x,y)
+    };
+    let y=top;
+    for(const row of rows){
+      if(row.rule){
+        ctx.save();ctx.setLineDash([9,8]);ctx.beginPath();ctx.moveTo(margin,y-8);ctx.lineTo(width-margin,y-8);ctx.stroke();ctx.restore();y+=lineH;continue
+      }
+      const size=Number(row.size||27);
+      if(Object.prototype.hasOwnProperty.call(row,'left')){
+        drawText(row.left||'',margin,y,size,!!row.bold,'left');
+        drawText(row.right||'',width-margin,y,size,!!row.bold,'right');
+      }else{
+        const align=row.align==='center'?'center':row.align==='right'?'right':'left',x=align==='center'?width/2:align==='right'?width-margin:margin;
+        drawText(row.text||'',x,y,size,!!row.bold,align)
+      }
+      y+=row.gap?Math.round(lineH*.72):lineH
+    }
+    const jpeg=receiptPdfJpegBytes(canvas.toDataURL('image/jpeg',0.96));
+    return receiptPdfImageDocument(jpeg,width,height)
+  }catch(err){
+    console.warn('Thermal receipt PDF fallback',err);
+    return buildReceiptPdfVectorFallback(session,items,walletName)
+  }
 }
 function exportReceiptPdf(sessionId){
   try{

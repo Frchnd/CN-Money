@@ -1,0 +1,10 @@
+CN MONEY v2.6.0 - RECEIPT PDF
+
+[ ] Buka Receipt yang punya beberapa item
+[ ] Export PDF
+[ ] Font terlihat monospace/thermal seperti Receipt di aplikasi
+[ ] Nama barang panjang tidak terpotong
+[ ] Qty x harga unit dan subtotal terbaca
+[ ] TOTAL terbaca jelas
+[ ] PDF tetap lebar 80 mm
+[ ] UI aplikasi tidak berubah dibanding v2.5.0
