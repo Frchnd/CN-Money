@@ -1,0 +1,11 @@
+CN MONEY v2.4.17 — DEVICE CHECK
+
+1. Buka DATA -> item yang punya >=2 riwayat harga berbeda.
+2. Panel PEMBELIAN TERAKHIR harus menampilkan HARGA UNIT TERMURAH yang pernah dibeli.
+3. Tempat beli pada panel itu harus berasal dari transaksi harga termurah tersebut.
+4. Tidak ada tanggal pada panel PEMBELIAN TERAKHIR.
+5. Header item menampilkan badge kategori, prioritas, dan UOM (PCS/KG/etc.) berbentuk pill.
+6. RIWAYAT PEMBELIAN: nama produk lebih besar.
+7. Tanggal berada di tengah baris bawah: QTY x HARGA | TANGGAL | SAKU.
+8. Jika riwayat panjang, list riwayat bisa di-scroll vertikal tanpa layout pecah.
+9. Tombol EDIT/HAPUS dan Back tetap normal.
