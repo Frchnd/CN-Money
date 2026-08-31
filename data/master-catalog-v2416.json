@@ -1,0 +1,5357 @@
+{
+  "version": "2.4.16",
+  "policy": {
+    "taxonomy": "User-approved total reset. Category title may include parenthetical English; subcategory labels never include parenthetical helper text.",
+    "known_item": "Known items always resolve to the approved category/subcategory master unless a v2.4.16+ manual DATA override exists.",
+    "unknown_item": "Unknown names always fall back to Lainnya → Lainnya until manually edited.",
+    "other_subcategory": "Every category has Lainnya as its last subcategory."
+  },
+  "categories": [
+    {
+      "name": "Kebutuhan Rumah (House Care)",
+      "sort_order": 10
+    },
+    {
+      "name": "Perawatan Diri (Personal Care)",
+      "sort_order": 20
+    },
+    {
+      "name": "Bahan Segar (Fresh Goods)",
+      "sort_order": 30
+    },
+    {
+      "name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "sort_order": 40
+    },
+    {
+      "name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "sort_order": 50
+    },
+    {
+      "name": "Minuman & Camilan (Beverages & Snacks)",
+      "sort_order": 60
+    },
+    {
+      "name": "Kesehatan & P3K (Health Care)",
+      "sort_order": 70
+    },
+    {
+      "name": "Kebutuhan Khusus",
+      "sort_order": 80
+    },
+    {
+      "name": "Lainnya",
+      "sort_order": 90
+    }
+  ],
+  "subcategories": [
+    {
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "name": "Dapur",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "name": "Laundry",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "name": "Kamar Mandi",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "name": "Penghilang Bau & Hama",
+      "sort_order": 40
+    },
+    {
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "name": "Lainnya",
+      "sort_order": 50
+    },
+    {
+      "category_name": "Perawatan Diri (Personal Care)",
+      "name": "Rambut & Kepala",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Perawatan Diri (Personal Care)",
+      "name": "Gigi & Mulut",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Perawatan Diri (Personal Care)",
+      "name": "Badan",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Perawatan Diri (Personal Care)",
+      "name": "Lainnya",
+      "sort_order": 40
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Bumbu",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Sayur",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Buah",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Seafood",
+      "sort_order": 40
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Daging",
+      "sort_order": 50
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Telur, Tahu & Tempe",
+      "sort_order": 60
+    },
+    {
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "name": "Lainnya",
+      "sort_order": 70
+    },
+    {
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "name": "Beras & Karbohidrat",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "name": "Minyak & Lemak",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "name": "Saus & Bumbu Kering",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "name": "Awetan & Kaleng",
+      "sort_order": 40
+    },
+    {
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "name": "Lainnya",
+      "sort_order": 50
+    },
+    {
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "name": "Susu & Olahannya",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "name": "Frozen Food",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "name": "Lainnya",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "name": "Kopi & Teh",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "name": "Minuman Cair",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "name": "Camilan",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "name": "Lainnya",
+      "sort_order": 40
+    },
+    {
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "name": "Obat Dalam & Vitamin",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "name": "Obat Luar & Perawatan",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "name": "Lainnya",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Kebutuhan Khusus",
+      "name": "Bayi & Anak",
+      "sort_order": 10
+    },
+    {
+      "category_name": "Kebutuhan Khusus",
+      "name": "Hewan Peliharaan",
+      "sort_order": 20
+    },
+    {
+      "category_name": "Kebutuhan Khusus",
+      "name": "Lainnya",
+      "sort_order": 30
+    },
+    {
+      "category_name": "Lainnya",
+      "name": "Lainnya",
+      "sort_order": 10
+    }
+  ],
+  "aliases": {
+    "abon": "Abon Sapi",
+    "air botol": "Air Mineral Botol",
+    "air galon": "Air Mineral Galon",
+    "air gelas": "Air Mineral Gelas",
+    "air mineral botol": "Air Mineral Botol",
+    "air mineral galon": "Air Mineral Galon",
+    "air mineral gelas": "Air Mineral Gelas",
+    "air minum": "Air Mineral",
+    "air putih": "Air Putih",
+    "aluminum foil": "Aluminium Foil",
+    "alumunium foil": "Aluminium Foil",
+    "ayam fillet": "Ayam Fillet",
+    "baby lotion": "Lotion Bayi",
+    "baby oil": "Baby Oil",
+    "baby shampoo": "Shampoo Bayi",
+    "baby wipes": "Tisu Bayi",
+    "bakso": "Bakso",
+    "bawang bombay": "Bawang Bombay",
+    "betadin": "Betadine",
+    "bicarbonate soda": "Baking Soda",
+    "bihun": "Bihun Kering",
+    "biskuit": "Biskuit",
+    "body wash": "Sabun Cair",
+    "bodywash": "Body Wash",
+    "butter": "Mentega",
+    "cabai": "Cabai",
+    "cabe": "Cabai",
+    "cabe merah": "Cabai Merah",
+    "cabe rawit": "Cabai Rawit",
+    "cat food": "Makanan Kucing",
+    "catfood": "Makanan Kucing",
+    "cb rawit": "Cabai Rawit",
+    "cemilan": "Camilan",
+    "cemilan ringan": "Camilan",
+    "charger": "Charger",
+    "chocolate": "Cokelat",
+    "cling wrap": "Plastic Wrap",
+    "coklat": "Cokelat",
+    "condisioner": "Conditioner",
+    "condisioner rambut": "Conditioner",
+    "conditioner": "Conditioner",
+    "conditioner rambut": "Conditioner",
+    "cooking oil": "Minyak Goreng",
+    "corn starch": "Tepung Maizena",
+    "corned": "Kornet Sapi",
+    "corned beef": "Kornet Sapi",
+    "cornstarch": "Tepung Maizena",
+    "cumi": "Cumi-cumi",
+    "daging ayam": "Daging Ayam",
+    "daging giling": "Daging Sapi Giling",
+    "daging sapi": "Daging Sapi",
+    "daun sop": "Seledri",
+    "deodoran": "Deodorant",
+    "deodorant": "Deodorant",
+    "detergen": "Deterjen",
+    "detergent": "Deterjen",
+    "deterjen": "Deterjen",
+    "deterjen pakaian": "Deterjen",
+    "diaper": "Popok Bayi",
+    "diapers": "Popok Bayi",
+    "dish soap": "Sabun Cuci Piring",
+    "dishwashing liquid": "Sabun Cuci Piring",
+    "dog food": "Makanan Anjing",
+    "dogfood": "Makanan Anjing",
+    "es krim": "Es Krim",
+    "fabric softener": "Pelembut Pakaian",
+    "facial tissue": "Tisu Wajah",
+    "garam dapur": "Garam Halus",
+    "gula aren": "Gula Aren",
+    "gula jawa": "Gula Merah",
+    "gula putih": "Gula Pasir",
+    "ice cream": "Es Krim",
+    "ikan laut": "Ikan",
+    "jeruk limo": "Jeruk Nipis",
+    "jus buah": "Jus Buah",
+    "kaldu ayam": "Kaldu Ayam Bubuk",
+    "kaldu sapi": "Kaldu Sapi Bubuk",
+    "karbol lantai": "Karbol",
+    "kecap": "Kecap Manis",
+    "keju": "Keju",
+    "kental manis": "Susu Kental Manis",
+    "kepala charger": "Adaptor Charger",
+    "kondisioner": "Conditioner",
+    "kopi sachet": "Kopi Sachet",
+    "kornet": "Kornet Sapi",
+    "kornet sapi": "Kornet Sapi",
+    "krimer kental manis": "Susu Kental Manis",
+    "lada": "Merica",
+    "lada bubuk": "Merica Bubuk",
+    "lampu": "Lampu",
+    "maizena": "Tepung Maizena",
+    "makanan anjing": "Makanan Anjing",
+    "makanan kucing": "Makanan Kucing",
+    "makanan kucing dry": "Makanan Kucing Kering",
+    "makanan kucing wet": "Makanan Kucing Basah",
+    "makaroni": "Makaroni Kering",
+    "margarin": "Margarin",
+    "margarine": "Margarin",
+    "masker": "Masker Medis",
+    "mayo": "Mayones",
+    "mayonaise": "Mayones",
+    "mayonnaise": "Mayones",
+    "mentega": "Mentega",
+    "merica": "Merica",
+    "merica bubuk": "Merica Bubuk",
+    "mi instan": "Mi Instan",
+    "mi instan goreng": "Mi Instan Goreng",
+    "mi instan kuah": "Mi Instan Kuah",
+    "mi instant": "Mi Instan",
+    "micin": "MSG",
+    "mie": "Mi Instan",
+    "mie goreng instan": "Mi Instan Goreng",
+    "mie instan": "Mi Instan",
+    "mie instan goreng": "Mi Instan Goreng",
+    "mie instan kuah": "Mi Instan Kuah",
+    "mie instant": "Mi Instan",
+    "mie kuah instan": "Mi Instan Kuah",
+    "minyak": "Minyak Goreng",
+    "minyak kayuputih": "Minyak Kayu Putih",
+    "minyak makan": "Minyak Goreng",
+    "minyak sayur": "Minyak Goreng",
+    "mpasi": "MPASI Instan",
+    "msg": "Penyedap Rasa",
+    "naget": "Nugget",
+    "nugget": "Nugget",
+    "odol": "Pasta Gigi",
+    "paracetamol": "Parasetamol",
+    "pasir kucing tofu": "Pasir Kucing Tofu",
+    "pasta gigi": "Pasta Gigi",
+    "pasta gigi odol": "Pasta Gigi",
+    "pasta spaghetti": "Spaghetti",
+    "pel": "Pel Lantai",
+    "pembersih wc": "Pembersih WC",
+    "penyedap": "Penyedap Rasa",
+    "permen": "Permen Buah",
+    "pet shampoo": "Shampoo Hewan",
+    "pewangi baju": "Pewangi Pakaian",
+    "plastic wrap": "Plastic Wrap",
+    "popok": "Popok Bayi",
+    "roti": "Roti",
+    "roti tawar": "Roti Tawar",
+    "sabun": "Sabun",
+    "sabun badan": "Sabun Mandi",
+    "sabun cair mandi": "Sabun Cair",
+    "sabun cuci piring": "Sabun Cuci Piring",
+    "sabun mandi": "Sabun",
+    "sabun mandi batang": "Sabun Batang",
+    "sabun mandi cair": "Sabun Cair",
+    "sabun piring": "Sabun Cuci Piring",
+    "sabunn": "Sabun",
+    "sampo": "Shampoo",
+    "sampo bayi": "Shampoo Bayi",
+    "sampo hewan": "Shampoo Hewan",
+    "sampo sachet": "Shampoo Sachet",
+    "sampoo": "Shampoo",
+    "saos sambal": "Saus Sambal",
+    "saos tiram": "Saus Tiram",
+    "saos tomat": "Saus Tomat",
+    "sapi": "Daging Sapi",
+    "sarden": "Sarden Kaleng",
+    "saus cabe": "Saus Sambal",
+    "sbn": "Sabun",
+    "sbun": "Sabun",
+    "shampo": "Shampoo",
+    "shampo anjing": "Shampoo Anjing",
+    "shampo bayi": "Shampoo Bayi",
+    "shampo hewan": "Shampoo Hewan",
+    "shampo kucing": "Shampoo Kucing",
+    "shampo sachet": "Shampoo Sachet",
+    "shampoo": "Shampoo",
+    "shampoo bayi": "Shampoo Bayi",
+    "shampoo hewan": "Shampoo Hewan",
+    "shampoo sachet": "Shampoo Sachet",
+    "shower gel": "Sabun Cair",
+    "showergel": "Shower Gel",
+    "sikat kloset": "Sikat Kloset",
+    "sikat toilet": "Sikat Toilet",
+    "sikat wc": "Sikat Toilet",
+    "skm": "Susu Kental Manis",
+    "smpo": "Shampoo",
+    "snack": "Camilan",
+    "soda": "Soda",
+    "soda kue": "Baking Soda",
+    "soft drink": "Minuman Bersoda",
+    "softener": "Pelembut Pakaian",
+    "sosis": "Sosis",
+    "soun kering": "Soun",
+    "susu formula": "Susu Formula Bayi",
+    "susu kental manis": "Susu Kental Manis",
+    "susu kotak": "Susu UHT",
+    "susu skm": "Susu Kental Manis",
+    "tapioca flour": "Tepung Tapioka",
+    "teh botol": "Teh Botol",
+    "telor": "Telur",
+    "telor ayam": "Telur Ayam",
+    "telor bebek": "Telur Bebek",
+    "tepung jagung": "Tepung Maizena",
+    "tepung kanji": "Tepung Tapioka",
+    "terigu": "Tepung Terigu",
+    "tissue": "Tisu",
+    "tissue muka": "Tisu Wajah",
+    "tissue toilet": "Tisu Toilet",
+    "tissue wajah": "Tisu Wajah",
+    "tissue wc": "Tisu Toilet",
+    "tisu": "Tisu",
+    "tisu muka": "Tisu Wajah",
+    "tisu wc": "Tisu Toilet",
+    "tisue": "Tisu",
+    "toilet paper": "Tisu Toilet",
+    "toilet tissue": "Tisu Toilet",
+    "toothpaste": "Pasta Gigi",
+    "tuna": "Tuna Kaleng",
+    "udang segar": "Udang",
+    "uht": "Susu UHT",
+    "vetsin": "MSG",
+    "wafer": "Wafer",
+    "wet tissue": "Tisu Basah",
+    "wet wipes": "Tisu Basah",
+    "yoghurt": "Yogurt",
+    "yoghurt cup": "Yogurt Cup",
+    "zip lock": "Plastik Ziplock",
+    "ziplock": "Plastik Ziplock",
+    "telon": "Minyak Telon",
+    "minyak telon bayi": "Minyak Telon"
+  },
+  "items": [
+    {
+      "canonical_name": "Abon Ayam",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Abon Sapi",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Acar Kemasan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Adaptor Charger",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Air Freshener",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Air Kelapa Kemasan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Air Mineral",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_uom": "BTL",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Mineral 1.5L",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Mineral 600ml",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Mineral Botol",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Mineral Galon",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Mineral Gelas",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Minum Galon",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Air Putih",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Air Soda",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Alat Cukur",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Alkohol 70 Persen",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Alpukat",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Aluminium Foil",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Ampela Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Anggur",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Antasida",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Antihistamin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Antiperspirant",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Antiseptik",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Apel",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Asam Jawa Segar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Asinan Kemasan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Aspirin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Ayam Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Ayam Fillet",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Ayam Goreng Siap Makan",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Ayam Utuh",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Baby Oil",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Bagel",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Baking Powder",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Baking Soda",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bakso",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Bakso Ayam",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Bakso Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Bakso Ikan",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Bakso Sapi",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Balsem",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Basil Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Baskom",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Baterai",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Baterai 9V",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Baterai AA",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Baterai AAA",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Baterai Kancing",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Bawang Bombay",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Bawang Merah",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Bawang Putih",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Bayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Bedak",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Bedak Badan",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Bedak Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Bedak Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Benang Gigi",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Beras",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Beras Basmati",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Beras Jepang",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Beras Ketan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Beras Merah",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Beras Pandan Wangi",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Beras Putih",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Beras Rojolele",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Beras Setra Ramos",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Beras Shirataki",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Betadine",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Bihun Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Biji Kopi",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Biskuit",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Biskuit Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Biskuit Cokelat",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Biskuit Gandum",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Biskuit Keju",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Biskuit Marie",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Biskuit Sandwich",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Blueberry",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Body Butter",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Body Cream",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Body Lotion",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Body Scrub",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Body Wash",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Bohlam LED",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Bolu",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Botol Minum",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Botol Susu",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Brokoli",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Brownies",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Buah",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Buah Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Buah Koktail Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Buah Naga",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Bubuk Kari",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bubur Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Bubur Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Bubur MPASI",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Bubur Oat Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Buku Tulis",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Bumbu Ayam Goreng Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Gulai Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Kari Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Nasi Goreng Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Opor Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Racik",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Rawon Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Rendang Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Bumbu Soto Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Buncis",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Buntut Sapi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Burger",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Butter",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Cabai",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Cabai Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Cabai Hijau",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Cabai Keriting",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Cabai Merah",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Cabai Rawit",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Cabai Rawit Hijau",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Cabai Rawit Merah",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Cairan Anti Nyamuk",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Cairan Antiseptik Luka",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Cairan Pel",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Cairan Pembersih Lantai",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Cairan Pencuci Mata",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Cairan Pencuci Piring",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Cake",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Camilan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan",
+      "default_uom": "PACK",
+      "default_priority": "PELENGKAP"
+    },
+    {
+      "canonical_name": "Camilan Anjing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Camilan Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Cat Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Cat Treat",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Ceker Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Cengkeh",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Centong Nasi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Cereal Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Charger",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya",
+      "default_uom": "PCS",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Chicken Katsu Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Chicken Nugget",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Chicken Wings Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Chiki",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Cireng Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Cobek",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Coffee Drip",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Cokelat",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Cokelat Batang",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Cola",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Cologne",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Conditioner",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Conditioner Sachet",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Cookies",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Cooking Cream",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Corn Flakes",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Cotton Bud",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Cotton Bud Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Crab Stick",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Crackers",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Cream Cheese",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Croissant",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Cuka Apel",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Cuka Masak",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Cuka Putih",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Cumi-cumi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Dada Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Dada Ayam Fillet",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Daging",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Daging Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Daging Has Dalam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Daging Has Luar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Daging Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Daging Kambing",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Daging Kambing Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Daging Kambing Giling",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Daging Rendang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Daging Sapi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Daging Sapi Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Daging Sapi Giling",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Daging Sapi Slice",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Dark Chocolate",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Daun Bawang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Daun Jeruk",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Daun Pandan",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Daun Pepaya",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Daun Salam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Daun Singkong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Dental Floss",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Dental Treat Hewan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Deodoran Roll-on",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Deodoran Spray",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Deodorant",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Deterjen",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Deterjen Batang",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Deterjen Bubuk",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Deterjen Cair",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Deterjen Krim",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Deterjen Pods",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Diaper Cream",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Dimsum Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Disinfektan Lantai",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Dog Treat",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Donat",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Donat Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Dot Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Duku",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Durian",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Eau De Toilette",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Ebi Furai Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Ember",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Empeng",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Emping",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Es Krim",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food",
+      "default_uom": "PCS",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Es Krim Cone",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Es Krim Cup",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Es Krim Mochi",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Es Krim Stick",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Face Wash",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Fish Ball",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Floss Pick",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Garam",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering",
+      "default_uom": "PACK",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Garam Halus",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Garam Himalaya",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Garam Kasar",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Garam Laut",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Garpu Makan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Garpu Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Gelas",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Gelas Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Gelato",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Granola",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Greek Yogurt",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Gula",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Gula Aren",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Gula Batu",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Gula Diet",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Gula Merah",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Gula Pasir",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Gummy",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Gurita",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Hair Conditioner",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Hair Gel",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Hair Mask",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Hair Spray",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Hair Tonic",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Hand Body Lotion",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Hand Sanitizer",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Hand Sanitizer Medis",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Hand Wash",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Hash Brown",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Hati Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Hati Sapi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Heavy Cream",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Ibuprofen",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Iga Kambing",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Iga Sapi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Ikan",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Ikan Bandeng",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Bawal",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Ikan Gurame",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Kakap",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Kembung",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Lele",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Mujair",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Nila",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Patin",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Salmon",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Sarden Segar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Teri",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikan Tongkol",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Ikat Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Insektisida",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Jagung Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Jagung Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Jagung Manis",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Jahe",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Jambu Air",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Jambu Biji",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Jamu Masuk Angin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Jamu Pegal Linu",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Jamur Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Jamur Kancing",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Jamur Kancing Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Jamur Tiram",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Jaring Laundry",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Jelly",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Jengkol",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Jepit Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Jeruk",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Jeruk Lemon",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Jeruk Nipis",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Jinten",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Jus Apel",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Jus Buah",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Jus Jambu",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Jus Jeruk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Jus Mangga",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Jus Nanas",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Jus Tomat",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Kabel Roll",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Kabel USB",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Kacang Almond",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kacang Atom",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kacang Goreng",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kacang Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Kacang Kulit",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kacang Mete",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kacang Panjang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Kacang Polong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Kacang Tanah",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kain Lap Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kaldu Ayam Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kaldu Ikan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kaldu Jamur",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kaldu Sapi Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kalsium",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Kamper",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Kangkung",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Kantong ASI",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Kantong Kotoran Hewan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Kantong Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kantong Sampah",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kantong Sampah Besar",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kantong Sampah Kecil",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kapas",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Kapas Alkohol",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Kapas Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Kapas Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Kapur Barus",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Kapur Toilet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Karbol",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Kasa",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Kasa Steril",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Kayu Manis",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Kayu Manis Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kebab Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Kecap Asin",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kecap Ikan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kecap Inggris",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kecap Jepang",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kecap Manis",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Keju",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Keju Cheddar",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Keju Edam",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Keju Gouda",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Keju Mozzarella",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Keju Parmesan",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Keju Slice",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Kelapa",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Kelapa Muda",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Kemangi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Kembang Kol",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Kemiri",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Kemoceng",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Kencur",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Kentang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Kentang Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Kentang Goreng Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Kentang Mini",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Kepala Sikat Gigi",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Kepiting",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Kerang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Kerang Dara",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Kerang Hijau",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Keripik Jagung",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Kentang",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Pisang",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Singkong",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Talas",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Tempe",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Tortilla",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keripik Ubi",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kertas Aluminium",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kertas Roti",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kerupuk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kerupuk Ikan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kerupuk Udang",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Keset",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Keset Kamar Mandi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Ketumbar",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Ketumbar Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Ketumbar Segar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Kitchen Towel",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kiwi",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Kol",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Konsentrat Minuman",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Kopi",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Kopi 3 in 1",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Arabika",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Botol",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Kopi Bubuk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Instan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Kaleng",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Kopi Kapsul",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Robusta",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Sachet",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Siap Minum",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Susu Instan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Tanpa Gula",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Kopi Tubruk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Korek Api",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Korek Gas",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kornet Ayam",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Kornet Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Kornet Sapi",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Kotak Bekal",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Kotak Makanan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Koyo",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Koyo Hangat",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Krim Antijamur",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Krim Cukur",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Krim Pencukur",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Krim Ruam Popok",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Krim Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Krimer Bubuk",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Krimer Cair",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Krimer Kental Manis",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Kuaci",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kue Basah",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kue Kering",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Kulit Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Kulit Lumpia Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Kulit Pangsit Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Kunyit",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Kunyit Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Kurma Segar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Kwetiau Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Labu Kuning",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Labu Siam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Lada Hitam",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Lada Putih",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Lada Segar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Lampu",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya",
+      "default_uom": "PCS",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Lampu Darurat",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Lampu LED",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Lap Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Lap Microfiber",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Lap Serbaguna",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Lasagna Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Laundry Bag",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Laundry Sheet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Leci",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Lem Tikus",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Lengkuas",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Lip Balm",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Lip Care",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Lobster",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Lotion Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Lotion Tubuh",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Lulur",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Magnesium",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Mainan Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Mainan Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Mainan Edukasi Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Makanan Anjing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan",
+      "default_uom": "PACK",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Makanan Anjing Adult",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Anjing Basah",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Anjing Kering",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Anjing Puppy",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Burung",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Hamster",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Ikan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan",
+      "default_uom": "PACK",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Makanan Kucing Adult",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Kucing Basah",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Kucing Kering",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Kucing Kitten",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makanan Kucing Senior",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Makaroni Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Mangga",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Manggis",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Margarin",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Margarine",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Markisa",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Marshmallow",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Masker KN95",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Masker Medis",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Masker Sekali Pakai",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Matcha Bubuk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Mayones",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Melon",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Mentega",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Merica",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering",
+      "default_uom": "PACK",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Merica Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Meses Cokelat",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Mi Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat",
+      "default_uom": "PCS",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Mi Instan Goreng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Mi Instan Kuah",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Micellar Water",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Micin",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Mie Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Mie Kuning Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Mie Telur",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Milk Chocolate",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Minuman",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair",
+      "default_uom": "BTL",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Minuman Bersoda",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Minuman Cokelat Bubuk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Minuman Elektrolit",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Minuman Energi",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Minuman Isotonik",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Minuman Serbuk Jeruk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Minuman Teh Botol",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Minuman Vitamin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Minuman Vitamin C",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Minyak Angin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Minyak Canola",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Goreng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Gosok",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Minyak Jagung",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Kayu Putih",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Minyak Kayu Putih Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Minyak Kedelai",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Kelapa",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Kelapa Murni",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Minyak Sawit",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Sunflower",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Telon",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Minyak Telon Dewasa",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Minyak Wijen",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Minyak Zaitun",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Mixed Vegetables Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Moisturizer",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Mouthwash",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "MPASI Instan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "MSG",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Muesli",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Muffin",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Multivitamin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Nachos",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Nanas",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Nanas Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Nasi Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Nasi Kotak",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Nugget",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Nugget Ayam",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Nugget Ikan",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Nugget Sayur",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Oat",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Oatmeal",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Obat",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin",
+      "default_uom": "PACK",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Obat Alergi",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Batuk",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Batuk Sirup",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Batuk Tablet",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Demam",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Diare",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Flu",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Jerawat",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Obat Kumur",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Obat Kutu Hewan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Obat Maag",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Mabuk Perjalanan",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Nyamuk Bakar",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Obat Nyamuk Elektrik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Obat Pilek",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Sakit Kepala",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Obat Tenggorokan",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Olive Oil",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Oralit",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Oregano Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Oyong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Paha Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Paha Ayam Fillet",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Pakcoy",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Pala",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Pala Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Panci",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Panty Liner",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pantyliner",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Paper Cup",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Paprika Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Paprika Hijau",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Paprika Merah",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Parasetamol",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Pare",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Parfum",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Parfum Laundry",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Parsley Kering",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Parutan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pasir Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Pasir Kucing Bentonite",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Pasir Kucing Silika",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Pasir Kucing Tofu",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Pasta Fettuccine",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Pasta Fusilli",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Pasta Gigi",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Pasta Gigi Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Pasta Gigi Herbal",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Pasta Gigi Sensitif",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Pasta Penne",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Payung",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Pee Pad Anjing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Peeler",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pel Lantai",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Pelembap Tubuh",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pelembap Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pelembut dan Pewangi Pakaian",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Pelembut Pakaian",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Pelicin Pakaian",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Pembalut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pembalut Bersalin",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pembalut Malam",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pembalut Siang",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pembasmi Kecoa",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pembasmi Semut",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pembersih Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pembersih Gigi Palsu",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Pembersih Kaca",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Pembersih Kamar Mandi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembersih Kerak Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pembersih Kerak Kamar Mandi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembersih Keramik Kamar Mandi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembersih Kloset",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembersih Kompor",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pembersih Lantai",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Pembersih Lemak Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pembersih Lidah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Pembersih Oven",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pembersih Rumah",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya",
+      "default_uom": "BTL",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Pembersih Saluran Air",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembersih Serbaguna",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Pembersih Telinga Hewan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Pembersih Toilet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembersih Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pembersih Wastafel",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pembersih WC",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pembuka Botol",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pempek Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Pemutih Pakaian",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Penghapus",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Pengharum Kamar Mandi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Pengharum Ruangan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pengharum Ruangan Gel",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pengharum Ruangan Spray",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pengharum Toilet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Penghilang Noda Pakaian",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Pengki",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Penjepit Makanan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pensil",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Penutup Kepala Mandi",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Penyedap Rasa",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Penyerap Bau",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Penyerap Lembap",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pepaya",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Perangkap Tikus",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Perban",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Perban Elastis",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Permen Buah",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Permen Karet",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Permen Kopi",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Permen Mint",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Petai",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Pewangi Laundry",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Pewangi Pakaian",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Laundry"
+    },
+    {
+      "canonical_name": "Pewangi Pasir Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Pewangi Ruangan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Pewarna Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Pie",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Pir",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Piring",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pisang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Pisau Cukur",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Pisau Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Pizza Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Plastic Wrap",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Plastik Klip",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Plastik Vakum",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Plastik Ziplock",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Plester",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Plester Anti Air",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Plester Luka",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Pomade",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Popcorn",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Popok Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Popok Bayi Celana",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Popok Bayi Perekat",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Popok Newborn",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Povidone Iodine",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Probiotik",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Pulpen",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Puree Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Quick Oats",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Racun Tikus",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Ragi Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Rajungan",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Rambutan",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Razor",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Rice Bowl",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Rolled Oats",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Roti",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Roti Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Roti Burger",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Roti Gandum",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Roti Hotdog",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Roti Isi",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Roti Manis",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Roti Sobek",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Roti Tawar",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Sabun",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan",
+      "default_uom": "PCS",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Sabun Antibakteri",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabun Batang",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabun Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Sabun Cair",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabun Cuci Botol",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Sabun Cuci Botol Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Sabun Cuci Piring",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Sabun Cuci Tangan",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabun Mandi",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabun Mandi Cair",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabun Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sabut Cuci Piring",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Salak",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Salep Gatal",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Salep Luka",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Salted Butter",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Sambal Bawang",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sambal Botol",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sambal Matah Kemasan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sambal Sachet",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sambal Terasi",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sandal",
+      "category_name": "Lainnya",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Sandwich",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Santan Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Santan Cair Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Santan Instan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sapu",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Sarden Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Sarden Saus Cabai",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Sarden Saus Tomat",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Saringan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Sarung Tangan Cuci Piring",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Sarung Tangan Karet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Sarung Tangan Medis",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Sarung Tangan Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Saus Barbekyu",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus BBQ",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Bolognese",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Keju",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Pasta",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Sambal",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Teriyaki",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Tiram",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Saus Tomat",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Sawi Hijau",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Sawi Putih",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Sayap Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Daging"
+    },
+    {
+      "canonical_name": "Sayur",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Sayur Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Sedotan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Selada",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Selai Cokelat",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Selai Kacang",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Selai Stroberi",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Seledri",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Semangka",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Semprot Hidung",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Semprot Nyamuk",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Sendok Makan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Sendok Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Sendok Sayur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Serai",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Bumbu"
+    },
+    {
+      "canonical_name": "Sereal Jagung",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Serum Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Serum Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Shampoo",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Shampoo Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Shampoo Anjing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Shampoo Anti Ketombe",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Shampoo Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Shampoo Hewan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Shampoo Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Shampoo Pria",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Shampoo Sachet",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Shampoo Wanita",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Shortening",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Shower Gel",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sikat Gigi",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Sikat Gigi Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Sikat Gigi Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Sikat Gigi Elektrik",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Gigi & Mulut"
+    },
+    {
+      "canonical_name": "Sikat Kamar Mandi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Sikat Kloset",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Sikat Lantai",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Sikat Serbaguna",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Sikat Toilet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi",
+      "default_uom": "PCS",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Sikat WC",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Silica Gel",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Singkong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Siomay Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Sirsak",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Sirup",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Sirup Cocopandan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Sirup Jeruk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Sirup Leci",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Sirup Melon",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Sisir",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Sisir Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "SKM Cokelat",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "SKM Putih",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Snack Anjing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Snack Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Snack Jagung",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Snack Kentang",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Snack Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Soda",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Sosis",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Sosis Ayam",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Sosis Sapi",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Sotong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood"
+    },
+    {
+      "canonical_name": "Soun",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Sour Cream",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Soy Sauce",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Spaghetti",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Spatula",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Spons Cuci Piring",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Spons Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Squash",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Stop Kontak",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Strawberry",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Buah"
+    },
+    {
+      "canonical_name": "Sunblock",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Sunscreen",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Suplemen Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Suplemen Imun",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Susu",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya",
+      "default_uom": "BTL",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Susu Almond",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Susu Bubuk",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Cokelat",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Evaporasi",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Formula 0-6 Bulan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Susu Formula 6-12 Bulan",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Susu Formula Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Susu Full Cream",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Kambing",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Kedelai",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Kental Manis",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Kental Manis Cokelat",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Kental Manis Putih",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Kopi Siap Minum",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Susu Low Fat",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Oat",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Pasteurisasi",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Pertumbuhan Anak",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Susu Segar",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Skim",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu Steril",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Susu UHT",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Tabir Surya",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Tablet Hisap Tenggorokan",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Tahu",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe",
+      "default_uom": "PCS",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Tahu Jepang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tahu Kuning",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tahu Pong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tahu Putih",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tahu Sumedang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tahu Sutra",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Talenan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Tauge",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Teh",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh",
+      "default_uom": "BOX",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Teh Botol",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Minuman Cair"
+    },
+    {
+      "canonical_name": "Teh Bubuk",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Celup",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Chamomile",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Herbal",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Hijau",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Hitam",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Matcha",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Melati",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Siap Minum",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Teh Tarik Instan",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Kopi & Teh"
+    },
+    {
+      "canonical_name": "Telur",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe",
+      "default_uom": "TRAY",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Telur Asin",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Telur Ayam",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Telur Bebek",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Telur Puyuh",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tempe",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tempe Bungkus Daun",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tempe Mendoan",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Telur, Tahu & Tempe"
+    },
+    {
+      "canonical_name": "Tempura Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Tepung",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Tepung Beras",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Bumbu Serbaguna",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Jagung",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Kentang",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Ketan",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Maizena",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Mocaf",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Panir",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Protein Rendah",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Protein Sedang",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Protein Tinggi",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Sagu",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Singkong",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Tapioka",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Tepung Terigu",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Beras & Karbohidrat"
+    },
+    {
+      "canonical_name": "Terminal Listrik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Termometer",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Termos",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Terong",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Tetes Mata",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Tetes Telinga",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Luar & Perawatan"
+    },
+    {
+      "canonical_name": "Timun",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Tisu",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Tisu Basah",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Tisu Basah Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Tisu Bayi",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Bayi & Anak"
+    },
+    {
+      "canonical_name": "Tisu Dapur",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Tisu Intim",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Tisu Toilet",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Kamar Mandi"
+    },
+    {
+      "canonical_name": "Tisu Wajah",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Lainnya"
+    },
+    {
+      "canonical_name": "Tomat",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Tomat Ceri",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Toner Wajah",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Badan"
+    },
+    {
+      "canonical_name": "Trail Mix",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Tuna Kaleng",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Tuna Kaleng Air",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Tuna Kaleng Minyak",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Awetan & Kaleng"
+    },
+    {
+      "canonical_name": "Tusuk Gigi",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Tusuk Sate",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Ubi Jalar",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Ubi Ungu",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Udang",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Seafood",
+      "default_uom": "KG",
+      "default_priority": "PRIMER"
+    },
+    {
+      "canonical_name": "Udang Beku",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Frozen Food"
+    },
+    {
+      "canonical_name": "Ulekan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Umpan Kecoa",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Penghilang Bau & Hama"
+    },
+    {
+      "canonical_name": "Unsalted Butter",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Vanila Cair",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "Vanili Bubuk",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Saus & Bumbu Kering"
+    },
+    {
+      "canonical_name": "VCO",
+      "category_name": "Sembako & Bahan Kering (Pantry / Dry Goods)",
+      "subcategory_name": "Minyak & Lemak"
+    },
+    {
+      "canonical_name": "Vitamin",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin",
+      "default_uom": "BTL",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Vitamin Anjing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Vitamin B Complex",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Vitamin B12",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Vitamin C",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Vitamin D",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Vitamin E",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    },
+    {
+      "canonical_name": "Vitamin Kucing",
+      "category_name": "Kebutuhan Khusus",
+      "subcategory_name": "Hewan Peliharaan"
+    },
+    {
+      "canonical_name": "Vitamin Rambut",
+      "category_name": "Perawatan Diri (Personal Care)",
+      "subcategory_name": "Rambut & Kepala"
+    },
+    {
+      "canonical_name": "Wadah Makanan Plastik",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Wafer",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan",
+      "default_uom": "PACK",
+      "default_priority": "SEKUNDER"
+    },
+    {
+      "canonical_name": "Wafer Cokelat",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Wafer Keju",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Wafer Roll",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Wafer Stick",
+      "category_name": "Minuman & Camilan (Beverages & Snacks)",
+      "subcategory_name": "Camilan"
+    },
+    {
+      "canonical_name": "Wajan",
+      "category_name": "Kebutuhan Rumah (House Care)",
+      "subcategory_name": "Dapur"
+    },
+    {
+      "canonical_name": "Whipped Cream",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Whipping Cream",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Wortel",
+      "category_name": "Bahan Segar (Fresh Goods)",
+      "subcategory_name": "Sayur"
+    },
+    {
+      "canonical_name": "Yogurt",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Yogurt Botol",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Yogurt Buah",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Yogurt Cup",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Yogurt Drink",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Yogurt Plain",
+      "category_name": "Susu & Makanan Beku (Dairy & Frozen)",
+      "subcategory_name": "Susu & Olahannya"
+    },
+    {
+      "canonical_name": "Zinc",
+      "category_name": "Kesehatan & P3K (Health Care)",
+      "subcategory_name": "Obat Dalam & Vitamin"
+    }
+  ],
+  "unknown": {
+    "category_name": "Lainnya",
+    "subcategory_name": "Lainnya",
+    "default_uom": "PCS",
+    "default_priority": "SEKUNDER"
+  },
+  "meta": {
+    "source": "CN MONEY v2.4.16 master taxonomy reset",
+    "previous_version": "2.4.6",
+    "item_count": 959,
+    "alias_count": 224
+  }
+}

@@ -2315,7 +2315,8 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.15';
+const CN_MONEY_VERSION='2.4.16';
+const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const appBackStack=[];
@@ -2461,7 +2462,7 @@ function shoppingMasterCanonicalName(value){return shoppingMasterPhraseInfo(valu
 function loadShoppingMasterData(){
   if(shoppingMasterData.ready)return Promise.resolve(shoppingMasterData);
   if(shoppingMasterPromise)return shoppingMasterPromise;
-  shoppingMasterPromise=fetch('/data/master-catalog-v246.json',{cache:'force-cache'})
+  shoppingMasterPromise=fetch('/data/master-catalog-v2416.json',{cache:'force-cache'})
     .then(r=>{if(!r.ok)throw new Error('Master catalog unavailable');return r.json()})
     .then(data=>{
       const items=Array.isArray(data?.items)?data.items:[];
@@ -2494,7 +2495,7 @@ function applyShoppingMasterCatalog(){
   const current=state.catalog||{categories:[],subcategories:[],items:[],brands:[],visibility:{}};
   const serverCategories=Array.isArray(current.categories)?current.categories:[];
   const serverSubcategories=Array.isArray(current.subcategories)?current.subcategories:[];
-  // Only the audited v2.4.6 taxonomy is exposed. Reuse server keys for names
+  // Only the approved v2.4.16 taxonomy is exposed. Reuse server keys for names
   // that already exist, but do not keep conflicting legacy category trees.
   const categories=shoppingMasterData.categories.map(row=>{
     const existing=serverCategories.find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(row.name));
@@ -2879,7 +2880,7 @@ async function loadAll({rerender=true,preserveCacheOnEmpty=false}={}){if(!state.
 const err=w.error||c.error||t.error||inv.error||ast.error||ws.error||b.error||sess.error||si.error||bs.error||sc.error||sp.error;if(err)throw err;if(generation!==loadAllGeneration)return false;
 const nw=w.data||[],nc=c.data||[],nt=t.data||[],serverInvestments=inv.data||[],ni=serverInvestments.filter(x=>!state.optimisticDeletedInvestmentIds.includes(x.id)),na=ast.data||[];state.optimisticDeletedInvestmentIds=state.optimisticDeletedInvestmentIds.filter(id=>serverInvestments.some(x=>x.id===id));/* A successful cloud response is authoritative even when the result is empty. Keeping cached rows here caused soft-deleted items to remain visible on other devices until restart. Cache fallback is handled only when the cloud request actually fails/offline. */state.wallets=nw;state.categories=nc;state.transactions=nt;state.investments=ni;state.assets=na;const wr=Array.isArray(ws.data)?ws.data[0]:ws.data;if(wr)state.wealthSummary={liquid_balance:Number(wr.liquid_balance||0),investment_cost:Number(wr.investment_cost||0),investment_value:Number(wr.investment_value||0),investment_gain_loss:Number(wr.investment_gain_loss||0),asset_value:Number(wr.asset_value||0),total_wealth:Number(wr.total_wealth||0)};
 for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=row.data;if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
-state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);if(generation!==loadAllGeneration)return false;applyPendingBucketMutations();persistCaches();if(rerender&&!state.modal)render();return true}
+state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);if(generation!==loadAllGeneration)return false;applyPendingBucketMutations();migrateLegacyShoppingTaxonomyV2416();persistCaches();if(rerender&&!state.modal)render();return true}
 let realtimeReloadTimer=null;
 function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>{clearTimeout(realtimeReloadTimer);realtimeReloadTimer=setTimeout(()=>{const keepTyping=shopFastInputActive();loadAll({rerender:!state.modal&&!keepTyping,preserveCacheOnEmpty:true}).then(()=>{if(keepTyping)refreshShopListLive()}).catch(console.error)},140)};state.channel=sb.channel('fin-safety-'+id)
 .on('postgres_changes',{event:'*',schema:'public',table:'wallets',filter:`household_id=eq.${id}`},reload)
@@ -2912,7 +2913,7 @@ function queueCheckoutCancel(sessionId){const id=String(sessionId||'');if(!id)re
 function dropCheckoutCancel(sessionId){writePendingCheckoutCancels(readPendingCheckoutCancels().filter(x=>String(x.sessionId)!==String(sessionId)))}
 const pendingBucketKey=()=>state.household?.id?'cn_pending_bucket_v247_'+state.household.id:null;
 function readPendingBucketMutations(){try{const key=pendingBucketKey();if(!key)return[];const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch{return[]}}
-function writePendingBucketMutations(rows){try{const key=pendingBucketKey();if(!key)return;const safe=(Array.isArray(rows)?rows:[]).slice(-400);if(safe.length)localStorage.setItem(key,JSON.stringify(safe));else localStorage.removeItem(key)}catch(e){console.warn('Pending sync save',e)}}
+function writePendingBucketMutations(rows){try{const key=pendingBucketKey();if(!key)return;const safe=(Array.isArray(rows)?rows:[]).slice(-1500);if(safe.length)localStorage.setItem(key,JSON.stringify(safe));else localStorage.removeItem(key)}catch(e){console.warn('Pending sync save',e)}}
 function normalizeBucketMutation(raw={}){return{mutationId:String(raw.mutationId||makeId()),bucket:String(raw.bucket||''),action:String(raw.action||''),item:raw.item??null,itemId:raw.itemId==null?null:String(raw.itemId),key:raw.key==null?null:String(raw.key),sessionId:raw.sessionId==null?null:String(raw.sessionId),queuedAt:Number(raw.queuedAt||Date.now())}}
 function queueBucketMutation(raw){const m=normalizeBucketMutation(raw),rows=readPendingBucketMutations();if(!rows.some(x=>String(x.mutationId)===m.mutationId))rows.push(m);writePendingBucketMutations(rows);return m}
 function applyBucketMutationValue(value,raw){const m=normalizeBucketMutation(raw);if(m.bucket==='database'){const next=value&&typeof value==='object'&&!Array.isArray(value)?{...value}:{};if(m.action==='set_key'&&m.key)next[m.key]=m.item;else if(m.action==='delete_key'&&m.key)delete next[m.key];return next}const arr=Array.isArray(value)?[...value]:[];if(m.action==='upsert_id'&&m.item){const id=String(m.item.id||m.itemId||'');if(!id)return arr;const idx=arr.findIndex(x=>String(x?.id||'')===id);if(idx>=0)arr[idx]=m.item;else arr.unshift(m.item);return arr}if(m.action==='delete_id'&&m.itemId)return arr.filter(x=>String(x?.id||'')!==String(m.itemId));if(m.action==='delete_session'&&m.sessionId)return arr.filter(x=>String(x?.shoppingSessionId||'')!==String(m.sessionId));return arr}
@@ -2962,15 +2963,19 @@ function shoppingBroadCategoryName(categoryName){
   const masterSub=(state.catalog?.subcategories||[]).find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(cat));
   if(masterSub)return String(masterSub.category_name||'Lainnya');
   const legacy={
-    'Makanan Pokok':'Makanan','Makanan Kaleng & Instan':'Makanan','Daging & Seafood':'Bahan Segar','Telur':'Bahan Segar','Protein':'Bahan Segar','Sayur':'Bahan Segar','Buah':'Bahan Segar','Susu & Produk Olahan':'Makanan','Bahan Baking & Dessert':'Makanan','Bumbu & Bahan Masak':'Makanan','Minuman':'Minuman','Snack & Camilan':'Makanan','Frozen Food':'Makanan','Roti & Bakery':'Makanan',
-    'Laundry':'Kebersihan Rumah','Kebutuhan Kamar Mandi':'Kebersihan Rumah','Toilet & WC':'Kebersihan Rumah','Kebersihan Rumah':'Kebersihan Rumah','Penyimpanan & Plastik':'Perlengkapan Rumah','Tisu & Produk Kertas':'Kebersihan Rumah','Perlengkapan Dapur':'Perlengkapan Rumah','Perlengkapan Rumah':'Perlengkapan Rumah',
-    'Perawatan Diri':'Perawatan Diri','Kesehatan & Obat':'Kesehatan','Bayi & Anak':'Kebutuhan Bayi','Hewan Peliharaan':'Hewan Peliharaan','Alat Tulis & Sekolah':'Perlengkapan Rumah','Elektronik & Baterai':'Perlengkapan Rumah'
+    'Kebersihan Rumah':'Kebutuhan Rumah (House Care)','Perlengkapan Rumah':'Kebutuhan Rumah (House Care)','Laundry':'Kebutuhan Rumah (House Care)','Kebutuhan Kamar Mandi':'Kebutuhan Rumah (House Care)','Toilet & WC':'Kebutuhan Rumah (House Care)','Penyimpanan & Plastik':'Kebutuhan Rumah (House Care)','Tisu & Produk Kertas':'Kebutuhan Rumah (House Care)','Perlengkapan Dapur':'Kebutuhan Rumah (House Care)',
+    'Perawatan Diri':'Perawatan Diri (Personal Care)',
+    'Bahan Segar':'Bahan Segar (Fresh Goods)','Daging & Seafood':'Bahan Segar (Fresh Goods)','Telur':'Bahan Segar (Fresh Goods)','Protein':'Bahan Segar (Fresh Goods)','Sayur':'Bahan Segar (Fresh Goods)','Buah':'Bahan Segar (Fresh Goods)',
+    'Makanan':'Sembako & Bahan Kering (Pantry / Dry Goods)','Makanan Pokok':'Sembako & Bahan Kering (Pantry / Dry Goods)','Makanan Kaleng & Instan':'Sembako & Bahan Kering (Pantry / Dry Goods)','Bahan Baking & Dessert':'Sembako & Bahan Kering (Pantry / Dry Goods)','Bumbu & Bahan Masak':'Sembako & Bahan Kering (Pantry / Dry Goods)',
+    'Minuman':'Minuman & Camilan (Beverages & Snacks)','Snack & Camilan':'Minuman & Camilan (Beverages & Snacks)','Roti & Bakery':'Minuman & Camilan (Beverages & Snacks)',
+    'Frozen Food':'Susu & Makanan Beku (Dairy & Frozen)','Susu & Produk Olahan':'Susu & Makanan Beku (Dairy & Frozen)',
+    'Kesehatan':'Kesehatan & P3K (Health Care)','Kesehatan & Obat':'Kesehatan & P3K (Health Care)',
+    'Kebutuhan Bayi':'Kebutuhan Khusus','Bayi & Anak':'Kebutuhan Khusus','Hewan Peliharaan':'Kebutuhan Khusus'
   };
   return legacy[cat]||'Lainnya';
 }
-const SHOPPING_BROAD_CATEGORY_ORDER=['Bahan Segar','Kebersihan Rumah','Kebutuhan Bayi','Kesehatan','Makanan','Minuman','Perawatan Diri','Perlengkapan Rumah','Hewan Peliharaan','Lainnya'];
+const SHOPPING_BROAD_CATEGORY_ORDER=['Kebutuhan Rumah (House Care)','Perawatan Diri (Personal Care)','Bahan Segar (Fresh Goods)','Sembako & Bahan Kering (Pantry / Dry Goods)','Susu & Makanan Beku (Dairy & Frozen)','Minuman & Camilan (Beverages & Snacks)','Kesehatan & P3K (Health Care)','Kebutuhan Khusus','Lainnya'];
 
-function shoppingCategoryOrder(){const masterNames=masterSubcategoryNames();const rows=[...state.shoppingCategories].filter(x=>masterNames.has(String(x.name||'')));return rows.sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)||a.name.localeCompare(b.name,'id',{sensitivity:'base'}))}
 const SHOPPING_PRIORITIES=['PRIMER','SEKUNDER','PELENGKAP'];
 function normalizeShoppingPriority(value){const v=String(value||'').trim().toUpperCase();return SHOPPING_PRIORITIES.includes(v)?v:''}
 let shoppingAutocorrectData={ready:false,map:{},ambiguity:{}};
@@ -2981,14 +2986,14 @@ function shoppingAutocorrectMappingAllowed(key,mapped){
   if(!key||!targetKey)return false;
   if(targetKey===key)return true;
   // Defense-in-depth for ordinary short Indonesian words that appeared as bad
-  // rows in the old generated database. The audited v2.4.6 file excludes them.
+  // rows in the old generated database. The audited v2.4.16 file excludes them.
   if(new Set(['ada','apa']).has(key))return false;
   return true;
 }
 function loadShoppingAutocorrect(){
   if(shoppingAutocorrectData.ready)return Promise.resolve(shoppingAutocorrectData);
   if(shoppingAutocorrectPromise)return shoppingAutocorrectPromise;
-  shoppingAutocorrectPromise=fetch('/data/autocorrect-v246.json',{cache:'force-cache'})
+  shoppingAutocorrectPromise=fetch('/data/autocorrect-v2416.json',{cache:'force-cache'})
     .then(r=>{if(!r.ok)throw new Error('Autocorrect data unavailable');return r.json()})
     .then(data=>{
       shoppingAutocorrectData={ready:true,map:data?.map||{},ambiguity:data?.ambiguity||{}};
@@ -3186,7 +3191,7 @@ function itemDbMatch(name){
   return null;
 }
 function householdDbInfo(name){
-  const match=itemDbMatch(name),entry=match?.entry;if(!entry||entry.dbOverride!==true)return null;
+  const match=itemDbMatch(name),entry=match?.entry;if(!entry||entry.dbOverride!==true||String(entry.taxonomyVersion||'')!==CN_SHOPPING_TAXONOMY_VERSION)return null;
   const subName=String(entry.subcategoryName||entry.category||'').trim();
   let subRow=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(entry.subcategoryKey||''));
   if(!subRow){
@@ -3225,9 +3230,9 @@ function shoppingBrandMasterFamily(name){
   const matches=hintRules.filter(([term])=>hint.includes(term));
   if(matches.length===1)return catalogItemForName(matches[0][1]);
   const topMap={
-    'perawatan diri':'Perawatan Diri','perawatan rumah':'Kebersihan Rumah','kebersihan':'Kebersihan Rumah','kebersihan & kesehatan':'Kesehatan',
-    'perawatan bayi':'Kebutuhan Bayi','kesehatan':'Kesehatan','makanan':'Makanan','produk susu':'Minuman','perawatan hewan':'Hewan Peliharaan',
-    'perlengkapan rumah tangga':'Perlengkapan Rumah','barang umum':'Perlengkapan Rumah'
+    'perawatan diri':'Perawatan Diri (Personal Care)','perawatan rumah':'Kebutuhan Rumah (House Care)','kebersihan':'Kebutuhan Rumah (House Care)','kebersihan & kesehatan':'Kesehatan & P3K (Health Care)',
+    'perawatan bayi':'Kebutuhan Khusus','kesehatan':'Kesehatan & P3K (Health Care)','produk susu':'Susu & Makanan Beku (Dairy & Frozen)','perawatan hewan':'Kebutuhan Khusus',
+    'perlengkapan rumah tangga':'Kebutuhan Rumah (House Care)','barang umum':'Lainnya'
   };
   const categoryName=topMap[categoryHint];if(!categoryName)return null;
   const category=masterCategoryEntryByName(categoryName),sub=masterSubcategoryEntry(categoryName,'Lainnya');
@@ -3241,6 +3246,31 @@ function masterShoppingInfo(name){
   const item=catalogItemForName(lookupName)||shoppingBrandMasterFamily(lookupName);
   if(!item)return shoppingUnknownMasterInfo(name);
   return{item,familyKey:match?.key||shoppingMasterKey(lookupName),currentName:String(lookupName||item.canonical_name),categoryKey:item.category_key||'',categoryName:item.category_name||'Lainnya',subcategoryKey:item.subcategory_key||'',subcategoryName:item.subcategory_name||'Lainnya',uom:normalizeUom(match?.entry?.uom||item.default_uom||'PCS'),priority:normalizeShoppingPriority(match?.entry?.priority||item.default_priority)||'SEKUNDER',entry:match?.entry||null};
+}
+function migrateLegacyShoppingTaxonomyV2416(){
+  if(!shoppingMasterData.ready)return false;
+  const now=new Date().toISOString(),mutations=[];
+  let changed=false;
+  const nextDb={...state.itemDb};
+  for(const [key,raw] of Object.entries(state.itemDb||{})){
+    const entry=raw&&typeof raw==='object'?raw:{};
+    if(String(entry.taxonomyVersion||'')===CN_SHOPPING_TAXONOMY_VERSION)continue;
+    const lookup=shoppingMasterCanonicalName(entry.name||key),catalogItem=catalogItemForName(lookup);
+    const target=catalogItem?{
+      categoryKey:String(catalogItem.category_key||''),categoryName:String(catalogItem.category_name||'Lainnya'),subcategoryKey:String(catalogItem.subcategory_key||''),subcategoryName:String(catalogItem.subcategory_name||'Lainnya')
+    }:shoppingUnknownMasterInfo(entry.name||key);
+    const migrated={...entry,category:target.subcategoryName,categoryKey:target.categoryKey,categoryName:target.categoryName,subcategoryKey:target.subcategoryKey,subcategoryName:target.subcategoryName,dbOverride:false,taxonomyVersion:CN_SHOPPING_TAXONOMY_VERSION,taxonomyMigratedAt:now};
+    nextDb[key]=migrated;mutations.push({bucket:'database',action:'set_key',key,item:migrated});changed=true;
+  }
+  state.itemDb=nextDb;
+  state.checklist=state.checklist.map(row=>{
+    if(String(row?.taxonomyVersion||'')===CN_SHOPPING_TAXONOMY_VERSION)return row;
+    const info=masterShoppingInfo(row?.name||'');
+    const migrated={...row,category:info?.subcategoryName||'Lainnya',categoryName:info?.categoryName||'Lainnya',subcategoryName:info?.subcategoryName||'Lainnya',taxonomyVersion:CN_SHOPPING_TAXONOMY_VERSION};
+    mutations.push({bucket:'checklist',action:'upsert_id',item:migrated,itemId:String(row?.id||'')});changed=true;return migrated;
+  });
+  if(changed){persistCaches();const pending=readPendingBucketMutations();for(const row of mutations)pending.push(normalizeBucketMutation(row));writePendingBucketMutations(pending);flushPendingBucketMutations().catch(err=>console.warn('Taxonomy migration sync',err));}
+  return changed;
 }
 function masterSubcategoryNames(){return new Set((state.catalog?.subcategories||[]).filter(catalogSubcategoryVisible).map(x=>String(x.name||'')))}
 function masterCategoryForItemName(name,fallback='Lainnya'){return masterShoppingInfo(name)?.categoryName||fallback}
@@ -4251,7 +4281,7 @@ async function handleShopCategorySubmit(e){
   // Existing Supabase profile rows are still updated when the selected
   // subcategory has a legacy shopping_category id. Synthetic "Lainnya"
   // rows are persisted through the synced household database override,
-  // so no Supabase schema migration is required for v2.4.6.
+  // so no Supabase schema migration is required for v2.4.16.
   if(subCategoryRow){
     const profileRes=await sb.rpc('shopping_set_item_profile',{p_household_id:state.household.id,p_item_name:newName,p_category_id:subCategoryRow.id,p_preferred_uom:uom});
     if(profileRes.error){state.loading=false;return toast(profileRes.error.message||'GAGAL MENYIMPAN PROFIL BARANG.')}
@@ -4298,6 +4328,7 @@ async function handleShopCategorySubmit(e){
     priority,
     uom,
     dbOverride:true,
+    taxonomyVersion:CN_SHOPPING_TAXONOMY_VERSION,
     updatedAt:new Date().toISOString()
   };
   state.itemDb=next;
@@ -4361,7 +4392,7 @@ window.addEventListener('online',()=>{if(!startupSyncing)recoverOnline()});windo
 history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(performAppBack()){history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&consumeInAppBack())e.preventDefault()});
 async function seedMissingCategories(){if(!state.household?.id||!navigator.onLine)return;const jobs=[];if(!state.categories.length)jobs.push(sb.rpc('finance_seed_categories',{p_household_id:state.household.id}));if(!state.shoppingCategories.length)jobs.push(sb.rpc('shopping_seed_categories',{p_household_id:state.household.id}));if(!jobs.length)return;const results=await Promise.all(jobs);const err=results.find(x=>x?.error)?.error;if(err)throw err;await loadAll({rerender:false,preserveCacheOnEmpty:true})}
-async function boot(){loadShoppingAutocorrect().catch(()=>{});loadShoppingMasterData().then(()=>{applyShoppingMasterCatalog();if(state.ready)render()}).catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await flushPendingBucketMutations();await flushPendingFinanceOps();await loadAll({rerender:false,preserveCacheOnEmpty:true});await resumePendingCheckoutCancels({silent:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();applyPendingBucketMutations();persistCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
+async function boot(){loadShoppingAutocorrect().catch(()=>{});loadShoppingMasterData().then(()=>{applyShoppingMasterCatalog();if(state.household?.id){migrateLegacyShoppingTaxonomyV2416();persistCaches()}if(state.ready)render()}).catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await flushPendingBucketMutations();await flushPendingFinanceOps();await loadAll({rerender:false,preserveCacheOnEmpty:true});await resumePendingCheckoutCancels({silent:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();applyPendingBucketMutations();persistCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).then(r=>r.update()).catch(console.warn))}boot();
 })();
 </script>

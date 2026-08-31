@@ -1,30 +1,31 @@
-CN MONEY v2.4.15 — DATABASE VISIBILITY CHECK
+CN MONEY v2.4.16 — TAXONOMY RESET CHECK
 
-PRE-DEPLOY
+SEBELUM DEPLOY
 1. Backup .cnmoney.
-2. Jalankan SUPABASE-v2.4.15-CATALOG-VISIBILITY-BATCH.sql di Supabase SQL Editor.
-3. Pastikan SQL selesai tanpa error, baru deploy/install v2.4.15.
+2. Pastikan SQL v2.4.7, v2.4.8, dan v2.4.15 sudah pernah sukses dijalankan.
+3. v2.4.16 tidak membutuhkan SQL baru.
 
-SCROLL / DRAFT
-4. DATABASE > KATEGORI: scroll jauh ke bawah, select/unselect beberapa row -> posisi daftar harus tetap di tempat yang sama.
-5. Ulangi di SUB KATEGORI, MEREK, dan BARANG.
-6. SELECT ALL / toggle lagi -> tidak boleh lompat ke atas.
-7. Ubah beberapa pilihan lalu tutup dengan X/Back tanpa SIMPAN -> perubahan draft harus dibuang.
-
-ATOMIC SAVE
-8. Ubah banyak kategori/subkategori/merek/barang sekaligus -> SIMPAN -> harus muncul "PILIHAN DATABASE DISIMPAN" tanpa error.
-9. Tutup DATABASE lalu buka lagi -> pilihan harus persis sama.
-10. Tidak boleh ada kondisi sebagian pilihan tersimpan ketika save gagal.
-
-BELANJA VISIBILITY
-11. Nonaktifkan satu KATEGORI -> SIMPAN -> kategori itu tidak boleh muncul di picker/group KATEGORI BELANJA.
-12. Nonaktifkan satu SUB KATEGORI -> SIMPAN -> subkategori itu tidak boleh muncul di picker/group SUB KATEGORI.
-13. Nonaktifkan satu BARANG master -> SIMPAN -> input barang tersebut tidak boleh diperlakukan sebagai master/autocorrect aktif.
-14. Nonaktifkan satu MEREK -> SIMPAN -> brand tersebut tidak boleh dipakai untuk brand matching.
-15. Aktifkan kembali -> SIMPAN -> semuanya harus muncul/berfungsi lagi.
-
-REGRESSION
-16. LIST/DATA/RECEIPT lama tidak boleh terhapus.
-17. Dashboard +, Saku +, Investasi +, Aset + tetap berfungsi.
-18. Back Android tetap mundur satu tampilan.
-19. Offline boot dan sync dua HP tetap berfungsi.
+SETELAH DEPLOY
+1. Buka online sekali sampai DATABASE master selesai dimuat.
+2. Pengaturan > DATABASE > KATEGORI: harus ada 9 kategori baru saja.
+3. Cek setiap kategori: Lainnya harus selalu posisi paling bawah.
+4. Cek SUB KATEGORI: harus ada total 35 node dan tidak ada taxonomy lama.
+5. Input contoh:
+   - odol => Pasta Gigi => Perawatan Diri (Personal Care) > Gigi & Mulut
+   - sampo => Shampoo => Perawatan Diri (Personal Care) > Rambut & Kepala
+   - bawang putih => Bahan Segar (Fresh Goods) > Bumbu
+   - mi instan => Sembako & Bahan Kering (Pantry / Dry Goods) > Beras & Karbohidrat
+   - minyak goreng => Sembako & Bahan Kering (Pantry / Dry Goods) > Minyak & Lemak
+   - sarden => Sembako & Bahan Kering (Pantry / Dry Goods) > Awetan & Kaleng
+   - susu skm => Susu Kental Manis => Susu & Makanan Beku (Dairy & Frozen) > Susu & Olahannya
+   - nugget => Susu & Makanan Beku (Dairy & Frozen) > Frozen Food
+   - air mineral => Minuman & Camilan (Beverages & Snacks) > Minuman Cair
+   - biskuit => Minuman & Camilan (Beverages & Snacks) > Camilan
+   - parasetamol => Kesehatan & P3K (Health Care) > Obat Dalam & Vitamin
+   - minyak kayu putih => Kesehatan & P3K (Health Care) > Obat Luar & Perawatan
+   - popok bayi => Kebutuhan Khusus > Bayi & Anak
+   - makanan kucing => Kebutuhan Khusus > Hewan Peliharaan
+   - barang test xyz => Lainnya > Lainnya
+6. Cek beberapa item lama di LIST/DATA; kategori/subkategori lama harus sudah berubah ke taxonomy baru.
+7. Edit manual satu barang di DATA, simpan, reopen: manual override harus tetap.
+8. DATABASE visibility select/unselect + SELECT ALL harus tetap bekerja tanpa scroll lompat.

@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.4.15-shell';
+const CACHE='cn-money-v2.4.16-shell';
 const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const CORE=[
   '/',
@@ -9,8 +9,8 @@ const CORE=[
   '/sounds/shop-click-v04g.wav',
   '/sounds/cash-register-v04f.wav',
   '/sounds/delete-undo-v239.wav',
-  '/data/autocorrect-v246.json',
-  '/data/master-catalog-v246.json'
+  '/data/autocorrect-v2416.json',
+  '/data/master-catalog-v2416.json'
 ];
 
 self.addEventListener('install',event=>{
