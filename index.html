@@ -2309,6 +2309,175 @@
       scrollbar-width:none!important;
     }
     .db-history-section .db-purchase-history::-webkit-scrollbar{display:none!important}
+
+
+    /* CN MONEY v2.5.0 — COLORFUL PROFESSIONAL / ELEVATED INTERACTIVE CARDS
+       Visual-only batch. Existing semantic colors (income/expense/transfer, hero,
+       warnings, success/error states) are intentionally preserved. */
+    :root{
+      --cn-cyan:#0891b2;
+      --cn-violet:#7c3aed;
+      --cn-teal:#0f766e;
+      --cn-gold:#d97706;
+      --cn-rose:#be185d;
+      --cn-sky:#2563eb;
+      --cn-lift-shadow:0 12px 28px rgba(15,23,42,.105),0 3px 9px rgba(15,23,42,.045);
+      --cn-lift-shadow-strong:0 16px 34px rgba(15,23,42,.14),0 4px 12px rgba(15,23,42,.06);
+      --cn-inset-highlight:inset 0 1px 0 rgba(255,255,255,.72);
+      --bg:#edf3fa;
+      --surface2:#f6f8fc;
+    }
+    html.dark{
+      --cn-cyan:#22d3ee;
+      --cn-violet:#a78bfa;
+      --cn-teal:#2dd4bf;
+      --cn-gold:#fbbf24;
+      --cn-rose:#f472b6;
+      --cn-sky:#60a5fa;
+      --cn-lift-shadow:0 13px 30px rgba(0,0,0,.30),0 3px 10px rgba(0,0,0,.22);
+      --cn-lift-shadow-strong:0 18px 38px rgba(0,0,0,.38),0 5px 14px rgba(0,0,0,.24);
+      --cn-inset-highlight:inset 0 1px 0 rgba(255,255,255,.055);
+      --bg:#060d18;
+      --surface:#111b2b;
+      --surface2:#0b1422;
+      --line:#2a3850;
+    }
+
+    /* Give neutral surfaces a very mild tint without replacing existing colors. */
+    .app{
+      background:
+        radial-gradient(circle at 8% 0%,color-mix(in srgb,var(--cn-sky) 5%,transparent),transparent 28%),
+        radial-gradient(circle at 96% 28%,color-mix(in srgb,var(--cn-violet) 4%,transparent),transparent 31%),
+        var(--surface2);
+    }
+
+    /* Shared lift for controls/cards that open another layer. */
+    .budget-card.budget-detail-open,
+    .db-card-open,
+    .receipt-index-card,
+    .entity-card,
+    .dashboard-month-trigger,
+    .receipt-period-trigger,
+    .history-top-controls .month-trigger,
+    .history-top-controls .picker-trigger,
+    .data-filter-chip,
+    .list-filter-chip{
+      box-shadow:var(--cn-lift-shadow),var(--cn-inset-highlight)!important;
+    }
+
+    /* LIST — each tappable item reads as its own raised card. */
+    .shop-clean-list.card{
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+    .shop-clean-list .shop-item.clean-list-item{
+      margin:0 0 9px!important;
+      border:1px solid color-mix(in srgb,var(--cn-cyan) 38%,var(--line))!important;
+      border-radius:17px!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-cyan) 3.2%,var(--surface)))!important;
+      box-shadow:var(--cn-lift-shadow),var(--cn-inset-highlight)!important;
+      transition:transform .12s ease,box-shadow .16s ease,border-color .16s ease!important;
+    }
+    .shop-clean-list .shop-item.clean-list-item:last-child{margin-bottom:0!important}
+    .shop-clean-list .shop-item.clean-list-item:active{
+      transform:translateY(1px) scale(.993);
+      box-shadow:0 7px 18px rgba(15,23,42,.09),var(--cn-inset-highlight)!important;
+      border-color:color-mix(in srgb,var(--cn-cyan) 58%,var(--line))!important;
+    }
+
+    /* DATA — violet outline separates learned item data from shopping LIST. */
+    .db-card-open{
+      border-color:color-mix(in srgb,var(--cn-violet) 38%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-violet) 3.5%,var(--surface)))!important;
+    }
+    .db-card-open:active{border-color:color-mix(in srgb,var(--cn-violet) 60%,var(--line))!important}
+
+    /* Dashboard budget — warm amber, but existing progress warning/error colors stay unchanged. */
+    .budget-card.budget-detail-open{
+      border-color:color-mix(in srgb,var(--cn-gold) 40%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-gold) 3.5%,var(--surface)))!important;
+    }
+    .budget-card.budget-detail-open:active{border-color:color-mix(in srgb,var(--cn-gold) 62%,var(--line))!important}
+
+    /* Receipt cards — distinct teal outline. */
+    .receipt-index-card{
+      border-color:color-mix(in srgb,var(--cn-teal) 40%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-teal) 3.5%,var(--surface)))!important;
+      transition:transform .12s ease,box-shadow .16s ease,border-color .16s ease!important;
+    }
+    .receipt-index-card:active{
+      transform:translateY(1px) scale(.994);
+      border-color:color-mix(in srgb,var(--cn-teal) 62%,var(--line))!important;
+    }
+
+    /* Wealth cards get their own outline by tab/context. */
+    .entity-card[data-wallet-detail]{
+      border-color:color-mix(in srgb,var(--cn-sky) 40%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-sky) 3.5%,var(--surface)))!important;
+    }
+    .entity-card[data-investment-detail]{
+      border-color:color-mix(in srgb,var(--cn-violet) 42%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-violet) 3.6%,var(--surface)))!important;
+    }
+    .entity-card[data-asset-detail]{
+      border-color:color-mix(in srgb,var(--cn-gold) 42%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-gold) 3.6%,var(--surface)))!important;
+    }
+
+    /* Month / category filters are buttons, so make the affordance visible. */
+    .dashboard-month-trigger,
+    .receipt-period-trigger,
+    .history-top-controls .month-trigger{
+      border-color:color-mix(in srgb,var(--cn-sky) 38%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-sky) 4%,var(--surface)))!important;
+    }
+    .history-top-controls .picker-trigger{
+      border-color:color-mix(in srgb,var(--cn-violet) 38%,var(--line))!important;
+      background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--cn-violet) 4%,var(--surface)))!important;
+    }
+    .data-filter-chip,
+    .list-filter-chip{
+      box-shadow:0 6px 15px rgba(15,23,42,.07),var(--cn-inset-highlight)!important;
+    }
+
+    /* Primary + buttons keep their approved color; only depth/outline is strengthened. */
+    .fab,
+    .add-only{
+      border:1px solid rgba(255,255,255,.24)!important;
+      box-shadow:0 18px 38px rgba(79,70,229,.34),0 5px 14px rgba(15,23,42,.16),inset 0 1px 0 rgba(255,255,255,.24)!important;
+      transition:transform .12s ease,box-shadow .16s ease!important;
+    }
+    .fab:active,
+    .add-only:active{
+      transform:translateY(2px) scale(.97)!important;
+      box-shadow:0 10px 22px rgba(79,70,229,.28),0 3px 8px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.18)!important;
+    }
+
+    /* Neutral cards that are not semantic get a little depth, not extra saturation. */
+    .wealth-safe-total,
+    .wealth-mini,
+    .cashflow-chart,
+    .shopping-add{
+      box-shadow:0 9px 23px rgba(15,23,42,.065),var(--cn-inset-highlight)!important;
+    }
+
+    html.dark .shop-clean-list .shop-item.clean-list-item:active,
+    html.dark .receipt-index-card:active{
+      box-shadow:0 8px 19px rgba(0,0,0,.28),var(--cn-inset-highlight)!important;
+    }
+    html.dark .data-filter-chip,
+    html.dark .list-filter-chip{
+      box-shadow:0 7px 16px rgba(0,0,0,.22),var(--cn-inset-highlight)!important;
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      .shop-clean-list .shop-item.clean-list-item,
+      .receipt-index-card,
+      .fab,.add-only{transition:none!important}
+    }
+
 </style>
 </head>
 <body>
@@ -2347,7 +2516,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.19';
+const CN_MONEY_VERSION='2.5.0';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
