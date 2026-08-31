@@ -1,0 +1,20 @@
+CN MONEY v2.9.0 — FINAL HARDENING / RC2
+
+REAL-DEVICE BURN-IN SEBELUM v3.0.0
+
+[ ] Buka online, force-close, buka ulang.
+[ ] Buka offline/airplane mode.
+[ ] Tambah + hapus + undo LIST.
+[ ] Checkout lalu cancel checkout.
+[ ] Tambah pemasukan, pengeluaran, transfer; cek saldo.
+[ ] Undo satu transaksi; cek saldo lagi setelah reopen.
+[ ] Tambah/edit/hapus Saku, Investasi, Aset.
+[ ] DATA search + edit kategori manual.
+[ ] DATABASE kategori/subkategori select/unselect + Simpan.
+[ ] Receipt custom: tanggal, toko, barang, kombinasi; export PDF.
+[ ] Back Android dari modal bertingkat.
+[ ] Sync dua HP: add/add dan delete/add hampir bersamaan.
+[ ] Backup .cnmoney dan Restore.
+
+Kalau semua lolos tanpa blocker, v2.9.0 menjadi basis v3.0.0 Stable.
+Tidak ada SQL baru untuk v2.9.0.

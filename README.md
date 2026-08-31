@@ -1,3 +1,7 @@
+# CN MONEY v2.9.0 — FINAL HARDENING / RC2
+
+Release ini adalah final hardening sebelum v3.0.0. Tidak ada fitur baru dan tidak ada perubahan logic aplikasi dibanding v2.8.0 RC1. Perubahan hanya version/cache bump, pembersihan dua file master legacy v2.4.6 yang sudah tidak direferensikan runtime, dan dokumentasi freeze.
+
 # CN MONEY v2.8.0 — RELEASE CANDIDATE 1
 
 Release ini adalah freeze candidate setelah rangkaian taxonomy, sync/offline, finance idempotency, Receipt custom, visual polish, dan performance v2.7.x.
