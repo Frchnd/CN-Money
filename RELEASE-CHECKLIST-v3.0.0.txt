@@ -1,0 +1,12 @@
+CN MONEY v3.0.0 — STABLE
+
+FINAL RELEASE CHECKLIST
+- Version app: 3.0.0
+- Service worker cache: cn-money-v3.0.0-shell
+- Business logic: identical to v2.9.0 RC2 after version normalization
+- UI/CSS: identical to v2.9.0 RC2
+- Taxonomy: 9 categories / 35 subcategories
+- Master catalog: 959 canonical items
+- Autocorrect: 49,239 valid mappings
+- SQL migration baru: NONE
+- ZIP integrity: PASS
