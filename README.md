@@ -1,47 +1,52 @@
-CN MONEY v2.4.7 — STABILITY SYNC / CRASH-REOPEN PHASE 1
+CN MONEY v2.4.8 — FINANCE IDEMPOTENCY / CRASH-REOPEN PHASE 2
 
 Fokus release
 - Freeze fitur. Tidak menambah fitur produk baru.
-- Menutup lost-update pada LIST/DATA saat dua perangkat menulis hampir bersamaan.
-- Menambah pending-sync queue durable agar perubahan lokal tidak hilang setelah app ditutup/reopen saat koneksi gagal.
-- Mengurangi realtime reload storm dan mencegah response load lama menimpa response yang lebih baru.
+- Menutup risiko transaksi finansial dobel saat request sudah commit di Supabase tetapi app kehilangan respons karena koneksi putus / force-close / reopen.
+- Membuat create Dompet, Investasi, dan Aset retry-safe.
+- Membuat Pemasukan, Pengeluaran, Transfer, Pendapatan Investasi, dan koreksi saldo Dompet memakai durable pending operation di perangkat.
 
-WAJIB sebelum deploy v2.4.7
+WAJIB sebelum deploy v2.4.8
 1. Backup .cnmoney dari Settings.
-2. Jalankan SUPABASE-v2.4.7-STABILITY-SYNC.sql di Supabase SQL Editor.
-3. Pastikan query selesai tanpa error.
-4. Baru deploy/install frontend v2.4.7.
+2. Pastikan migration v2.4.7 sudah pernah dijalankan.
+3. Jalankan SUPABASE-v2.4.8-FINANCE-IDEMPOTENCY.sql di Supabase SQL Editor.
+4. Pastikan query selesai tanpa error.
+5. Baru deploy/install frontend v2.4.8.
 
-SQL migration
-- Tidak menambah/menghapus kolom atau tabel.
-- Tidak memigrasikan saldo, transaksi, receipt, investasi, aset, master barang, atau history.
-- Hanya menambah RPC public.cn_household_bucket_mutate_v1.
-- RPC memakai SECURITY INVOKER sehingga RLS/permission existing tetap berlaku.
-- RPC memodifikasi checklist/database/history secara atomik per item/key, bukan replace seluruh JSON bucket dari satu HP.
+SQL migration v2.4.8
+- Tidak mengubah kolom/tabel finance existing.
+- Tidak memigrasikan saldo, transaksi, receipt, investasi, aset, budget, atau master barang.
+- Menambah schema internal cn_internal jika belum ada.
+- Menambah cn_internal.finance_operation_guard_v1 yang hanya menyimpan Household ID, random operation ID, jenis operasi, user ID, dan timestamp.
+- Menambah RPC public.cn_finance_create_once_v1 untuk create wallet/investment/asset sekali saja per operation ID.
+- RPC memakai SECURITY INVOKER. Existing finance RPC + RLS/authorization tetap menjadi sumber kebenaran.
+- Guard row dan create finance berada di transaksi database yang sama: kalau create gagal, guard ikut rollback.
 
-Perubahan sinkronisasi
-- Tambah LIST: upsert item atomik berdasarkan id.
-- Hapus LIST: delete atomik berdasarkan id.
-- Checkout: checklist, database item, dan legacy history disinkronkan sebagai operasi granular setelah finance checkout sukses.
-- Cancel checkout: restore checklist + hapus history session + rebuild database dikirim sebagai operasi granular.
-- Edit DATA: hanya key/item terkait yang diubah di shared bucket.
-- Delete DATA: hanya key terkait yang dihapus.
-- Whole-bucket writer lama di frontend tidak lagi digunakan.
+Durable finance queue frontend
+- Pending operation disimpan di localStorage per Household sebelum RPC dikirim.
+- Kalau error terdeteksi sebagai network/timeout/server sementara, operation tetap disimpan.
+- Saat online/reopen/pageshow, pending finance operation dicoba ulang sebelum load data final.
+- Kalau backend sudah commit sebelumnya, operation ID yang sama membuat retry menjadi no-op/dedupe, bukan create kedua.
+- Error bisnis definitif (mis. input/backend menolak) tidak diretry tanpa batas.
 
-Crash/reopen safety
-- Mutasi bucket yang gagal dikirim disimpan di localStorage per Household.
-- Pending mutation dicoba ulang saat online/reopen.
-- Saat cloud reload terjadi tetapi masih ada pending mutation, pending local state diaplikasikan kembali ke tampilan agar tidak menghilang.
-- Pending queue dihapus ketika user menghapus Household dari perangkat, sehingga tidak ikut terbawa saat keluar/rejoin.
+Dilindungi v2.4.8
+- Pemasukan: finance_add_income_v2 + durable client transaction ID.
+- Pengeluaran: finance_add_expense_v2 + durable client transaction ID.
+- Transfer: finance_transfer_v2 + durable client transaction ID.
+- Pendapatan investasi: finance_add_investment_income + durable client transaction ID.
+- Koreksi saldo Dompet: finance_update_wallet_v2 + durable client transaction ID.
+- Create Dompet: cn_finance_create_once_v1.
+- Create Investasi: cn_finance_create_once_v1; termasuk pembelian dari Dompet supaya debit tidak terulang saat retry.
+- Create Aset: cn_finance_create_once_v1.
 
-Realtime safety
-- Event realtime yang datang bertubi-tubi didebounce 140 ms.
-- loadAll memakai generation guard: response request lama tidak boleh menimpa response request yang lebih baru.
-
-Tidak berubah
+Sudah aman dari phase sebelumnya
+- Checkout sudah memiliki clientCheckoutId yang disimpan di checklist sebelum finance_complete_checkout_v2 dipanggil.
+- LIST/DATA bucket pending queue + atomic mutation v2.4.7 tetap dipakai.
 - Taxonomy/autocorrect/search DATA v2.4.6 tetap dipakai.
-- File master tetap master-catalog-v246.json dan autocorrect-v246.json karena kontennya tidak berubah pada release ini.
-- Finance RPC existing, saldo, budget, transaksi, investasi, aset, receipt, backup/restore tidak dimigrasikan pada phase ini.
 
-Catatan audit lanjutan
-- Phase berikutnya tetap perlu audit idempotency untuk create wallet/investment/asset dan request finance lain yang belum memiliki durable request token di frontend. v2.4.7 fokus menutup risiko terbesar shared LIST/DATA + reopen pending sync terlebih dahulu.
+Belum diklaim selesai
+- Phase berikutnya tetap audit edit/delete/undo/cancel secara menyeluruh dan Back Navigation. v2.4.8 fokus pada create/add money flows dan crash-reopen idempotency.
+
+Backup/Restore interlock
+- Backup dan Restore mencoba flush durable finance queue terlebih dahulu.
+- Jika masih ada operasi uang yang belum bisa sync, Backup/Restore ditahan agar snapshot/restore tidak bertabrakan dengan operasi pending.

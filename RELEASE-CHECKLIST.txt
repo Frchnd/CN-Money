@@ -1,69 +1,38 @@
-CN MONEY v2.4.7 — STABILITY SYNC REGRESSION CHECKLIST
+CN MONEY v2.4.8 — RELEASE CHECKLIST
 
 PRE-DEPLOY
-[ ] 1. Backup .cnmoney berhasil di-download.
-[ ] 2. SUPABASE-v2.4.7-STABILITY-SYNC.sql dijalankan tanpa error.
-[ ] 3. Setelah SQL, v2.4.6 yang lama masih bisa dipakai normal sebelum frontend di-update.
-[ ] 4. Deploy/install v2.4.7.
-[ ] 5. Buka app dan pastikan Household/data lama tampil.
+[ ] Backup .cnmoney
+[ ] SUPABASE-v2.4.7-STABILITY-SYNC.sql sudah pernah sukses
+[ ] Jalankan SUPABASE-v2.4.8-FINANCE-IDEMPOTENCY.sql
+[ ] SQL selesai tanpa error
+[ ] Baru deploy/install v2.4.8
 
-CRASH / REOPEN — BASIC
-[ ] 6. Tambah item LIST saat online -> muncul normal.
-[ ] 7. Force close app -> buka lagi -> item tetap ada.
-[ ] 8. Checkout satu item -> force close -> buka lagi -> item tetap purchased dan receipt/saldo benar.
-[ ] 9. Cancel checkout -> force close -> buka lagi -> item kembali ke LIST dan receipt/transaksi shopping sudah batal.
+NORMAL FINANCE
+[ ] Tambah pemasukan sekali -> 1 transaksi, saldo naik sekali
+[ ] Tambah pengeluaran sekali -> 1 transaksi, saldo turun sekali
+[ ] Transfer A -> B -> saldo kedua dompet berubah sekali
+[ ] Tambah pendapatan investasi -> saldo + history bertambah sekali
+[ ] Koreksi saldo dompet -> hanya 1 adjustment di History
 
-OFFLINE / PENDING QUEUE
-[ ] 10. Matikan internet.
-[ ] 11. Tambah item LIST -> item tetap terlihat lokal.
-[ ] 12. Force close saat masih offline.
-[ ] 13. Buka lagi masih offline -> item masih terlihat.
-[ ] 14. Nyalakan internet -> tunggu app aktif -> item tersinkron ke cloud.
-[ ] 15. Buka HP kedua -> item yang tadi dibuat offline muncul.
-[ ] 16. Ulangi skenario offline untuk HAPUS item LIST; setelah online item tidak hidup kembali.
+CREATE ENTITY
+[ ] Buat dompet dengan saldo awal -> hanya 1 dompet / 1 saldo awal
+[ ] Buat investasi dari dompet -> hanya 1 investasi dan saldo terpotong sekali
+[ ] Buat investasi tanpa sumber dompet -> hanya 1 investasi
+[ ] Buat aset -> hanya 1 aset
 
-DUA HP — CONCURRENT ADD
-[ ] 17. HP A dan HP B berada di Household yang sama dan LIST yang sama.
-[ ] 18. Hampir bersamaan: HP A tambah "TEST A", HP B tambah "TEST B".
-[ ] 19. Setelah sync, kedua HP harus menampilkan TEST A + TEST B.
-[ ] 20. Force close keduanya dan buka lagi -> TEST A + TEST B tetap ada.
+CRASH / RESPONSE-LOSS TEST (paling penting)
+[ ] Saat submit pemasukan, segera force-close; reopen online -> maksimal 1 transaksi
+[ ] Saat submit pengeluaran, segera force-close; reopen online -> maksimal 1 transaksi
+[ ] Saat transfer, segera force-close; reopen online -> transfer maksimal sekali
+[ ] Saat buat dompet, segera force-close; reopen online -> maksimal 1 dompet
+[ ] Saat beli investasi dari dompet, segera force-close; reopen online -> maksimal 1 investasi dan debit sekali
+[ ] Saat buat aset, segera force-close; reopen online -> maksimal 1 aset
 
-DUA HP — ADD + DELETE
-[ ] 21. Siapkan item TEST C di kedua HP.
-[ ] 22. Hampir bersamaan: HP A hapus TEST C, HP B tambah TEST D.
-[ ] 23. Hasil akhir kedua HP: TEST C hilang, TEST D ada.
-[ ] 24. Tidak boleh perubahan HP B menghidupkan TEST C lagi.
+NETWORK TEST
+[ ] Submit lalu matikan internet secepat mungkin; hidupkan lagi -> operation akhirnya muncul maksimal sekali
+[ ] Reopen beberapa kali saat operation pending -> tidak membuat duplikat
 
-DUA HP — DATA EDIT
-[ ] 25. Edit kategori/item X di HP A.
-[ ] 26. Hampir bersamaan edit item Y yang berbeda di HP B.
-[ ] 27. Setelah sync kedua edit harus bertahan; edit X tidak boleh menimpa Y atau sebaliknya.
-[ ] 28. Hapus DATA item X di satu HP -> item hilang di HP kedua setelah realtime/reopen.
-
-REALTIME / UI
-[ ] 29. Saat HP A menambah beberapa item cepat, HP B tidak flicker/render berat berulang-ulang.
-[ ] 30. Saat mengetik cepat di input LIST, update realtime HP lain tidak mencabut fokus keyboard.
-[ ] 31. Search DATA tetap bekerja setelah update realtime.
-[ ] 32. Navigasi Back dan modal tetap normal setelah realtime update.
-
-REGRESSION v2.4.6
-[ ] 33. odol -> Pasta Gigi.
-[ ] 34. sampo -> Shampoo.
-[ ] 35. SKM -> Susu Kental Manis.
-[ ] 36. unknown item -> Lainnya / Lainnya.
-[ ] 37. Search DATA mencari sampai isi card.
-[ ] 38. Manual category override tetap bertahan.
-
-FINANCE SMOKE TEST
-[ ] 39. Tambah pemasukan.
-[ ] 40. Tambah pengeluaran.
-[ ] 41. Transfer antar dompet.
-[ ] 42. Undo transaksi.
-[ ] 43. Budget tampil benar.
-[ ] 44. Backup .cnmoney tetap berhasil.
-
-EXPECTED TECHNICAL
-[ ] 45. App version = 2.4.7.
-[ ] 46. Service worker cache = cn-money-v2.4.7-shell.
-[ ] 47. Tidak ada whole-bucket household_data UPDATE dari frontend untuk checklist/database/history.
-[ ] 48. RPC cn_household_bucket_mutate_v1 tersedia.
+REGRESSION
+[ ] Checkout masih bekerja
+[ ] LIST/DATA sync dua HP v2.4.7 masih bekerja
+[ ] Backup .cnmoney masih berhasil
