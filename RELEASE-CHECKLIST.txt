@@ -1,32 +1,77 @@
-CN MONEY v2.4.3 — RELEASE / REGRESSION CHECKLIST
+CN MONEY v2.4.6 — RELEASE / REGRESSION CHECKLIST
 
 CORE
 1. Startup online.
 2. Tutup/buka app.
 3. Offline membuka cache terakhir.
 4. Online kembali dan sync pulih.
-5. Input cepat List Belanjaan: Enter menambah item tanpa menutup keyboard.
+5. Input cepat List: Enter menambah item tanpa menutup keyboard.
 6. Search Panduan Kategori: keyboard tidak buka/tutup tiap karakter.
-7. Delete + Undo: SFX berjalan pada semua flow yang sudah didukung.
+7. Delete + Undo: SFX tetap berjalan.
 
-AUTOCORRECT
-8. shampoo -> Shampoo.
-9. shampo -> Shampoo.
-10. sampo -> Shampoo.
-11. sampoo -> Shampoo.
-12. smpo -> Shampoo.
-13. conditioner tetap Conditioner (tidak dipaksa jadi Kondisioner).
-14. apa tidak berubah jadi Api.
-15. ada tidak berubah jadi Dada.
-16. ayam tidak berubah jadi Bayam.
-17. sapi tidak berubah jadi Sapu.
-18. sapo memunculkan pilihan Shampoo / Sapu.
-19. Brand valid tidak dikoreksi sebagai typo.
-20. Household rename/alias tetap menang atas autocorrect.
+CANONICAL / AUTOCORRECT
+8. odol / odlo -> Pasta Gigi.
+9. sampo / shampo / sampoo / smpo -> Shampoo.
+10. conditioner / kondisioner -> Conditioner.
+11. tissue / tisue -> Tisu.
+12. butter -> Mentega.
+13. corned / corned beef -> Kornet Sapi.
+14. cabe -> Cabai; cabe merah -> Cabai Merah; cabe rawit -> Cabai Rawit.
+15. lada -> Merica; lada bubuk -> Merica Bubuk.
+16. sikat wc / sikat kloset -> Sikat Toilet.
+17. snack / cemilan -> Camilan.
+18. skm / susu skm / susu kental manis / krimer kental manis -> Susu Kental Manis.
+19. sapo memunculkan pilihan Shampoo / Sapu.
+20. apa / ada / ayam tidak dipaksa menjadi item typo lain.
+21. sapi -> Daging Sapi melalui master alias, bukan typo ke Sapu.
+
+TAXONOMY MASTER
+22. Semua kategori utama memiliki subkategori Lainnya.
+23. Unknown -> Lainnya / Lainnya.
+24. Ikan -> Bahan Segar / Ikan & Hasil Laut.
+25. Bawang, cabai, jahe, kunyit, lengkuas, serai -> Bahan Segar / Bumbu Segar.
+26. Sayur daun/umbi/sayuran umum tetap Bahan Segar / Sayur.
+27. Pembersih Toilet / Sikat Toilet / Tisu Toilet -> Kebersihan Rumah / Kamar Mandi.
+28. Tisu umum / Tisu Basah / Tisu Wajah -> Kebersihan Rumah / Tisu.
+29. Mi Instan / Bihun / Soun / Makaroni / Spaghetti -> Makanan / Mi & Pasta.
+30. Roti / Donat / Croissant / Cake / Bolu -> Makanan / Roti & Bakery.
+31. Oatmeal / Granola / Sereal Jagung -> Makanan / Sereal & Oat.
+32. Jus / soda / energi / isotonik / Yogurt Drink -> Minuman / Minuman Siap Minum.
+33. Minuman bubuk / sirup -> Minuman / Minuman Serbuk & Sirup.
+34. Susu Kental Manis -> Minuman / Susu.
+35. Krimer Bubuk -> Minuman / Krimer.
+36. Deodoran -> Perawatan Diri / Deodoran.
+37. Pisau Cukur / Krim Cukur -> Perawatan Diri / Cukur.
+38. Kebutuhan Wanita tetap memakai nama Kebutuhan Wanita.
+39. Korek Api / Korek Gas -> Perlengkapan Rumah / Peralatan Dapur.
+40. Payung / Sandal -> Perlengkapan Rumah / Lainnya.
+41. Makanan/camilan kucing-anjing -> Hewan Peliharaan / Makanan.
+42. Pasir Kucing / Shampoo Hewan -> Hewan Peliharaan / Perawatan & Kebersihan.
+
+DATA SEARCH
+43. Search tersedia di tab DATA.
+44. Search nama induk menampilkan card yang cocok.
+45. Search nama varian/produk dibeli menampilkan semua card yang mengandung varian tersebut.
+46. Search kategori/subkategori/prioritas/satuan dapat menemukan card.
+47. Search toko/dompet/tanggal/qty/harga/subtotal dari riwayat dapat menemukan card terkait.
+48. Search memfilter in-place; keyboard/fokus tidak hilang setiap karakter.
+49. Search kosong mengembalikan semua card sesuai mode filter aktif.
+
+MANUAL OVERRIDE / FALLBACK
+50. Item unknown pertama kali -> Lainnya / Lainnya.
+51. Setelah user Edit di DATA, manual category/subcategory override menang.
+52. Sync 2 HP mempertahankan manual override Household.
+
+REGRESSION DATA
+53. Wallet/saldo tidak dimigrasi.
+54. Transaksi/history lama tidak dimutasi otomatis.
+55. Receipt lama tidak berubah.
+56. Investasi/aset tidak berubah.
+57. Cancel/undo/back navigation tetap berjalan seperti build stabil sebelumnya.
 
 VERSION / CACHE
-21. Versi aplikasi = 2.4.3.
-22. Service worker cache = cn-money-v2.4.3-shell.
-23. Dataset runtime = /data/autocorrect-v243.json.
-
-Tidak ada SQL v2.4.3.
+58. Versi aplikasi = 2.4.6.
+59. Service worker cache = cn-money-v2.4.6-shell.
+60. Dataset typo = /data/autocorrect-v246.json.
+61. Master = /data/master-catalog-v246.json.
+62. Tidak ada SQL / schema migration Supabase v2.4.6.

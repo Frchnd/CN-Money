@@ -2256,8 +2256,8 @@ const PUSH_VAPID_PUBLIC_KEY='BIHm6zOF0oG-8_jbJNZMWO-SMuYO7EMT5DVgPV8g7C2Qez-SDkr
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.4.3';
-const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
+const CN_MONEY_VERSION='2.4.6';
+const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const refs={tab:'dashboard',modal:null,lastBack:0};let toastTimer=null;const scrollPositions={};let lastRenderScrollKey=null;
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const rupiah=n=>'Rp '+Math.round(Number(n||0)).toLocaleString('id-ID');
@@ -2357,10 +2357,116 @@ function hydrateCatalogCache(){
 function persistCatalogCache(){
   try{localStorage.setItem(catalogCacheKey(),JSON.stringify(state.catalog||{}))}catch(err){console.warn('Catalog cache save',err)}
 }
+
+let shoppingMasterData={ready:false,categories:[],subcategories:[],items:[],aliases:{},unknown:{category_name:'Lainnya',subcategory_name:'Lainnya',default_uom:'PCS',default_priority:'SEKUNDER'},itemByKey:{}};
+let shoppingMasterPromise=null;
+function shoppingMasterKey(value){return String(value||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('id-ID')}
+function shoppingLocalSlug(value){return shoppingMasterKey(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'lainnya'}
+function shoppingLocalKey(kind,...parts){return`local:${kind}:${parts.map(shoppingLocalSlug).join(':')}`}
+function shoppingMasterPhraseInfo(value){
+  const clean=normalizeItemName(value),key=shoppingMasterKey(clean);if(!key)return{name:'',family:'',matched:''};
+  const exactAlias=shoppingMasterData.aliases?.[key];
+  if(exactAlias)return{name:normalizeItemName(exactAlias),family:normalizeItemName(exactAlias),matched:key,aliasApplied:true};
+  const exactItem=shoppingMasterData.itemByKey?.[key];
+  if(exactItem)return{name:String(exactItem.canonical_name),family:String(exactItem.canonical_name),matched:key,aliasApplied:false};
+  const candidates=[];
+  for(const [alias,target] of Object.entries(shoppingMasterData.aliases||{}))candidates.push({term:shoppingMasterKey(alias),target:String(target),alias:true});
+  for(const row of shoppingMasterData.items||[])candidates.push({term:shoppingMasterKey(row.canonical_name),target:String(row.canonical_name),alias:false});
+  candidates.sort((a,b)=>b.term.length-a.term.length);
+  for(const candidate of candidates){
+    if(!candidate.term||candidate.term.length<3)continue;
+    const escaped=candidate.term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
+    if(!rx.test(key))continue;
+    const display=candidate.alias?normalizeItemName(clean.replace(rx,(m,prefix)=>prefix+candidate.target)):clean;
+    return{name:display,family:normalizeItemName(candidate.target),matched:candidate.term,aliasApplied:candidate.alias};
+  }
+  return{name:clean,family:'',matched:'',aliasApplied:false};
+}
+function shoppingMasterCanonicalName(value){return shoppingMasterPhraseInfo(value).name}
+function loadShoppingMasterData(){
+  if(shoppingMasterData.ready)return Promise.resolve(shoppingMasterData);
+  if(shoppingMasterPromise)return shoppingMasterPromise;
+  shoppingMasterPromise=fetch('/data/master-catalog-v246.json',{cache:'force-cache'})
+    .then(r=>{if(!r.ok)throw new Error('Master catalog unavailable');return r.json()})
+    .then(data=>{
+      const items=Array.isArray(data?.items)?data.items:[];
+      const itemByKey={};
+      for(const row of items)itemByKey[shoppingMasterKey(row.canonical_name)]=row;
+      shoppingMasterData={
+        ready:true,
+        categories:Array.isArray(data?.categories)?data.categories:[],
+        subcategories:Array.isArray(data?.subcategories)?data.subcategories:[],
+        items,
+        aliases:data?.aliases&&typeof data.aliases==='object'?data.aliases:{},
+        unknown:data?.unknown&&typeof data.unknown==='object'?data.unknown:{category_name:'Lainnya',subcategory_name:'Lainnya',default_uom:'PCS',default_priority:'SEKUNDER'},
+        itemByKey
+      };
+      applyShoppingMasterCatalog();
+      return shoppingMasterData;
+    })
+    .catch(err=>{console.warn('Shopping master',err);return shoppingMasterData});
+  return shoppingMasterPromise;
+}
+function masterCategoryEntryByName(name){return(state.catalog?.categories||[]).find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(name))||null}
+function masterSubcategoryEntry(categoryName,subcategoryName){
+  const cat=masterCategoryEntryByName(categoryName);
+  return(state.catalog?.subcategories||[]).find(x=>
+    (!cat||String(x.category_key)===String(cat.category_key))&&shoppingMasterKey(x.name)===shoppingMasterKey(subcategoryName)
+  )||null;
+}
+function applyShoppingMasterCatalog(){
+  if(!shoppingMasterData.ready)return state.catalog;
+  const current=state.catalog||{categories:[],subcategories:[],items:[],brands:[],visibility:{}};
+  const serverCategories=Array.isArray(current.categories)?current.categories:[];
+  const serverSubcategories=Array.isArray(current.subcategories)?current.subcategories:[];
+  // Only the audited v2.4.6 taxonomy is exposed. Reuse server keys for names
+  // that already exist, but do not keep conflicting legacy category trees.
+  const categories=shoppingMasterData.categories.map(row=>{
+    const existing=serverCategories.find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(row.name));
+    return{...(existing||{}),category_key:existing?.category_key||shoppingLocalKey('category',row.name),name:row.name,sort_order:row.sort_order||existing?.sort_order||9999};
+  });
+  const catByName=Object.fromEntries(categories.map(x=>[shoppingMasterKey(x.name),x]));
+  const subcategories=[];
+  for(const row of shoppingMasterData.subcategories){
+    const cat=catByName[shoppingMasterKey(row.category_name)];if(!cat)continue;
+    const existing=serverSubcategories.find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(row.name)&&shoppingMasterKey(x.category_name||serverCategories.find(c=>String(c.category_key)===String(x.category_key))?.name)===shoppingMasterKey(row.category_name));
+    subcategories.push({...(existing||{}),subcategory_key:existing?.subcategory_key||shoppingLocalKey('subcategory',row.category_name,row.name),category_key:cat.category_key,category_name:cat.name,name:row.name,sort_order:row.sort_order||existing?.sort_order||9999});
+  }
+  const subByPair={};
+  for(const x of subcategories)subByPair[`${String(x.category_key)}|${shoppingMasterKey(x.name)}`]=x;
+  const existingItems=Array.isArray(current.items)?current.items:[];
+  const items=[];const seen=new Set();
+  const addItem=(row,base={})=>{
+    const canon=shoppingMasterCanonicalName(row.canonical_name||base.canonical_name||'');
+    const def=shoppingMasterData.itemByKey?.[shoppingMasterKey(canon)]||row;
+    const cat=catByName[shoppingMasterKey(def.category_name||row.category_name||base.category_name)]||catByName[shoppingMasterKey(shoppingMasterData.unknown.category_name)];
+    const sub=cat?subByPair[`${String(cat.category_key)}|${shoppingMasterKey(def.subcategory_name||row.subcategory_name||base.subcategory_name||shoppingMasterData.unknown.subcategory_name)}`]:null;
+    if(!canon||!cat||!sub)return;
+    const k=shoppingMasterKey(canon);if(seen.has(k))return;seen.add(k);
+    const oldAliases=Array.isArray(base.aliases)?base.aliases:[];
+    const oldName=normalizeItemName(base.canonical_name||'');
+    items.push({...base,...row,item_key:base.item_key||shoppingLocalKey('item',canon),canonical_name:canon,category_key:cat.category_key,category_name:cat.name,subcategory_key:sub.subcategory_key,subcategory_name:sub.name,default_uom:normalizeUom(row.default_uom||base.default_uom||'PCS'),default_priority:normalizeShoppingPriority(row.default_priority||base.default_priority)||'SEKUNDER',aliases:[...new Set([...oldAliases,...(oldName&&shoppingMasterKey(oldName)!==k?[oldName]:[])])]});
+  };
+  for(const base of existingItems){
+    const canon=shoppingMasterCanonicalName(base.canonical_name||'');
+    const def=shoppingMasterData.itemByKey?.[shoppingMasterKey(canon)];
+    if(def)addItem(def,base);else{
+      // Server-only / future item: preserve its name and metadata, but never
+      // guess a category outside the audited master.
+      addItem({canonical_name:base.canonical_name,category_name:shoppingMasterData.unknown.category_name,subcategory_name:shoppingMasterData.unknown.subcategory_name,default_uom:base.default_uom,default_priority:base.default_priority},base);
+    }
+  }
+  for(const def of shoppingMasterData.items)if(!seen.has(shoppingMasterKey(def.canonical_name)))addItem(def,{});
+  state.catalog={categories,subcategories,items,brands:Array.isArray(current.brands)?current.brands:[],visibility:current.visibility&&typeof current.visibility==='object'?current.visibility:{}};
+  return state.catalog;
+}
 async function loadCatalogSnapshot(){
-  if(!state.household?.id)return state.catalog;
+  await loadShoppingMasterData().catch(()=>{});
+  if(!state.household?.id){applyShoppingMasterCatalog();return state.catalog}
   if(!state.online){
     hydrateCatalogCache();
+    applyShoppingMasterCatalog();
+    persistCatalogCache();
     return state.catalog;
   }
   try{
@@ -2375,12 +2481,13 @@ async function loadCatalogSnapshot(){
         brands:Array.isArray(row.brands)?row.brands:[],
         visibility:row.visibility&&typeof row.visibility==='object'?row.visibility:{}
       };
-      persistCatalogCache();
     }
   }catch(err){
     console.warn('Database catalog belum tersedia',err);
     hydrateCatalogCache();
   }
+  applyShoppingMasterCatalog();
+  persistCatalogCache();
   return state.catalog;
 }
 function catalogDirectVisible(kind,key){
@@ -2625,45 +2732,30 @@ function normalizeUom(raw){
 
 function shoppingBroadCategoryName(categoryName){
   const cat=String(categoryName||'Lainnya').trim();
-  const food=new Set([
-    'Makanan Pokok','Makanan Kaleng & Instan','Daging & Seafood','Telur','Protein',
-    'Sayur','Buah','Susu & Produk Olahan','Bahan Baking & Dessert',
-    'Bumbu & Bahan Masak','Minuman','Snack & Camilan','Frozen Food','Roti & Bakery'
-  ]);
-  const home=new Set([
-    'Laundry','Kebutuhan Kamar Mandi','Kebersihan Rumah','Penyimpanan & Plastik',
-    'Tisu & Produk Kertas','Perlengkapan Dapur','Perlengkapan Rumah'
-  ]);
-  const personal=new Set(['Perawatan Diri','Kesehatan & Obat']);
-  const family=new Set(['Bayi & Anak','Hewan Peliharaan']);
-  const utility=new Set(['Alat Tulis & Sekolah','Elektronik & Baterai']);
-  if(food.has(cat))return'MAKANAN & MINUMAN';
-  if(home.has(cat))return'RUMAH & KEBERSIHAN';
-  if(personal.has(cat))return'PERAWATAN & KESEHATAN';
-  if(family.has(cat))return'KELUARGA & HEWAN';
-  if(utility.has(cat))return'KEBUTUHAN LAIN';
-  return'LAINNYA';
+  const currentCategory=masterCategoryEntryByName(cat);
+  if(currentCategory)return String(currentCategory.name);
+  const masterSub=(state.catalog?.subcategories||[]).find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(cat));
+  if(masterSub)return String(masterSub.category_name||'Lainnya');
+  const legacy={
+    'Makanan Pokok':'Makanan','Makanan Kaleng & Instan':'Makanan','Daging & Seafood':'Bahan Segar','Telur':'Bahan Segar','Protein':'Bahan Segar','Sayur':'Bahan Segar','Buah':'Bahan Segar','Susu & Produk Olahan':'Makanan','Bahan Baking & Dessert':'Makanan','Bumbu & Bahan Masak':'Makanan','Minuman':'Minuman','Snack & Camilan':'Makanan','Frozen Food':'Makanan','Roti & Bakery':'Makanan',
+    'Laundry':'Kebersihan Rumah','Kebutuhan Kamar Mandi':'Kebersihan Rumah','Toilet & WC':'Kebersihan Rumah','Kebersihan Rumah':'Kebersihan Rumah','Penyimpanan & Plastik':'Perlengkapan Rumah','Tisu & Produk Kertas':'Kebersihan Rumah','Perlengkapan Dapur':'Perlengkapan Rumah','Perlengkapan Rumah':'Perlengkapan Rumah',
+    'Perawatan Diri':'Perawatan Diri','Kesehatan & Obat':'Kesehatan','Bayi & Anak':'Kebutuhan Bayi','Hewan Peliharaan':'Hewan Peliharaan','Alat Tulis & Sekolah':'Perlengkapan Rumah','Elektronik & Baterai':'Perlengkapan Rumah'
+  };
+  return legacy[cat]||'Lainnya';
 }
-const SHOPPING_BROAD_CATEGORY_ORDER=[
-  'MAKANAN & MINUMAN',
-  'RUMAH & KEBERSIHAN',
-  'PERAWATAN & KESEHATAN',
-  'KELUARGA & HEWAN',
-  'KEBUTUHAN LAIN',
-  'LAINNYA'
-];
+const SHOPPING_BROAD_CATEGORY_ORDER=['Bahan Segar','Kebersihan Rumah','Kebutuhan Bayi','Kesehatan','Makanan','Minuman','Perawatan Diri','Perlengkapan Rumah','Hewan Peliharaan','Lainnya'];
 
 function shoppingCategoryOrder(){const masterNames=masterSubcategoryNames();const rows=[...state.shoppingCategories].filter(x=>masterNames.has(String(x.name||'')));return rows.sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)||a.name.localeCompare(b.name,'id',{sensitivity:'base'}))}
-function inferShoppingCategoryName(raw){const s=String(raw||'').toLowerCase();if(/beras|nasi|gula|tepung|mie|mi instan|oat|sereal/.test(s))return'Makanan Pokok';if(/sarden|kornet|kaleng|makanan instan|sup instan/.test(s))return'Makanan Kaleng & Instan';if(/ayam|sapi|daging|ikan|udang|cumi|seafood/.test(s))return'Daging & Seafood';if(/telur/.test(s))return'Telur';if(/tahu|tempe|tofu|kacang|edamame/.test(s))return'Protein';if(/sayur|bayam|kangkung|wortel|brokoli|kol|cabai|tomat|bawang/.test(s))return'Sayur';if(/buah|apel|pisang|jeruk|mangga|anggur|semangka/.test(s))return'Buah';if(/susu|keju|yogurt|mentega|butter/.test(s))return'Susu & Produk Olahan';if(/ragi|vanili|baking powder|soda kue|maizena|gelatin|cokelat bubuk/.test(s))return'Bahan Baking & Dessert';if(/garam|merica|lada|saus|kecap|bumbu|santan|minyak goreng/.test(s))return'Bumbu & Bahan Masak';if(/kopi|teh|air mineral|soda|sirup|jus|minuman/.test(s))return'Minuman';if(/snack|camilan|keripik|biskuit|cokelat|permen/.test(s))return'Snack & Camilan';if(/frozen|nugget|sosis|bakso/.test(s))return'Frozen Food';if(/roti|bakery|donat|kue/.test(s))return'Roti & Bakery';if(/deterjen|rinso|pewangi|laundry/.test(s))return'Laundry';if(/sikat wc|pembersih toilet|pewangi toilet|keset kamar mandi/.test(s))return'Kebutuhan Kamar Mandi';if(/sabun cuci|pel|pembersih|karbol|spons/.test(s))return'Kebersihan Rumah';if(/shampoo|sabun mandi|pasta gigi|deodorant|skincare/.test(s))return'Perawatan Diri';if(/obat|vitamin|masker|plester/.test(s))return'Kesehatan & Obat';if(/popok|diaper|bayi|susu formula/.test(s))return'Bayi & Anak';if(/kucing|anjing|pet|pakan/.test(s))return'Hewan Peliharaan';if(/pulpen|pensil|buku tulis|penghapus|spidol|alat tulis/.test(s))return'Alat Tulis & Sekolah';if(/baterai|charger|kabel|bohlam|lampu|adapter/.test(s))return'Elektronik & Baterai';if(/plastik|ziplock|cling wrap|aluminium foil|wadah|container/.test(s))return'Penyimpanan & Plastik';if(/tisu|toilet paper|kertas dapur/.test(s))return'Tisu & Produk Kertas';if(/panci|wajan|spatula|pisau dapur/.test(s))return'Perlengkapan Dapur';if(/sapu|ember|gantungan|keset|rak|hanger/.test(s))return'Perlengkapan Rumah';return'Lainnya'}
+function inferShoppingCategoryName(raw){return masterSubcategoryForItemName(raw,'Lainnya')}
 const SHOPPING_PRIORITIES=['PRIMER','SEKUNDER','PELENGKAP'];
 function normalizeShoppingPriority(value){const v=String(value||'').trim().toUpperCase();return SHOPPING_PRIORITIES.includes(v)?v:''}
 function inferShoppingPriority(name,category=''){
   const item=normalizeItemName(name).toLowerCase(),cat=String(category||inferShoppingCategoryName(name)).toLowerCase();
   if(/air mineral|beras|nasi|telur|sayur|buah|daging|ayam|ikan|susu formula|obat|vitamin/.test(item))return'PRIMER';
   if(/snack|camilan|permen|cokelat|soda|soft drink|donat|dessert/.test(item))return'SEKUNDER';
-  const primer=['makanan pokok','daging & seafood','telur','protein','sayur','buah','susu & produk olahan','bumbu & bahan masak','kebersihan rumah','laundry','kebutuhan kamar mandi','perawatan diri','kesehatan & obat','bayi & anak','hewan peliharaan','tisu & produk kertas'];
-  const sekunder=['makanan kaleng & instan','minuman','snack & camilan','frozen food','roti & bakery','sarapan & sereal','bahan baking & dessert'];
-  const pelengkap=['alat tulis & sekolah','elektronik & baterai','penyimpanan & plastik','perlengkapan dapur','perlengkapan rumah'];
+  const primer=['bahan segar','bahan pokok','bumbu & bahan masak','kebersihan rumah','kamar mandi','laundry','perawatan diri','kesehatan','kebutuhan bayi','hewan peliharaan','susu'];
+  const sekunder=['makanan instan','minuman siap minum','minuman serbuk & sirup','camilan','makanan beku','roti & bakery','sereal & oat','produk susu & olahan','krimer'];
+  const pelengkap=['alat tulis','elektronik & aksesori','baterai & lampu','penyimpanan & kemasan','peralatan dapur','peralatan sekali pakai','perlengkapan rumah'];
   if(primer.includes(cat))return'PRIMER';
   if(sekunder.includes(cat))return'SEKUNDER';
   if(pelengkap.includes(cat))return'PELENGKAP';
@@ -2671,69 +2763,26 @@ function inferShoppingPriority(name,category=''){
 }
 let shoppingAutocorrectData={ready:false,map:{},ambiguity:{}};
 let shoppingAutocorrectPromise=null;
-
-function shoppingAutocorrectKey(value){
-  return String(value||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('id-ID');
-}
-const SHOP_AUTOCORRECT_EXPLICIT_PREFERENCES={
-  'sampo':'Shampoo',
-  'shampo':'Shampoo',
-  'sampoo':'Shampoo',
-  'smpo':'Shampoo'
-};
-function shoppingAutocorrectWords(value){
-  return shoppingAutocorrectKey(value).split(/[\s\-_/]+/).filter(Boolean);
-}
-function shoppingSingleTokenIsCatalogVocabulary(key){
-  if(!key||key.includes(' '))return false;
-  const hasWord=value=>shoppingAutocorrectWords(value).includes(key);
-  for(const item of (state.catalog?.items||[])){
-    if(!catalogItemVisible(item))continue;
-    if(hasWord(item.canonical_name)||hasWord(item.category_name)||hasWord(item.subcategory_name))return true;
-  }
-  for(const brand of (state.catalog?.brands||[])){
-    if(!catalogBrandVisible(brand))continue;
-    if(hasWord(brand.name))return true;
-    if((Array.isArray(brand.aliases)?brand.aliases:[]).some(hasWord))return true;
-  }
-  return false;
-}
+function shoppingAutocorrectKey(value){return shoppingMasterKey(value)}
 function shoppingAutocorrectMappingAllowed(key,mapped){
   const targetKey=shoppingAutocorrectKey(mapped);
   if(!key||!targetKey)return false;
   if(targetKey===key)return true;
-
-  // Explicit product-language preference chosen for CN MONEY.
-  const preferred=SHOP_AUTOCORRECT_EXPLICIT_PREFERENCES[key];
-  if(preferred)return shoppingAutocorrectKey(preferred)===targetKey;
-
-  // Never rewrite very short standalone input into a different product.
-  if(!key.includes(' ')&&key.length<=3)return false;
-
-  // If a standalone word already exists inside the active catalog vocabulary,
-  // treat it as intentional input instead of a typo (e.g. AYAM, SAPI).
-  if(shoppingSingleTokenIsCatalogVocabulary(key))return false;
-
+  // Defense-in-depth for ordinary short Indonesian words that appeared as bad
+  // rows in the old generated database. The audited v2.4.6 file excludes them.
+  if(new Set(['ada','apa']).has(key))return false;
   return true;
 }
 function loadShoppingAutocorrect(){
   if(shoppingAutocorrectData.ready)return Promise.resolve(shoppingAutocorrectData);
   if(shoppingAutocorrectPromise)return shoppingAutocorrectPromise;
-  shoppingAutocorrectPromise=fetch('/data/autocorrect-v243.json',{cache:'force-cache'})
+  shoppingAutocorrectPromise=fetch('/data/autocorrect-v246.json',{cache:'force-cache'})
     .then(r=>{if(!r.ok)throw new Error('Autocorrect data unavailable');return r.json()})
     .then(data=>{
-      shoppingAutocorrectData={
-        ready:true,
-        map:data?.map||{},
-        ambiguity:data?.ambiguity||{}
-      };
+      shoppingAutocorrectData={ready:true,map:data?.map||{},ambiguity:data?.ambiguity||{}};
       return shoppingAutocorrectData;
     })
-    .catch(err=>{
-      console.warn('Autocorrect',err);
-      shoppingAutocorrectData={ready:false,map:{},ambiguity:{}};
-      return shoppingAutocorrectData;
-    });
+    .catch(err=>{console.warn('Autocorrect',err);shoppingAutocorrectData={ready:false,map:{},ambiguity:{}};return shoppingAutocorrectData});
   return shoppingAutocorrectPromise;
 }
 async function warmShoppingAutocorrect(maxWait=260){
@@ -2744,75 +2793,97 @@ async function warmShoppingAutocorrect(maxWait=260){
   return shoppingAutocorrectData;
 }
 function exactVisibleCatalogItem(name){
-  const key=shoppingAutocorrectKey(name);
-  const shampooFamilies={
-    'shampoo':['shampoo','shampo','sampo'],
-    'shampoo bayi':['shampoo bayi','shampo bayi','sampo bayi'],
-    'shampoo sachet':['shampoo sachet','shampo sachet','sampo sachet'],
-    'shampoo hewan':['shampoo hewan','shampo hewan','sampo hewan']
-  };
-  let preferredKey=key,aliases=new Set([key]);
-  for(const [canonical,forms] of Object.entries(shampooFamilies)){
-    if(forms.includes(key)){preferredKey=canonical;aliases=new Set(forms);break}
-  }
-  const row=(state.catalog?.items||[]).find(x=>aliases.has(shoppingAutocorrectKey(x.canonical_name||'')));
-  if(!row||!catalogItemVisible(row))return null;
-  const names={
-    'shampoo':'Shampoo',
-    'shampoo bayi':'Shampoo Bayi',
-    'shampoo sachet':'Shampoo Sachet',
-    'shampoo hewan':'Shampoo Hewan'
-  };
-  return names[preferredKey]?{...row,canonical_name:names[preferredKey]}:row;
+  const key=shoppingAutocorrectKey(name);if(!key)return null;
+  return(state.catalog?.items||[]).find(x=>catalogItemVisible(x)&&shoppingAutocorrectKey(x.canonical_name||'')===key)||null;
 }
 function exactVisibleCatalogBrand(name){
-  const key=shoppingAutocorrectKey(name);
-  if(!key)return null;
+  const key=shoppingAutocorrectKey(name);if(!key)return null;
   return(state.catalog?.brands||[]).find(x=>{
     if(!catalogBrandVisible(x))return false;
     if(shoppingAutocorrectKey(x.name||'')===key)return true;
-    return(Array.isArray(x.aliases)?x.aliases:[])
-      .some(a=>shoppingAutocorrectKey(a)===key);
+    return(Array.isArray(x.aliases)?x.aliases:[]).some(a=>shoppingAutocorrectKey(a)===key);
   })||null;
 }
-function resolveShoppingInput(raw){
-  const clean=normalizeItemName(raw);
-  const key=shoppingAutocorrectKey(clean);
-  if(!key)return{name:''};
-
-  // 1. Household latest name / old alias always wins.
-  const household=itemDbMatch(clean);
-  if(household){
-    return{
-      name:normalizeItemName(household.entry?.name||clean),
-      source:'household'
-    };
-  }
-
-  // 2. Exact active master item is already valid.
-  const exactItem=exactVisibleCatalogItem(clean);
-  if(exactItem)return{name:String(exactItem.canonical_name||clean),source:'master'};
-
-  // 3. Exact brand/brand alias is protected from typo correction.
-  if(exactVisibleCatalogBrand(clean))return{name:clean,source:'brand'};
-
-  // 4. Ambiguous input is NEVER changed automatically.
-  const candidates=shoppingAutocorrectData.ambiguity?.[key];
-  if(Array.isArray(candidates)&&candidates.length>1){
-    const visible=candidates.filter(x=>!!exactVisibleCatalogItem(x));
-    if(visible.length>1)return{name:clean,ambiguity:visible,source:'ambiguity'};
-  }
-
-  // 5. Conservative exact whole-input mapping.
-  const mapped=shoppingAutocorrectData.map?.[key];
-  if(mapped&&shoppingAutocorrectMappingAllowed(key,mapped)){
-    const target=exactVisibleCatalogItem(mapped);
-    if(target){
-      const name=String(target.canonical_name||mapped);
-      return{name,correctedFrom:clean,source:'autocorrect'};
+function visibleCatalogBrandWithin(name){
+  const key=shoppingAutocorrectKey(name),exact=exactVisibleCatalogBrand(name);if(exact||!key)return exact;
+  const hits=[];
+  for(const brand of(state.catalog?.brands||[])){
+    if(!catalogBrandVisible(brand))continue;
+    for(const form of [brand.name,...(Array.isArray(brand.aliases)?brand.aliases:[])]){
+      const term=shoppingAutocorrectKey(form);if(term.length<3)continue;
+      const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),rx=new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'i');
+      if(rx.test(key))hits.push({brand,term});
     }
   }
-
+  hits.sort((a,b)=>b.term.length-a.term.length);
+  return hits[0]?.brand||null;
+}
+function shoppingEditDistance(a,b){
+  a=shoppingAutocorrectKey(a);b=shoppingAutocorrectKey(b);
+  const n=a.length,m=b.length;if(!n)return m;if(!m)return n;
+  const d=Array.from({length:n+1},()=>Array(m+1).fill(0));
+  for(let i=0;i<=n;i++)d[i][0]=i;for(let j=0;j<=m;j++)d[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){
+    const cost=a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+cost);
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);
+  }
+  return d[n][m];
+}
+function uniqueFuzzyShoppingMaster(name){
+  const key=shoppingAutocorrectKey(name);if(key.length<=3)return null;
+  const candidates=new Map();
+  for(const item of(state.catalog?.items||[]))if(catalogItemVisible(item))candidates.set(shoppingAutocorrectKey(item.canonical_name),String(item.canonical_name));
+  for(const [alias,target] of Object.entries(shoppingMasterData.aliases||{}))if(exactVisibleCatalogItem(target))candidates.set(shoppingAutocorrectKey(alias),String(target));
+  const maxDistance=key.length<=5?1:key.length<=10?2:3;
+  const hits=[];
+  for(const [candidate,target] of candidates){
+    if(!candidate||Math.abs(candidate.length-key.length)>maxDistance)continue;
+    const distance=shoppingEditDistance(key,candidate);if(distance>maxDistance)continue;
+    const similarity=1-distance/Math.max(key.length,candidate.length);
+    if(similarity<.74)continue;
+    hits.push({target,distance,similarity,candidate});
+  }
+  hits.sort((a,b)=>a.distance-b.distance||b.similarity-a.similarity||a.candidate.localeCompare(b.candidate));
+  if(!hits.length)return null;
+  const best=hits[0],second=hits.find(x=>shoppingAutocorrectKey(x.target)!==shoppingAutocorrectKey(best.target));
+  if(second&&second.distance===best.distance&&Math.abs(second.similarity-best.similarity)<.08)return null;
+  return best.target;
+}
+function resolveShoppingInput(raw){
+  const clean=normalizeItemName(raw),key=shoppingAutocorrectKey(clean);if(!key)return{name:''};
+  // 1. A manual DATA override is intentional and always wins.
+  const manual=householdDbInfo(clean);
+  if(manual)return{name:shoppingMasterCanonicalName(manual.currentName||clean),...(shoppingAutocorrectKey(shoppingMasterCanonicalName(manual.currentName||clean))!==key?{correctedFrom:clean}:{}),source:'household-override'};
+  // 2. An exact whole brand/brand alias is intentional. This check comes
+  // before phrase matching so brands such as "Ayam Brand" are not mistaken
+  // for the generic item AYAM.
+  const exactBrand=exactVisibleCatalogBrand(clean);
+  if(exactBrand){const name=String(exactBrand.name||clean);return{name,...(shoppingAutocorrectKey(name)!==key?{correctedFrom:clean}:{}),source:'brand'};}
+  // 3. Exact canonical item or common language alias normalizes to master.
+  const phrase=shoppingMasterPhraseInfo(clean),exactItem=phrase.family?exactVisibleCatalogItem(phrase.family):null;
+  if(exactItem){
+    const name=String(phrase.name||exactItem.canonical_name||clean);
+    return{name,...(shoppingAutocorrectKey(name)!==key?{correctedFrom:clean}:{}),source:'master'};
+  }
+  // 4. Explicit ambiguity is shown instead of guessed.
+  const candidates=shoppingAutocorrectData.ambiguity?.[key];
+  if(Array.isArray(candidates)&&candidates.length>1){
+    const visible=[...new Set(candidates.map(shoppingMasterCanonicalName).filter(x=>!!exactVisibleCatalogItem(x)))];
+    if(visible.length>1)return{name:clean,ambiguity:visible,source:'ambiguity'};
+  }
+  // 5. Keep a learned household family/variant when it is not a master alias.
+  const household=itemDbMatch(clean);
+  if(household)return{name:normalizeItemName(household.entry?.name||clean),source:'household'};
+  // 6. Audited exact typo mapping.
+  const mapped=shoppingAutocorrectData.map?.[key];
+  if(mapped&&shoppingAutocorrectMappingAllowed(key,mapped)){
+    const target=exactVisibleCatalogItem(shoppingMasterPhraseInfo(mapped).family||shoppingMasterCanonicalName(mapped));
+    if(target)return{name:String(target.canonical_name||mapped),correctedFrom:clean,source:'autocorrect'};
+  }
+  // 7. Unique near-master typo. If not unique, leave it unknown.
+  const fuzzy=uniqueFuzzyShoppingMaster(clean);
+  if(fuzzy)return{name:normalizeItemName(fuzzy),correctedFrom:clean,source:'fuzzy'};
   return{name:clean,source:'raw'};
 }
 function clearShopAmbiguity(){
@@ -2860,78 +2931,101 @@ function itemDbMatch(name){
   return null;
 }
 function householdDbInfo(name){
-  const match=itemDbMatch(name);
-  const entry=match?.entry;
-  if(!entry||entry.dbOverride!==true)return null;
+  const match=itemDbMatch(name),entry=match?.entry;if(!entry||entry.dbOverride!==true)return null;
   const subName=String(entry.subcategoryName||entry.category||'').trim();
-  const subRow=(state.catalog?.subcategories||[]).find(x=>
-    String(x.subcategory_key)===String(entry.subcategoryKey||'') ||
-    String(x.name||'').toLocaleLowerCase('id-ID')===subName.toLocaleLowerCase('id-ID')
-  );
+  let subRow=(state.catalog?.subcategories||[]).find(x=>String(x.subcategory_key)===String(entry.subcategoryKey||''));
+  if(!subRow){
+    const wantedCategory=shoppingMasterKey(entry.categoryName||'');
+    subRow=(state.catalog?.subcategories||[]).find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(subName)&&(!wantedCategory||shoppingMasterKey(x.category_name)===wantedCategory));
+  }
   const categoryKey=String(entry.categoryKey||subRow?.category_key||'');
-  const categoryRow=(state.catalog?.categories||[]).find(x=>String(x.category_key)===categoryKey);
-  return{
-    item:null,
-    familyKey:match.key,
-    currentName:String(entry.name||name),
-    categoryKey,
-    categoryName:String(entry.categoryName||categoryRow?.name||''),
-    subcategoryKey:String(entry.subcategoryKey||subRow?.subcategory_key||''),
-    subcategoryName:String(entry.subcategoryName||subRow?.name||subName),
-    uom:normalizeUom(entry.uom||'PCS'),
-    priority:normalizeShoppingPriority(entry.priority)||'SEKUNDER',
-    entry
-  };
+  const categoryRow=(state.catalog?.categories||[]).find(x=>String(x.category_key)===categoryKey)||masterCategoryEntryByName(entry.categoryName||subRow?.category_name||'');
+  if(!categoryRow)return null;
+  if(!subRow||String(subRow.category_key)!==String(categoryRow.category_key))subRow=(state.catalog?.subcategories||[]).find(x=>String(x.category_key)===String(categoryRow.category_key)&&shoppingMasterKey(x.name)===shoppingMasterKey(subName));
+  if(!subRow)return null;
+  return{item:null,familyKey:match.key,currentName:shoppingMasterCanonicalName(entry.name||name),categoryKey:String(categoryRow.category_key),categoryName:String(categoryRow.name),subcategoryKey:String(subRow.subcategory_key),subcategoryName:String(subRow.name),uom:normalizeUom(entry.uom||'PCS'),priority:normalizeShoppingPriority(entry.priority)||'SEKUNDER',entry};
 }
-
 function catalogItemForName(name){
-  const key=normalizeItemName(name).toLocaleLowerCase('id-ID');
-  if(!key)return null;
-  return (state.catalog?.items||[]).find(x=>normalizeItemName(x.canonical_name||'').toLocaleLowerCase('id-ID')===key)||null;
+  const phrase=shoppingMasterPhraseInfo(name),key=shoppingMasterKey(phrase.family||phrase.name);if(!key)return null;
+  return(state.catalog?.items||[]).find(x=>shoppingMasterKey(x.canonical_name||'')===key)||null;
 }
-function catalogSubcategoryForName(name){
-  const item=catalogItemForName(name);
-  if(!item)return null;
-  return (state.catalog?.subcategories||[]).find(x=>x.subcategory_key===item.subcategory_key)||null;
+function catalogSubcategoryForName(name){const item=catalogItemForName(name);if(!item)return null;return(state.catalog?.subcategories||[]).find(x=>x.subcategory_key===item.subcategory_key)||null}
+function shoppingUnknownMasterInfo(name){
+  const unknown=shoppingMasterData.unknown||{},categoryName=unknown.category_name||'Lainnya',subcategoryName=unknown.subcategory_name||'Lainnya';
+  const category=masterCategoryEntryByName(categoryName),sub=masterSubcategoryEntry(categoryName,subcategoryName);
+  return{item:null,isFallback:true,familyKey:normalizeItemName(name).toLocaleLowerCase('id-ID'),currentName:normalizeItemName(name),categoryKey:category?.category_key||shoppingLocalKey('category',categoryName),categoryName,subcategoryKey:sub?.subcategory_key||shoppingLocalKey('subcategory',categoryName,subcategoryName),subcategoryName,uom:normalizeUom(unknown.default_uom||'PCS'),priority:normalizeShoppingPriority(unknown.default_priority)||'SEKUNDER',entry:null};
+}
+function shoppingBrandMasterFamily(name){
+  const brand=visibleCatalogBrandWithin(name);if(!brand)return null;
+  const hint=shoppingMasterKey(brand.product_hint||''),categoryHint=shoppingMasterKey(brand.category_hint||'');
+  const hintRules=[
+    ['pasta gigi','Pasta Gigi'],['sikat gigi','Sikat Gigi'],['obat kumur','Obat Kumur'],
+    ['tisu basah','Tisu Basah'],['tisu','Tisu'],['popok','Popok Bayi'],['susu formula','Susu Formula Bayi'],
+    ['minyak goreng','Minyak Goreng'],['margarin','Margarin'],['kornet','Kornet Sapi'],['sarden','Sarden Kaleng'],
+    ['mi instan','Mi Instan'],['oatmeal','Oatmeal'],['wafer','Wafer Cokelat'],['biskuit','Biskuit Sandwich'],
+    ['sampo','Shampoo'],['kondisioner','Conditioner'],['deodoran','Deodoran Roll-on'],['sabun mandi','Sabun'],
+    ['sabun cuci piring','Sabun Cuci Piring'],['deterjen','Deterjen'],['pembersih lantai','Pembersih Lantai'],
+    ['pasir kucing','Pasir Kucing'],['makanan kucing','Makanan Kucing'],['makanan anjing','Makanan Anjing'],
+    ['baterai','Baterai'],['lampu','Lampu'],['alat tulis','Pulpen']
+  ];
+  const matches=hintRules.filter(([term])=>hint.includes(term));
+  if(matches.length===1)return catalogItemForName(matches[0][1]);
+  const topMap={
+    'perawatan diri':'Perawatan Diri','perawatan rumah':'Kebersihan Rumah','kebersihan':'Kebersihan Rumah','kebersihan & kesehatan':'Kesehatan',
+    'perawatan bayi':'Kebutuhan Bayi','kesehatan':'Kesehatan','makanan':'Makanan','produk susu':'Minuman','perawatan hewan':'Hewan Peliharaan',
+    'perlengkapan rumah tangga':'Perlengkapan Rumah','barang umum':'Perlengkapan Rumah'
+  };
+  const categoryName=topMap[categoryHint];if(!categoryName)return null;
+  const category=masterCategoryEntryByName(categoryName),sub=masterSubcategoryEntry(categoryName,'Lainnya');
+  if(!category||!sub)return null;
+  return{canonical_name:normalizeItemName(name),category_key:category.category_key,category_name:category.name,subcategory_key:sub.subcategory_key,subcategory_name:sub.name,default_uom:'PCS',default_priority:'SEKUNDER',_brandFallback:true};
 }
 function masterShoppingInfo(name){
-  const household=householdDbInfo(name);
-  if(household)return household;
-  const match=itemDbMatch(name);
-  const lookupName=match?.entry?.name||name;
-  const item=catalogItemForName(lookupName);
-  if(!item)return null;
-  return{
-    item,
-    familyKey:match?.key||normalizeItemName(lookupName).toLocaleLowerCase('id-ID'),
-    currentName:String(match?.entry?.name||item.canonical_name||lookupName),
-    categoryKey:item.category_key||'',
-    categoryName:item.category_name||'',
-    subcategoryKey:item.subcategory_key||'',
-    subcategoryName:item.subcategory_name||'',
-    uom:normalizeUom(item.default_uom||'PCS'),
-    priority:normalizeShoppingPriority(item.default_priority)||'SEKUNDER',
-    entry:match?.entry||null
-  };
+  const household=householdDbInfo(name);if(household)return household;
+  const match=itemDbMatch(name),matchedName=match?.entry?.name||name;
+  const lookupName=shoppingMasterCanonicalName(matchedName);
+  const item=catalogItemForName(lookupName)||shoppingBrandMasterFamily(lookupName);
+  if(!item)return shoppingUnknownMasterInfo(name);
+  return{item,familyKey:match?.key||shoppingMasterKey(lookupName),currentName:String(lookupName||item.canonical_name),categoryKey:item.category_key||'',categoryName:item.category_name||'Lainnya',subcategoryKey:item.subcategory_key||'',subcategoryName:item.subcategory_name||'Lainnya',uom:normalizeUom(match?.entry?.uom||item.default_uom||'PCS'),priority:normalizeShoppingPriority(match?.entry?.priority||item.default_priority)||'SEKUNDER',entry:match?.entry||null};
 }
-
-function masterSubcategoryNames(){
-  return new Set((state.catalog?.subcategories||[]).filter(catalogSubcategoryVisible).map(x=>String(x.name||'')));
-}
-function masterCategoryForItemName(name,fallback='LAINNYA'){
-  return masterShoppingInfo(name)?.categoryName||fallback;
-}
-function masterSubcategoryForItemName(name,fallback='LAINNYA'){
-  return masterShoppingInfo(name)?.subcategoryName||fallback;
-}
-
+function masterSubcategoryNames(){return new Set((state.catalog?.subcategories||[]).filter(catalogSubcategoryVisible).map(x=>String(x.name||'')))}
+function masterCategoryForItemName(name,fallback='Lainnya'){return masterShoppingInfo(name)?.categoryName||fallback}
+function masterSubcategoryForItemName(name,fallback='Lainnya'){return masterShoppingInfo(name)?.subcategoryName||fallback}
 function shoppingProfileFor(name){const rawKey=String(name||'').trim().toLowerCase(),normalizedKey=normalizeItemName(name).toLowerCase();return state.shoppingProfiles.find(p=>p.item_key===normalizedKey||p.item_key===rawKey)||null}
-function shoppingCategoryFor(name,fallback=''){const p=shoppingProfileFor(name);if(p?.category_id){const c=state.shoppingCategories.find(x=>x.id===p.category_id);if(c)return c.name}const master=masterShoppingInfo(name);if(master?.subcategoryName)return master.subcategoryName;const known=String(fallback||'');if(state.shoppingCategories.some(c=>c.name===known))return known;return inferShoppingCategoryName(normalizeItemName(name))}
-function shoppingPriorityFor(name,fallback='',category=''){const p=shoppingProfileFor(name),saved=normalizeShoppingPriority(p?.priority);if(saved)return saved;const local=normalizeShoppingPriority(fallback);if(local)return local;const master=masterShoppingInfo(name);if(master?.priority)return master.priority;return inferShoppingPriority(name,category||shoppingCategoryFor(name))}
+function shoppingCategoryFor(name,fallback=''){
+  const master=masterShoppingInfo(name);if(master?.subcategoryName)return master.subcategoryName;
+  const p=shoppingProfileFor(name);if(p?.category_id){const c=state.shoppingCategories.find(x=>x.id===p.category_id);if(c)return c.name}
+  return'Lainnya';
+}
+function shoppingPriorityFor(name,fallback='',category=''){
+  const master=masterShoppingInfo(name);if(master?.priority)return master.priority;
+  const p=shoppingProfileFor(name),saved=normalizeShoppingPriority(p?.priority);if(saved)return saved;
+  return normalizeShoppingPriority(fallback)||'SEKUNDER';
+}
 function priorityChip(priority){const p=normalizeShoppingPriority(priority)||'SEKUNDER';return`<span class="shop-badge priority ${p.toLowerCase()}">${p}</span>`}
 function shoppingBadges(name,categoryFallback='',priorityFallback='',uom='',showUom=true){const cat=shoppingCategoryFor(name,categoryFallback),priority=shoppingPriorityFor(name,priorityFallback,cat);return`<div class="shop-badges"><span class="shop-badge category">${esc(cat)}</span>${priorityChip(priority)}${showUom&&uom?`<span class="shop-uom-inline">${esc(normalizeUom(uom))}</span>`:''}</div>`}
 function shoppingHistoryDefaultFor(name){const target=normalizeItemName(name).toLowerCase();let best=null,bestTs=-1;for(const row of state.shoppingItems||[]){if(normalizeItemName(row.item_name||'').toLowerCase()!==target)continue;const session=(state.shoppingSessions||[]).find(s=>String(s.id)===String(row.session_id));const rawDate=session?.created_at||session?.checkout_date||row.created_at||'';const ts=Date.parse(rawDate)||0;if(ts<bestTs)continue;bestTs=ts;best={lastPrice:Number(row.unit_price||0),uom:normalizeUom(row.uom||'Pcs'),lastStore:normalizeStoreName(session?.store_name||''),lastWalletId:session?.wallet_id||'',lastPurchased:rawDate}}return best}
-function smartItem(raw){const inputName=normalizeItemName(raw),match=itemDbMatch(inputName),name=normalizeItemName(match?.entry?.name||inputName),norm=name.toLocaleLowerCase('id-ID'),db=match?.entry||state.itemDb[norm]||{},history=shoppingHistoryDefaultFor(name)||{},profile=shoppingProfileFor(name),master=masterShoppingInfo(name);let uom=master?.uom||'PCS';if(!master&&/beras|gula|tepung|daging|ikan|ayam|cabai|buah|sayur/i.test(name))uom='KG';if(!master&&/minyak|susu cair|air mineral/i.test(name))uom='L';uom=normalizeUom(profile?.preferred_uom||db.uom||history.uom||uom);const category=shoppingCategoryFor(name,db.category||master?.subcategoryName||''),priority=shoppingPriorityFor(name,db.priority||master?.priority||'',category);return{name,category,masterCategory:master?.categoryName||'',masterSubcategory:master?.subcategoryName||'',priority,uom,lastPrice:Number(db.lastPrice||history.lastPrice||0),lastStore:normalizeStoreName(db.lastStore||history.lastStore||''),lastWalletId:history.lastWalletId||'',lastPurchased:db.lastPurchased||history.lastPurchased||null}}
+function smartItem(raw){
+  const inputName=normalizeItemName(raw),match=itemDbMatch(inputName),matched=normalizeItemName(match?.entry?.name||inputName),name=shoppingMasterCanonicalName(matched),norm=name.toLocaleLowerCase('id-ID'),db=match?.entry||state.itemDb[norm]||{},history=shoppingHistoryDefaultFor(name)||{},profile=shoppingProfileFor(name),master=masterShoppingInfo(name);
+  const uom=normalizeUom(db.uom||profile?.preferred_uom||history.uom||master?.uom||'PCS'),category=shoppingCategoryFor(name,db.category||''),priority=shoppingPriorityFor(name,db.priority||'',category);
+  return{name,category,masterCategory:master?.categoryName||'Lainnya',masterSubcategory:master?.subcategoryName||'Lainnya',priority,uom,lastPrice:Number(db.lastPrice||history.lastPrice||0),lastStore:normalizeStoreName(db.lastStore||history.lastStore||''),lastWalletId:history.lastWalletId||'',lastPurchased:db.lastPurchased||history.lastPurchased||null};
+}
+function shoppingProfileRowForSubcategory(sub){
+  if(!sub||shoppingMasterKey(sub.name)==='lainnya')return null;
+  return state.shoppingCategories.find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(sub.name))||null;
+}
+function shoppingSubcategoryChoiceValue(sub){const row=shoppingProfileRowForSubcategory(sub);return row?String(row.id):`local-sub:${String(sub?.subcategory_key||'')}`}
+function resolveShoppingSubcategoryChoice(categoryKey,value){
+  const rows=(state.catalog?.subcategories||[]).filter(x=>String(x.category_key)===String(categoryKey));
+  let subMaster=null,profileRow=null;
+  if(String(value||'').startsWith('local-sub:'))subMaster=rows.find(x=>String(x.subcategory_key)===String(value).slice(10))||null;
+  else{
+    profileRow=state.shoppingCategories.find(x=>String(x.id)===String(value))||null;
+    if(profileRow)subMaster=rows.find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(profileRow.name))||null;
+  }
+  if(subMaster&&!profileRow)profileRow=shoppingProfileRowForSubcategory(subMaster);
+  return{subMaster,profileRow};
+}
 const SHOPPING_COMPLETED_VISIBLE_MS=24*60*60*1000;
 let shoppingCompletedExpiryTimer=null;
 function shoppingCompletedAtMs(item){
@@ -2986,6 +3080,37 @@ function dataEntryHasPurchase(key,db){
   const names=dataEntryPurchaseNames(key,db);
   const sessions=new Set((state.shoppingSessions||[]).map(s=>String(s.id)));
   return (state.shoppingItems||[]).some(i=>sessions.has(String(i.session_id))&&names.has(normalizeItemName(i.item_name||'').toLocaleLowerCase('id-ID')));
+}
+function dataEntrySearchText(key,db){
+  const name=normalizeItemName(db?.name||key)||String(key||'');
+  const names=dataEntryPurchaseNames(key,db);
+  const master=masterShoppingInfo(name),sub=shoppingCategoryFor(name,db?.category||''),category=master?.categoryName||db?.categoryName||masterCategoryForItemName(name,'Lainnya'),priority=shoppingPriorityFor(name,db?.priority||'',sub),uom=normalizeUom(db?.uom||master?.uom||'PCS');
+  const parts=[name,category,sub,priority,uom,db?.lastStore,db?.categoryName,db?.subcategoryName,db?.category];
+  if(Array.isArray(db?.aliases))parts.push(...db.aliases);
+  if(db?.variants&&typeof db.variants==='object')for(const v of Object.values(db.variants))parts.push(v?.name,v?.lastStore,v?.uom,v?.lastPrice,v?.lastPurchased);
+  const sessions=new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
+  for(const item of state.shoppingItems||[]){
+    if(!names.has(normalizeItemName(item?.item_name||'').toLocaleLowerCase('id-ID')))continue;
+    const session=sessions.get(String(item?.session_id)),wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id));
+    parts.push(item?.item_name,item?.uom,session?.store_name,session?.checkout_date,session?.created_at,wallet?.name,item?.quantity,item?.unit_price,item?.subtotal);
+  }
+  return catalogSearchText(parts.filter(Boolean).join(' '));
+}
+function applyDbSearch(query=state.dataSearch){
+  const input=document.getElementById('dbSearch');
+  if(!input)return;
+  const q=catalogSearchText(query);
+  let visible=0;
+  document.querySelectorAll('[data-db-search]').forEach(el=>{
+    const show=!q||catalogSearchText(el.dataset.dbSearch||'').includes(q);
+    el.classList.toggle('hidden',!show);
+    if(show)visible++;
+  });
+  document.querySelectorAll('.db-search-group').forEach(group=>{
+    group.classList.toggle('hidden',!group.querySelector('[data-db-search]:not(.hidden)'));
+  });
+  const empty=document.getElementById('dbSearchEmpty');
+  if(empty)empty.classList.toggle('hidden',!q||visible>0);
 }
 
 function renderShopListLive(){
@@ -3060,8 +3185,8 @@ function refreshShopListLive(){
 }
 
 function dataItemCard(x){
-  const key=x._dbKey||x.normalized||String(x.name||'').toLowerCase();
-  return`<button type="button" class="db-compact-row db-card-open" data-dbdetail="${encodeURIComponent(key)}" data-db-name="${esc(String(x.name||'').toLowerCase())}" aria-label="Buka detail ${esc(x.name||'barang')}"><span class="db-compact-name">${esc(x.name||'-')}</span></button>`
+  const key=x._dbKey||x.normalized||String(x.name||'').toLowerCase(),search=dataEntrySearchText(key,x);
+  return`<button type="button" class="db-compact-row db-card-open" data-dbdetail="${encodeURIComponent(key)}" data-db-search="${esc(search)}" aria-label="Buka detail ${esc(x.name||'barang')}"><span class="db-compact-name">${esc(x.name||'-')}</span></button>`
 }
 function renderDbFlat(arr){return`<div class="card db-compact-list">${arr.map(dataItemCard).join('')}</div>`}
 
@@ -3086,7 +3211,7 @@ function renderShopData(){
       (groups[k]||(groups[k]=[])).push(x)
     });
     content=Object.entries(groups)
-      .map(([k,v])=>`<div class="db-group-head">${esc(k)}</div>${renderDbFlat(v)}`)
+      .map(([k,v])=>`<div class="db-search-group"><div class="db-group-head">${esc(k)}</div>${renderDbFlat(v)}</div>`)
       .join('');
   }else if(mode==='category'){
     const groups={};
@@ -3098,7 +3223,7 @@ function renderShopData(){
     const order=(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>c.name);
     content=Object.keys(groups)
       .sort((a,b)=>{const ai=order.indexOf(a),bi=order.indexOf(b);return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'})})
-      .map(cat=>`<div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}`)
+      .map(cat=>`<div class="db-search-group"><div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}</div>`)
       .join('');
   }else if(mode==='subcategory'){
     const groups={};
@@ -3112,7 +3237,7 @@ function renderShopData(){
         const ai=order.indexOf(a),bi=order.indexOf(b);
         return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'})
       })
-      .map(cat=>`<div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}`)
+      .map(cat=>`<div class="db-search-group"><div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}</div>`)
       .join('');
   }else if(mode==='priority'){
     const groups={PRIMER:[],SEKUNDER:[],PELENGKAP:[]};
@@ -3123,7 +3248,7 @@ function renderShopData(){
     });
     content=['PRIMER','SEKUNDER','PELENGKAP']
       .filter(k=>groups[k]?.length)
-      .map(k=>`<div class="db-group-head">${k}</div>${renderDbFlat(groups[k].sort(alpha))}`)
+      .map(k=>`<div class="db-search-group"><div class="db-group-head">${k}</div>${renderDbFlat(groups[k].sort(alpha))}</div>`)
       .join('');
   }else{
     content=renderDbFlat([...base].sort(recent));
@@ -3133,7 +3258,7 @@ function renderShopData(){
     content=`<div class="card empty empty-minimal"><div class="big">${uiIcon('box')}</div><b>BELUM ADA BARANG DIBELI</b></div>`;
   }
 
-  return`${shopTabs()}<input id="dbSearch" class="input search" placeholder="Cari data barang…" autocomplete="off" autocorrect="off" spellcheck="false"><div class="data-filter-row">${filters.map(([v,l])=>`<button type="button" class="data-filter-chip ${mode===v?'active':''}" data-dbview="${v}">${l}</button>`).join('')}</div><div id="dbList">${content}</div>`
+  return`${shopTabs()}<input id="dbSearch" class="input search" placeholder="Cari sampai isi data barang…" value="${esc(state.dataSearch||'')}" autocomplete="off" autocorrect="off" spellcheck="false"><div class="data-filter-row">${filters.map(([v,l])=>`<button type="button" class="data-filter-chip ${mode===v?'active':''}" data-dbview="${v}">${l}</button>`).join('')}</div><div id="dbList">${content}</div><div id="dbSearchEmpty" class="card empty empty-minimal hidden"><div class="big">${uiIcon('search')}</div><b>DATA TIDAK DITEMUKAN</b></div>`
 }
 
 function renderShopHistory(){const sessions=state.shoppingSessions.filter(s=>String(s.checkout_date||'').startsWith(state.month)).sort((a,b)=>new Date(b.created_at||b.checkout_date||0)-new Date(a.created_at||a.checkout_date||0));return`${shopTabs()}<div class="section-head" style="margin-top:2px"><div><div class="section-title">History Belanja</div></div>${monthTrigger()}</div>${sessions.length?sessions.map(s=>{const items=state.shoppingItems.filter(i=>i.session_id===s.id);return`<div class="card history-shop-card"><div class="receipt-top"><div><div class="receipt-store">${esc(s.store_name||'Belanja Bulanan')}</div><div class="db-meta">${dateLabel(s.checkout_date)} · ${items.length} item · ${esc(state.wallets.find(w=>w.id===s.wallet_id)?.name||'Dompet')}</div></div><div class="receipt-total">${rupiah(s.total_amount)}</div></div><div class="receipt-actions"><button class="icon-action primary" data-view-receipt="${s.id}" aria-label="Lihat receipt" title="Lihat receipt">${uiIcon('receipt')}</button><button class="icon-action danger" data-cancel-checkout="${s.id}" aria-label="Batalkan checkout" title="Batalkan checkout">${uiIcon('undo')}</button></div></div>`}).join(''):`<div class="card empty"><div class="big">${uiIcon('receipt')}</div><b>Belum ada checkout</b><span>History belanja bulan ini akan muncul di sini.</span></div>`}`}
@@ -3324,7 +3449,7 @@ function choiceTrigger(id,value,label,kind,context='',compact=false){return`<inp
 function dateTrigger(id,value){const v=value||today();return`<input type="hidden" id="${id}" value="${esc(v)}"><button type="button" class="picker-trigger" data-date-target="${esc(id)}"><span class="picker-value">${esc(dateLabel(v))}</span></button>`}
 function optionalDateTrigger(id,value){const v=value||'';return`<input type="hidden" id="${id}" value="${esc(v)}"><button type="button" class="picker-trigger" data-date-target="${esc(id)}"><span class="picker-value">${esc(v?dateLabel(v):'PILIH TANGGAL')}</span></button>`}
 const UOM_CHOICES=['KG','PCS','PACK','TRAY','POUCH','BTL','CAN','BOX','ROLL','SACHET','L','BAG'];
-function pickerOptionsFor(kind,context,target){const input=document.getElementById(target),current=input?.value||'';if(kind==='wallet'||kind==='destination'){return state.wallets.map(w=>({value:String(w.id),label:String(w.name),sub:kind==='wallet'?rupiah(w.balance):walletTypeLabel(w.wallet_type)}))}if(kind==='investment-wallet'){return[{value:'',label:'SUDAH DIMILIKI',sub:'Jangan potong saldo dompet'},...state.wallets.map(w=>({value:String(w.id),label:String(w.name),sub:rupiah(w.balance)}))]}if(kind==='wallet-type')return[{value:'bank',label:'BANK'},{value:'ewallet',label:'E-WALLET'},{value:'cash',label:'CASH'},{value:'other',label:'LAINNYA'}];if(kind==='investment-type')return['stock','mutual_fund','gold','bond','deposit','crypto','other'].map(v=>({value:v,label:investmentTypeLabel(v).toUpperCase()}));if(kind==='asset-type')return['property','vehicle','jewelry','electronics','collectible','other'].map(v=>({value:v,label:assetTypeLabel(v).toUpperCase()}));if(kind==='category'){const cats=state.categories.filter(c=>c.category_type===context).sort((a,b)=>(a.name==='Lainnya'?1:b.name==='Lainnya'?-1:a.name.localeCompare(b.name)));return cats.map(c=>({value:String(c.id),label:String(c.name)}))}if(kind==='shopping-master-category'){return(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>({value:String(c.category_key),label:String(c.name)}))}if(kind==='shopping-subcategory'){const subRows=(state.catalog?.subcategories||[]).filter(x=>catalogSubcategoryVisible(x)&&(!context||String(x.category_key)===String(context)));return subRows.map(s=>{const c=state.shoppingCategories.find(x=>String(x.name)===String(s.name));return c?{value:String(c.id),label:String(s.name),sub:String(s.category_name||'')}:null}).filter(Boolean)}if(kind==='shopping-category'){return shoppingCategoryOrder().map(c=>({value:String(c.id),label:String(c.name)}))}if(kind==='shopping-priority')return[{value:'PRIMER',label:'PRIMER',sub:'KEBUTUHAN UTAMA'},{value:'SEKUNDER',label:'SEKUNDER',sub:'DIBUTUHKAN, BUKAN YANG UTAMA'},{value:'PELENGKAP',label:'PELENGKAP',sub:'TAMBAHAN / OPSIONAL'}];if(kind==='uom'){const values=[...UOM_CHOICES];if(current&&!values.some(x=>x.toLowerCase()===String(current).toLowerCase()))values.unshift(normalizeUom(current));return values.map(x=>({value:x,label:x}))}if(kind==='history-group')return[{value:'date',label:'TANGGAL'},{value:'category',label:'KATEGORI'},{value:'wallet',label:'DOMPET'}];return[]}
+function pickerOptionsFor(kind,context,target){const input=document.getElementById(target),current=input?.value||'';if(kind==='wallet'||kind==='destination'){return state.wallets.map(w=>({value:String(w.id),label:String(w.name),sub:kind==='wallet'?rupiah(w.balance):walletTypeLabel(w.wallet_type)}))}if(kind==='investment-wallet'){return[{value:'',label:'SUDAH DIMILIKI',sub:'Jangan potong saldo dompet'},...state.wallets.map(w=>({value:String(w.id),label:String(w.name),sub:rupiah(w.balance)}))]}if(kind==='wallet-type')return[{value:'bank',label:'BANK'},{value:'ewallet',label:'E-WALLET'},{value:'cash',label:'CASH'},{value:'other',label:'LAINNYA'}];if(kind==='investment-type')return['stock','mutual_fund','gold','bond','deposit','crypto','other'].map(v=>({value:v,label:investmentTypeLabel(v).toUpperCase()}));if(kind==='asset-type')return['property','vehicle','jewelry','electronics','collectible','other'].map(v=>({value:v,label:assetTypeLabel(v).toUpperCase()}));if(kind==='category'){const cats=state.categories.filter(c=>c.category_type===context).sort((a,b)=>(a.name==='Lainnya'?1:b.name==='Lainnya'?-1:a.name.localeCompare(b.name)));return cats.map(c=>({value:String(c.id),label:String(c.name)}))}if(kind==='shopping-master-category'){return(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>({value:String(c.category_key),label:String(c.name)}))}if(kind==='shopping-subcategory'){const subRows=(state.catalog?.subcategories||[]).filter(x=>catalogSubcategoryVisible(x)&&(!context||String(x.category_key)===String(context)));return subRows.map(s=>({value:shoppingSubcategoryChoiceValue(s),label:String(s.name),sub:String(s.category_name||'')}))}if(kind==='shopping-category'){return shoppingCategoryOrder().map(c=>({value:String(c.id),label:String(c.name)}))}if(kind==='shopping-priority')return[{value:'PRIMER',label:'PRIMER',sub:'KEBUTUHAN UTAMA'},{value:'SEKUNDER',label:'SEKUNDER',sub:'DIBUTUHKAN, BUKAN YANG UTAMA'},{value:'PELENGKAP',label:'PELENGKAP',sub:'TAMBAHAN / OPSIONAL'}];if(kind==='uom'){const values=[...UOM_CHOICES];if(current&&!values.some(x=>x.toLowerCase()===String(current).toLowerCase()))values.unshift(normalizeUom(current));return values.map(x=>({value:x,label:x}))}if(kind==='history-group')return[{value:'date',label:'TANGGAL'},{value:'category',label:'KATEGORI'},{value:'wallet',label:'DOMPET'}];return[]}
 function pickerTitle(kind){return({wallet:'PILIH DOMPET',destination:'PILIH DOMPET TUJUAN','investment-wallet':'SUMBER DANA','wallet-type':'JENIS DOMPET','investment-type':'JENIS INVESTASI','asset-type':'JENIS ASET',category:'PILIH KATEGORI','shopping-master-category':'PILIH KATEGORI','shopping-subcategory':'PILIH SUB KATEGORI','shopping-category':'PILIH SUB KATEGORI','shopping-priority':'PILIH PRIORITAS',uom:'PILIH SATUAN','history-group':'KELOMPOKKAN HISTORY'})[kind]||'PILIH'}
 function closeFloatingPicker(){document.querySelectorAll('.picker-overlay').forEach(x=>x.remove())}
 function openChoicePicker(trigger){closeFloatingPicker();const kind=trigger.dataset.choiceKind,target=trigger.dataset.choiceTarget,context=trigger.dataset.choiceContext||'',input=document.getElementById(target);if(!input)return;const options=pickerOptionsFor(kind,context,target),current=String(input.value||'');const overlay=document.createElement('div');overlay.className='picker-overlay';overlay.innerHTML=`<div class="picker-sheet"><div class="picker-sheet-head"><div class="picker-sheet-title">${esc(pickerTitle(kind))}</div><button type="button" class="picker-close" aria-label="Tutup">×</button></div><div class="picker-options">${options.map(o=>`<button type="button" class="picker-option ${String(o.value)===current?'active':''}" data-choice-value="${esc(o.value)}"><span><b>${esc(o.label)}</b>${o.sub?`<small>${esc(o.sub)}</small>`:''}</span><span class="picker-check">${String(o.value)===current?'✓':''}</span></button>`).join('')}</div></div>`;document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.picker-close'))return closeFloatingPicker();const opt=e.target.closest('[data-choice-value]');if(!opt)return;const val=opt.dataset.choiceValue||'',chosen=options.find(o=>String(o.value)===String(val));input.value=val;trigger.querySelector('.picker-value').textContent=chosen?.label||val;closeFloatingPicker();if(kind==='shopping-master-category'){const subInput=document.getElementById('shopCategorySelect'),subTrigger=document.querySelector('[data-choice-target="shopCategorySelect"]');if(subInput&&subTrigger){subTrigger.dataset.choiceContext=val;const next=pickerOptionsFor('shopping-subcategory',val,'shopCategorySelect')[0];subInput.value=next?.value||'';subTrigger.querySelector('.picker-value').textContent=next?.label||'PILIH SUB KATEGORI'}}if(kind==='history-group'){state.historyGroup=val;render()}})}
@@ -3340,21 +3465,13 @@ if(state.modal.startsWith('walletEdit:')){const id=state.modal.slice(11),w=state
 if(state.modal.startsWith('txEdit:')){const id=state.modal.slice(7),t=state.transactions.find(x=>x.id===id);if(!t)return'';const type=t.transaction_type,cats=state.categories.filter(c=>c.category_type===type).sort((a,b)=>(a.name==='Lainnya'?1:b.name==='Lainnya'?-1:a.name.localeCompare(b.name))),wallet=state.wallets.find(w=>w.id===t.wallet_id),cat=cats.find(c=>c.id===t.category_id)||cats[0];return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title ${type==='income'?'green':type==='expense'?'red':'blue'}">EDIT ${txLabel(type)}</div><div class="section-sub">Saldo akan disesuaikan otomatis</div></div><button class="xbtn" data-close>×</button></div><form id="txEditForm" data-id="${t.id}"><div class="field"><label class="label">Nominal</label>${numericInput('txEditAmount',groupDigits(t.amount))}</div><div class="field"><label class="label">Dompet</label>${choiceTrigger('txEditWallet',t.wallet_id,wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div><div class="field"><label class="label">Kategori</label>${choiceTrigger('txEditCategory',cat?.id||'',cat?.name||'PILIH KATEGORI','category',type)}</div><div class="field"><label class="label">Keterangan</label><input id="txEditDescription" class="input" value="${esc(t.description||'')}"></div><div class="field"><label class="label">Tanggal</label>${dateTrigger('txEditDate',t.transaction_date||today())}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PERUBAHAN</button></form></div></div>`}
 if(state.modal.startsWith('dbdetail:')){const key=decodeURIComponent(state.modal.slice(9)),db=state.itemDb[key];if(!db)return'';const name=db.name||key,normalized=normalizeItemName(name).toLocaleLowerCase('id-ID'),variantValues=db.variants&&typeof db.variants==='object'?Object.values(db.variants):[],matchKeys=new Set([normalized,...(Array.isArray(db.aliases)?db.aliases:[]).map(x=>normalizeItemName(x).toLocaleLowerCase('id-ID')),...variantValues.map(v=>normalizeItemName(v?.name||'').toLocaleLowerCase('id-ID'))]),master=masterShoppingInfo(name),subcat=shoppingCategoryFor(name,db.category),cat=master?.categoryName||db.categoryName||masterCategoryForItemName(name,shoppingBroadCategoryName(subcat)),priority=shoppingPriorityFor(name,db.priority,subcat),uom=normalizeUom(db.uom||shoppingProfileFor(name)?.preferred_uom||master?.uom||'PCS'),purchases=state.shoppingItems.map(i=>{if(!matchKeys.has(normalizeItemName(i.item_name||'').toLocaleLowerCase('id-ID')))return null;const sess=state.shoppingSessions.find(s=>String(s.id)===String(i.session_id));if(!sess)return null;return{item:i,session:sess,when:sess.checkout_date||i.created_at||'',created:sess.created_at||i.created_at||sess.checkout_date||''}}).filter(Boolean).sort((a,b)=>new Date(b.created||b.when||0)-new Date(a.created||a.when||0)),variantMap={};for(const p of purchases){const productName=normalizeItemName(p.item?.item_name||name)||name,productNorm=productName.toLocaleLowerCase('id-ID'),unit=Number(p.item?.unit_price||0),subtotal=Number(p.item?.subtotal||0);if(!variantMap[productNorm])variantMap[productNorm]={name:productName,count:0,lastPrice:unit,total:0,norm:productNorm};variantMap[productNorm].count++;variantMap[productNorm].total+=subtotal;if(!variantMap[productNorm].lastPrice)variantMap[productNorm].lastPrice=unit}const productRows=Object.values(variantMap).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'id',{sensitivity:'base'})),showProducts=productRows.length>1||productRows.some(v=>v.norm!==normalized),last=purchases[0],lastStore=last?normalizeStoreName(last.session?.store_name||''):'',lastDate=last?(last.session?.checkout_date||last.item?.created_at||''):'',lastPrice=last?Number(last.item?.unit_price||0):0;return`<div class="modal-bg"><div class="modal db-detail-modal"><div class="modal-head db-detail-head"><div class="db-detail-title-wrap"><div class="modal-title">${esc(String(name).toUpperCase())}</div>${shoppingBadges(name,subcat,priority,uom)}</div><button class="xbtn" data-close>×</button></div><div class="db-detail-latest"><div class="db-detail-kicker">PEMBELIAN TERAKHIR</div><div class="db-detail-last-row"><div class="db-detail-last-copy"><div class="db-detail-store">${esc(lastStore||'BELUM ADA TEMPAT BELI')}</div><div class="db-detail-date">${lastDate?dateLabel(lastDate):'BELUM ADA RIWAYAT'}</div></div><div class="db-detail-last-price">${lastPrice?rupiah(lastPrice):'—'}</div></div></div><div class="db-detail-section"><div class="db-detail-section-title">RINGKASAN BARANG</div><div class="db-summary-list"><div class="db-summary-row"><span>KATEGORI</span><b>${esc(cat)}</b></div><div class="db-summary-row"><span>SUB KATEGORI</span><b>${esc(subcat)}</b></div><div class="db-summary-row"><span>PRIORITAS</span><b>${esc(priority)}</b></div><div class="db-summary-row"><span>SATUAN</span><b>${esc(uom)}</b></div><div class="db-summary-row"><span>TOTAL PEMBELIAN</span><b>${purchases.length}×</b></div></div></div>${showProducts?`<div class="db-detail-section"><div class="db-detail-section-title">PRODUK DIBELI</div><div class="db-variant-list">${productRows.map(v=>`<div class="db-variant-row"><div class="db-variant-main"><b>${esc(String(v.name).toUpperCase())}</b><span>${v.count}× PEMBELIAN</span></div><div class="db-variant-price">${v.lastPrice?rupiah(v.lastPrice):'—'}</div></div>`).join('')}</div></div>`:''}<div class="db-detail-section db-history-section"><div class="db-detail-section-title">RIWAYAT PEMBELIAN</div><div class="db-purchase-history">${purchases.length?purchases.map(({item,session})=>{const wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id))?.name||'Dompet',qty=Number(item.quantity||0),rowUom=normalizeUom(item.uom||uom),unit=Number(item.unit_price||0),subtotal=Number(item.subtotal||unit*qty||0),store=session?.store_name||'Belanja Bulanan',product=normalizeItemName(item.item_name||name)||name;return`<button type="button" class="db-purchase-row db-purchase-open" data-purchase-detail="${encodeURIComponent(item.id||'')}" aria-label="Buka detail pembelian ${esc(product)}"><div class="db-purchase-row-top"><div><div class="db-purchase-product">${esc(product)}</div><div class="db-purchase-date">${esc(dateLabel(session?.checkout_date||item.created_at))}</div><div class="db-purchase-store">${esc(store)}</div></div><div class="db-purchase-total">${rupiah(subtotal)}</div></div><div class="db-purchase-row-bottom"><span>${qty} ${esc(rowUom)} × ${rupiah(unit)}</span><span>${esc(wallet)}</span></div></button>`}).join(''):`<div class="db-detail-empty">BELUM ADA RIWAYAT PEMBELIAN.</div>`}</div></div><div class="db-detail-actions"><button type="button" class="btn btn-soft db-detail-action" data-detail-edit-db="${esc(name)}" data-detail-edit-key="${esc(key)}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger db-detail-action" data-detail-delete-db="${esc(key)}" data-detail-delete-name="${esc(name)}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
 if(state.modal.startsWith('purchase:')){const itemId=decodeURIComponent(state.modal.slice(9)),item=state.shoppingItems.find(i=>String(i.id)===String(itemId));if(!item)return'';const session=state.shoppingSessions.find(s=>String(s.id)===String(item.session_id)),wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id))?.name||'Dompet',qty=Number(item.quantity||0),uom=normalizeUom(item.uom||'Pcs'),unit=Number(item.unit_price||0),subtotal=Number(item.subtotal||unit*qty||0),sessionItems=state.shoppingItems.filter(i=>String(i.session_id)===String(item.session_id)),store=session?.store_name||'Belanja Bulanan',date=session?.checkout_date||item.created_at||today();return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">DETAIL PEMBELIAN</div><div class="section-sub">${esc(String(item.item_name||'BARANG').toUpperCase())}</div></div><button class="xbtn" data-close>×</button></div><div class="purchase-detail-amount"><span>SUBTOTAL ITEM</span><b>${rupiah(subtotal)}</b></div><div class="purchase-detail-grid"><div class="purchase-detail-cell"><span>TANGGAL</span><b>${esc(dateLabel(date))}</b></div><div class="purchase-detail-cell"><span>DOMPET</span><b>${esc(wallet)}</b></div><div class="purchase-detail-cell full"><span>TEMPAT BELI</span><b>${esc(store)}</b></div><div class="purchase-detail-cell"><span>JUMLAH</span><b>${qty} ${esc(uom)}</b></div><div class="purchase-detail-cell"><span>HARGA SATUAN</span><b>${rupiah(unit)}</b></div>${session?`<div class="purchase-detail-cell full"><span>TOTAL SESI CHECKOUT</span><b>${rupiah(session.total_amount||0)} · ${sessionItems.length} ITEM</b></div>`:''}</div>${session?`<div class="purchase-session-note">PEMBELIAN INI BAGIAN DARI SATU SESI CHECKOUT. MEMBATALKAN SESI AKAN MEMBATALKAN SEMUA ITEM DI SESI TERSEBUT DAN MENGEMBALIKAN SALDO SERTA ANGGARAN.</div><div class="purchase-cancel-wrap"><button type="button" class="purchase-cancel-btn" data-cancel-purchase-session="${esc(session.id)}">${uiIcon('undo')}<span>BATALKAN SESI</span></button></div>`:''}</div></div>`}
-if(state.modal.startsWith('shopcat:')){const token=decodeURIComponent(state.modal.slice(8)),item=state.checklist.find(x=>String(x.id)===token),name=item?.name||token,norm=normalizeItemName(name).toLowerCase(),db=state.itemDb[norm]||{},profile=shoppingProfileFor(name),profileCat=profile?.category_id?state.shoppingCategories.find(x=>x.id===profile.category_id):null,master=masterShoppingInfo(name),subName=profileCat?.name||master?.subcategoryName||shoppingCategoryFor(name,item?.category||db.category||''),subRow=(state.catalog?.subcategories||[]).find(x=>String(x.name)===String(subName))||(master?catalogSubcategoryForName(name):null),categoryKey=subRow?.category_key||master?.categoryKey||(state.catalog?.categories||[])[0]?.category_key||'',categoryRow=(state.catalog?.categories||[]).find(x=>String(x.category_key)===String(categoryKey)),currentCat=state.shoppingCategories.find(c=>String(c.name)===String(subName))||shoppingCategoryOrder().find(c=>{const sub=(state.catalog?.subcategories||[]).find(s=>String(s.name)===String(c.name));return sub&&String(sub.category_key)===String(categoryKey)})||shoppingCategoryOrder()[0],priority=shoppingPriorityFor(name,item?.priority||db.priority,subName),uom=profile?.preferred_uom||db.uom||smartItem(name).uom;return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PROFIL BARANG</div><div class="section-sub">${esc(name)}</div></div><button class="xbtn" data-close>×</button></div><form id="shopCategoryForm" data-itemid="${item?esc(item.id):''}" data-name="${esc(name)}"><div class="field"><label class="label">NAMA BARANG</label><input id="shopProfileName" class="input profile-name-input" maxlength="100" value="${esc(name)}" autocomplete="off" autocorrect="off" spellcheck="false" required></div><div class="field"><label class="label">KATEGORI</label>${choiceTrigger('shopMasterCategory',categoryKey,categoryRow?.name||'PILIH KATEGORI','shopping-master-category')}</div><div class="field"><label class="label">SUB KATEGORI</label>${choiceTrigger('shopCategorySelect',currentCat?.id||'',currentCat?.name||'PILIH SUB KATEGORI','shopping-subcategory',categoryKey)}</div><div class="field"><label class="label">PRIORITAS</label><input type="hidden" id="shopPriorityValue" value="${esc(priority)}"><div class="priority-explain"><button type="button" class="priority-choice primer ${priority==='PRIMER'?'active':''}" data-priority-choice="PRIMER"><b>PRIMER</b><span>kebutuhan utama</span></button><button type="button" class="priority-choice sekunder ${priority==='SEKUNDER'?'active':''}" data-priority-choice="SEKUNDER"><b>SEKUNDER</b><span>dibutuhkan, bukan yang utama</span></button><button type="button" class="priority-choice pelengkap ${priority==='PELENGKAP'?'active':''}" data-priority-choice="PELENGKAP"><b>PELENGKAP</b><span>tambahan / opsional</span></button></div></div><div class="field"><label class="label">SATUAN</label>${choiceTrigger('shopCategoryUom',normalizeUom(uom||'PCS'),normalizeUom(uom||'PCS'),'uom')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PROFIL</button></form></div></div>`}
-if(state.modal==='investment')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH INVESTASI</div></div><button class="xbtn" data-close>×</button></div><form id="investmentForm"><div class="field"><label class="label">Nama</label><input id="investmentName" class="input" required placeholder="Contoh: Emas Antam"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('investmentType','stock',investmentTypeLabel('stock').toUpperCase(),'investment-type')}</div><div class="field"><label class="label">Nilai Awal</label>${numericInput('investmentAmount')}</div><div class="field"><label class="label">Sumber Dana</label>${choiceTrigger('investmentWallet','','SUDAH DIMILIKI','investment-wallet')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN INVESTASI</button></form></div></div>`;
-if(state.modal.startsWith('investmentDetail:')){const id=state.modal.slice(17),i=state.investments.find(x=>String(x.id)===String(id));if(!i)return'';const cost=Number(i.invested_amount||0),value=Number(i.current_value||0),gain=value-cost,incomeTx=investmentIncomeTxFor(i.id),income=incomeTx.reduce((a,t)=>a+Number(t.amount||0),0),totalReturn=gain+income,returnPct=cost>0?(totalReturn/cost)*100:0,purchaseTx=state.transactions.find(t=>t.source_type==='investment'&&String(t.source_id)===String(i.id)&&t.transaction_type==='investment_buy'&&!t.deleted_at),sourceWallet=purchaseTx?state.wallets.find(w=>String(w.id)===String(purchaseTx.wallet_id))?.name:null;return`<div class="modal-bg"><div class="modal entity-detail-modal"><div class="modal-head"><div><div class="modal-title">${esc(i.name)}</div><div class="section-sub">${esc(investmentTypeLabel(i.investment_type))}</div></div><button class="xbtn" data-close>×</button></div><div class="entity-detail-hero"><div class="entity-detail-kicker">NILAI SEKARANG</div><div class="entity-detail-amount">${rupiah(value)}</div><div class="entity-detail-sub ${totalReturn>=0?'green':'red'}">TOTAL RETURN ${totalReturn>=0?'+ ':''}${rupiah(totalReturn)}${cost>0?` · ${returnPct>=0?'+ ':''}${returnPct.toFixed(1).replace('.0','')}%`:''}</div></div><div class="entity-detail-grid"><div class="entity-detail-cell"><span>MODAL</span><b>${rupiah(cost)}</b></div><div class="entity-detail-cell"><span>GAIN / LOSS</span><b class="${gain>=0?'green':'red'}">${gain>=0?'+ ':''}${rupiah(gain)}</b></div><div class="entity-detail-cell"><span>PENDAPATAN DITERIMA</span><b class="green">+ ${rupiah(income)}</b></div><div class="entity-detail-cell"><span>TOTAL RETURN</span><b class="${totalReturn>=0?'green':'red'}">${totalReturn>=0?'+ ':''}${rupiah(totalReturn)}</b></div><div class="entity-detail-cell full"><span>SUMBER DANA AWAL</span><b>${esc(sourceWallet||'SUDAH DIMILIKI / TIDAK TERCATAT')}</b></div></div>${investmentSupportsCashIncome(i.investment_type)?`<div class="investment-income-section"><div class="investment-income-head"><div class="db-detail-section-title">RIWAYAT PENDAPATAN</div><button type="button" class="btn btn-primary add-only" data-add-investment-income="${i.id}" aria-label="Tambah pendapatan investasi" title="Tambah pendapatan">+</button></div>${incomeTx.length?`<div class="investment-income-list">${incomeTx.map(t=>{const wallet=state.wallets.find(w=>String(w.id)===String(t.wallet_id))?.name||'DOMPET';return`<div class="investment-income-row"><div class="investment-income-copy"><div class="investment-income-type">${investmentIncomeTypeLabel(t.investment_income_type)}</div><div class="investment-income-meta">${dateLabel(t.transaction_date)} · ${esc(wallet)}${t.description?` · ${esc(t.description)}`:''}</div></div><div class="investment-income-side"><div class="investment-income-amount">+ ${rupiah(t.amount)}</div><button type="button" class="icon-action danger" data-undo-tx="${t.id}" aria-label="Hapus pendapatan investasi" title="Hapus">${uiIcon('trash')}</button></div></div>`}).join('')}</div>`:`<div class="card empty empty-minimal"><b>BELUM ADA PENDAPATAN</b></div>`}</div>`:''}<div class="entity-detail-actions"><button type="button" class="btn btn-soft" data-detail-edit-investment="${i.id}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger" data-detail-delete-investment="${i.id}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
-
-if(state.modal.startsWith('investmentIncome:')){const id=state.modal.slice(17),i=state.investments.find(x=>String(x.id)===String(id));if(!i)return'';const type=defaultInvestmentIncomeType(i.investment_type);if(!type)return'';const lastWallet=localStorage.getItem('cn_last_investment_income_wallet')||'',wallet=state.wallets.find(w=>String(w.id)===String(lastWallet))||state.wallets[0];return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH PENDAPATAN</div><div class="section-sub">${esc(i.name)}</div></div><button class="xbtn" data-close>×</button></div><form id="investmentIncomeForm" data-id="${i.id}" data-type="${esc(type)}" data-clientid="${esc(state.txClientId||'')}"><div class="investment-income-type-plain">${investmentIncomeTypeLabel(type)}</div><div class="field"><label class="label">NOMINAL</label>${numericInput('investmentIncomeAmount')}</div><div class="field"><label class="label">MASUK KE DOMPET</label>${choiceTrigger('investmentIncomeWallet',wallet?.id||'',wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div><div class="field"><label class="label">TANGGAL</label>${dateTrigger('investmentIncomeDate',today())}</div><button class="btn btn-primary btn-block" type="submit" ${!state.wallets.length||!state.online?'disabled':''}>SIMPAN PENDAPATAN</button></form></div></div>`}
-
-if(state.modal.startsWith('investmentEdit:')){const id=state.modal.slice(15),i=state.investments.find(x=>x.id===id);if(!i)return'';return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">EDIT INVESTASI</div><div class="section-sub">Perbarui modal dan nilai sekarang</div></div><button class="xbtn" data-close>×</button></div><form id="investmentEditForm" data-id="${i.id}"><div class="field"><label class="label">Nama</label><input id="investmentEditName" class="input" value="${esc(i.name)}" required></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('investmentEditType',i.investment_type,investmentTypeLabel(i.investment_type).toUpperCase(),'investment-type')}</div><div class="field"><label class="label">Total Modal</label>${numericInput('investmentEditCost',groupDigits(i.invested_amount))}</div><div class="field"><label class="label">Nilai Sekarang</label>${numericInput('investmentEditValue',groupDigits(i.current_value))}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PERUBAHAN</button></form></div></div>`}
-if(state.modal==='asset')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH ASET</div></div><button class="xbtn" data-close>×</button></div><form id="assetForm"><div class="field"><label class="label">Nama</label><input id="assetName" class="input" required placeholder="Contoh: Motor / Cincin Emas"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('assetType','property',assetTypeLabel('property').toUpperCase(),'asset-type')}</div><div class="field"><label class="label">Harga Beli</label>${numericInput('assetPurchase')}</div><div class="field"><label class="label">Estimasi Nilai Sekarang · kosong = harga beli</label>${numericInput('assetCurrent')}</div><div class="field"><label class="label">Tanggal Beli · opsional</label>${optionalDateTrigger('assetDate','')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN ASET</button></form></div></div>`;
-if(state.modal.startsWith('assetDetail:')){const id=state.modal.slice(12),a=state.assets.find(x=>String(x.id)===String(id));if(!a)return'';const purchase=Number(a.purchase_value||0),current=Number(a.current_value||0),delta=current-purchase,pct=purchase>0?(delta/purchase)*100:0;return`<div class="modal-bg"><div class="modal entity-detail-modal"><div class="modal-head"><div><div class="modal-title">${esc(a.name)}</div><div class="section-sub">${esc(assetTypeLabel(a.asset_type))}</div></div><button class="xbtn" data-close>×</button></div><div class="entity-detail-hero"><div class="entity-detail-kicker">NILAI SEKARANG</div><div class="entity-detail-amount">${rupiah(current)}</div><div class="entity-detail-sub ${delta>=0?'green':'red'}">${delta>=0?'+ ':''}${rupiah(delta)}${purchase>0?` · ${pct>=0?'+ ':''}${pct.toFixed(1).replace('.0','')}%`:''}</div></div><div class="entity-detail-grid"><div class="entity-detail-cell"><span>HARGA BELI</span><b>${rupiah(purchase)}</b></div><div class="entity-detail-cell"><span>PERUBAHAN NILAI</span><b class="${delta>=0?'green':'red'}">${delta>=0?'+ ':''}${rupiah(delta)}</b></div><div class="entity-detail-cell"><span>PERUBAHAN %</span><b class="${delta>=0?'green':'red'}">${purchase>0?(pct>=0?'+ ':'')+pct.toFixed(1).replace('.0','')+'%':'—'}</b></div><div class="entity-detail-cell"><span>JENIS</span><b>${esc(assetTypeLabel(a.asset_type))}</b></div><div class="entity-detail-cell full"><span>TANGGAL BELI</span><b>${a.purchase_date?esc(dateLabel(a.purchase_date)):'BELUM DICATAT'}</b></div></div><div class="entity-detail-actions"><button type="button" class="btn btn-soft" data-detail-edit-asset="${a.id}">${uiIcon('edit')}<span>EDIT</span></button><button type="button" class="btn btn-danger" data-detail-delete-asset="${a.id}">${uiIcon('trash')}<span>HAPUS</span></button></div></div></div>`}
-if(state.modal.startsWith('assetEdit:')){const id=state.modal.slice(10),a=state.assets.find(x=>x.id===id);if(!a)return'';return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">EDIT ASET</div><div class="section-sub">Perbarui nilai dan informasi aset</div></div><button class="xbtn" data-close>×</button></div><form id="assetEditForm" data-id="${a.id}"><div class="field"><label class="label">Nama</label><input id="assetEditName" class="input" value="${esc(a.name)}" required></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('assetEditType',a.asset_type,assetTypeLabel(a.asset_type).toUpperCase(),'asset-type')}</div><div class="field"><label class="label">Harga Beli</label>${numericInput('assetEditPurchase',groupDigits(a.purchase_value))}</div><div class="field"><label class="label">Nilai Sekarang</label>${numericInput('assetEditCurrent',groupDigits(a.current_value))}</div><div class="field"><label class="label">Tanggal Beli</label>${optionalDateTrigger('assetEditDate',a.purchase_date||'')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PERUBAHAN</button></form></div></div>`}
-if(state.modal==='wallet')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">TAMBAH DOMPET</div></div><button class="xbtn" data-close>×</button></div><form id="walletForm"><div class="field"><label class="label">Nama</label><input class="input" id="walletName" required maxlength="50" placeholder="Contoh: BCA"></div><div class="field"><label class="label">Jenis</label>${choiceTrigger('walletType','bank',walletTypeLabel('bank').toUpperCase(),'wallet-type')}</div><div class="field"><label class="label">Saldo Awal</label>${numericInput('walletBalance')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN DOMPET</button></form></div></div>`;
-if(state.modal==='budgetDetail'){const b=state.budgetSummary||{},budget=Number(b.budget_amount||0),spent=Number(b.spent_amount||0),remaining=Number(b.remaining_amount||0),sessions=state.shoppingSessions.filter(x=>String(x.checkout_date||'').startsWith(state.month)).sort((a,b)=>new Date(b.created_at||b.checkout_date||0)-new Date(a.created_at||a.checkout_date||0)),sessionIds=new Set(sessions.map(x=>String(x.id))),items=state.shoppingItems.filter(x=>sessionIds.has(String(x.session_id))),itemCount=items.length;return`<div class="modal-bg"><div class="modal budget-detail-modal"><div class="modal-head"><div><div class="modal-title">DETAIL ANGGARAN</div><div class="section-sub">${monthLabel(state.month)}</div></div><button class="xbtn" data-close>×</button></div><div class="budget-detail-summary"><div class="budget-detail-stat"><span>ANGGARAN</span><b>${budget?rupiah(budget):'—'}</b></div><div class="budget-detail-stat"><span>TERPAKAI</span><b class="${spent>0?'red':''}">${rupiah(spent)}</b></div><div class="budget-detail-stat"><span>${remaining<0?'LEBIH':'SISA'}</span><b class="${remaining<0?'red':budget>0?'green':''}">${budget?rupiah(Math.abs(remaining)):'—'}</b></div></div>${sessions.length?`<div class="section-title" style="margin:4px 2px 10px">PEMBELIAN BULAN INI · ${itemCount} ITEM</div>${sessions.map(sess=>{const rows=state.shoppingItems.filter(i=>String(i.session_id)===String(sess.id)).sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0)),wallet=state.wallets.find(w=>w.id===sess.wallet_id)?.name||'Dompet';return`<div class="budget-session"><div class="budget-session-head"><div style="min-width:0"><div class="budget-session-store">${esc(sess.store_name||'Belanja Bulanan')}</div><div class="budget-session-meta">${dateLabel(sess.checkout_date)} · ${esc(wallet)} · ${rows.length} ITEM</div></div><div class="budget-session-total">${rupiah(sess.total_amount)}</div></div>${rows.length?`<div class="budget-item-list">${rows.map(i=>`<div class="budget-item"><div class="budget-item-name">${esc(i.item_name||'-')}<small>${Number(i.quantity||0)} ${esc(normalizeUom(i.uom||'Pcs'))} × ${rupiah(i.unit_price||0)}</small></div><div class="budget-item-price">${rupiah(i.subtotal||0)}</div></div>`).join('')}</div>`:''}</div>`}).join('')}`:`<div class="budget-empty">BELUM ADA CHECKOUT YANG MENGGUNAKAN ANGGARAN BULAN INI.</div>`}</div></div>`}
-if(state.modal==='budget'){const current=Number(state.budgetSummary?.budget_amount||0);return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">ATUR ANGGARAN BELANJA</div><div class="section-sub">${monthLabel(state.month)}</div></div><button class="xbtn" data-close>×</button></div><form id="budgetForm"><div class="budget-edit-month">${monthLabel(state.month)}</div><div class="field"><label class="label">Anggaran Belanja</label>${numericInput('budgetAmount',groupDigits(current||''))}</div><button class="btn btn-primary btn-block" type="submit" ${!state.online?'disabled':''}>SIMPAN ANGGARAN</button></form></div></div>`};
-if(state.modal==='txPicker')return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div class="modal-title">Tambah Transaksi</div><button class="xbtn" data-close>×</button></div><div class="type-grid"><button class="type-option expense" data-txtype="expense"><span class="i">${txIcon('expense')}</span><b>PENGELUARAN</b></button><button class="type-option income" data-txtype="income"><span class="i">${txIcon('income')}</span><b>PEMASUKAN</b></button><button class="type-option transfer" data-txtype="transfer"><span class="i">${txIcon('transfer')}</span><b>TRANSFER</b></button></div></div></div>`;
-if(state.modal.startsWith('tx:')){const type=state.modal.split(':')[1],isTransfer=type==='transfer',cats=state.categories.filter(c=>c.category_type===type).sort((a,b)=>(a.name==='Lainnya'?1:b.name==='Lainnya'?-1:a.name.localeCompare(b.name))),wallet=state.wallets[0],dest=state.wallets.find(w=>w.id!==wallet?.id)||state.wallets[0],cat=cats[0];return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title ${type==='income'?'green':type==='expense'?'red':'blue'}">${txLabel(type)}</div><div class="section-sub">Catat transaksi bersama</div></div><button class="xbtn" data-close>×</button></div><form id="txForm" data-type="${type}" data-clientid="${esc(state.txClientId||'')}"><div class="field"><label class="label">Nominal</label>${numericInput('txAmount')}</div><div class="field"><label class="label">${isTransfer?'Dari':'Dompet'}</label>${choiceTrigger('txWallet',wallet?.id||'',wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div>${isTransfer?`<div class="field"><label class="label">Ke</label>${choiceTrigger('txDestination',dest?.id||'',dest?.name||'PILIH DOMPET TUJUAN','destination')}</div>`:`<div class="field"><label class="label">Kategori</label>${choiceTrigger('txCategory',cat?.id||'',cat?.name||'PILIH KATEGORI','category',type)}</div>`}<div class="field"><label class="label">Keterangan</label><input id="txDescription" class="input" placeholder="Contoh: Bensin"></div><div class="field"><label class="label">Tanggal</label>${dateTrigger('txDate',today())}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN</button></form></div></div>`}
+if(state.modal.startsWith('shopcat:')){
+  const token=decodeURIComponent(state.modal.slice(8)),item=state.checklist.find(x=>String(x.id)===token),name=item?.name||token,norm=normalizeItemName(name).toLowerCase(),db=state.itemDb[norm]||{},profile=shoppingProfileFor(name),master=masterShoppingInfo(name);
+  const categoryKey=String(master?.categoryKey||db.categoryKey||(state.catalog?.categories||[]).find(x=>shoppingMasterKey(x.name)==='lainnya')?.category_key||(state.catalog?.categories||[])[0]?.category_key||'');
+  const categoryRow=(state.catalog?.categories||[]).find(x=>String(x.category_key)===categoryKey),subRows=(state.catalog?.subcategories||[]).filter(x=>String(x.category_key)===categoryKey),subRow=subRows.find(x=>String(x.subcategory_key)===String(master?.subcategoryKey||db.subcategoryKey||''))||subRows.find(x=>shoppingMasterKey(x.name)===shoppingMasterKey(master?.subcategoryName||db.subcategoryName||db.category||''))||subRows.find(x=>shoppingMasterKey(x.name)==='lainnya')||subRows[0];
+  const priority=shoppingPriorityFor(name,item?.priority||db.priority,subRow?.name||'Lainnya'),uom=db.uom||profile?.preferred_uom||smartItem(name).uom;
+  return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">PROFIL BARANG</div><div class="section-sub">${esc(name)}</div></div><button class="xbtn" data-close>×</button></div><form id="shopCategoryForm" data-itemid="${item?esc(item.id):''}" data-name="${esc(name)}"><div class="field"><label class="label">NAMA BARANG</label><input id="shopProfileName" class="input profile-name-input" maxlength="100" value="${esc(name)}" autocomplete="off" autocorrect="off" spellcheck="false" required></div><div class="field"><label class="label">KATEGORI</label>${choiceTrigger('shopMasterCategory',categoryKey,categoryRow?.name||'PILIH KATEGORI','shopping-master-category')}</div><div class="field"><label class="label">SUB KATEGORI</label>${choiceTrigger('shopCategorySelect',shoppingSubcategoryChoiceValue(subRow),subRow?.name||'PILIH SUB KATEGORI','shopping-subcategory',categoryKey)}</div><div class="field"><label class="label">PRIORITAS</label><input type="hidden" id="shopPriorityValue" value="${esc(priority)}"><div class="priority-explain"><button type="button" class="priority-choice primer ${priority==='PRIMER'?'active':''}" data-priority-choice="PRIMER"><b>PRIMER</b><span>kebutuhan utama</span></button><button type="button" class="priority-choice sekunder ${priority==='SEKUNDER'?'active':''}" data-priority-choice="SEKUNDER"><b>SEKUNDER</b><span>dibutuhkan, bukan yang utama</span></button><button type="button" class="priority-choice pelengkap ${priority==='PELENGKAP'?'active':''}" data-priority-choice="PELENGKAP"><b>PELENGKAP</b><span>tambahan / opsional</span></button></div></div><div class="field"><label class="label">SATUAN</label>${choiceTrigger('shopCategoryUom',normalizeUom(uom||'PCS'),normalizeUom(uom||'PCS'),'uom')}</div><button class="btn btn-primary btn-block" type="submit">SIMPAN PROFIL</button></form></div></div>`;
+}
 if(state.modal.startsWith('checkout:')){const id=state.modal.slice(9),item=state.checklist.find(x=>String(x.id)===id);if(!item)return'';const match=itemDbMatch(item.name),db=match?.entry||state.itemDb[item.normalized]||{},smart=smartItem(item.name),familyName=smart.name||item.name,defaultProduct=String(db.lastVariantName||familyName),uom=normalizeUom(db.uom||smart.uom||'PCS'),lastWallet=localStorage.getItem('cn_last_checkout_wallet')||'',wallet=state.wallets.find(w=>String(w.id)===String(lastWallet))||state.wallets.find(w=>String(w.id)===String(smart.lastWalletId))||state.wallets[0],defaultPrice=Number(db.lastPrice||smart.lastPrice||0),defaultStore=normalizeStoreName(db.lastStore||smart.lastStore||'');return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">${esc(familyName)}</div></div><button class="xbtn" data-close>×</button></div><form id="checkoutForm" data-itemid="${esc(item.id)}"><div class="field"><label class="label">NAMA PRODUK</label><input id="checkoutProductName" class="input checkout-product-name" maxlength="120" value="${esc(defaultProduct)}" autocomplete="off" autocorrect="off" spellcheck="false"></div><div class="field checkout-price"><label class="label">Harga per Satuan</label>${numericInput('checkoutPrice',groupDigits(defaultPrice||''))}</div><div class="checkout-grid"><div class="field"><label class="label">Jumlah</label><div class="qty-row"><button class="qty-btn" type="button" id="qtyMinus">−</button><input id="checkoutQty" class="input" type="number" min="0.01" step="any" inputmode="decimal" value="1" style="text-align:center;font-weight:950"><button class="qty-btn" type="button" id="qtyPlus">+</button></div></div><div class="field"><label class="label">Satuan</label>${choiceTrigger('checkoutUom',uom,uom,'uom')}</div></div><div class="field"><label class="label">Tempat Beli</label><input id="checkoutStore" class="input" value="${esc(defaultStore)}" placeholder="Tempat beli" autocomplete="off" autocorrect="off" spellcheck="false"></div><div class="field"><label class="label">Dompet</label>${choiceTrigger('checkoutWallet',wallet?.id||'',wallet?wallet.name+' · '+rupiah(wallet.balance):'PILIH DOMPET','wallet')}</div>${!state.wallets.length?'<div class="notice" style="margin-bottom:12px">Buat dompet terlebih dahulu di tab Kekayaan.</div>':''}<button class="btn btn-primary btn-block checkout-submit" type="submit" ${!state.wallets.length||!state.online?'disabled':''}>CHECKOUT</button></form></div></div>`}
 if(state.modal==='restorePreview'){const p=state.restoreCandidate;if(!p)return'';const s=backupSummary(p);return`<div class="modal-bg"><div class="modal"><div class="modal-head"><div><div class="modal-title">RESTORE DATA</div><div class="section-sub">${esc(backupDateTime(p.exported_at))}</div></div><button class="xbtn" data-restore-cancel>×</button></div><div class="restore-summary"><div class="cell"><span>DOMPET</span><b>${s.wallets}</b></div><div class="cell"><span>TRANSAKSI</span><b>${s.transactions}</b></div><div class="cell"><span>INVESTASI</span><b>${s.investments}</b></div><div class="cell"><span>ASET</span><b>${s.assets}</b></div><div class="cell"><span>SESI BELANJA</span><b>${s.shoppingSessions}</b></div><div class="cell"><span>ITEM BELANJA</span><b>${s.shoppingItems}</b></div></div><div class="restore-warning"><b>Restore mengganti kondisi data aktif Household dengan isi backup ini.</b><br>Checkpoint kondisi sekarang dibuat otomatis sebelum proses dimulai.</div><div class="restore-actions"><button class="btn btn-soft" data-restore-cancel ${state.loading?'disabled':''}>BATAL</button><button id="restoreExecuteBtn" class="btn btn-danger" ${state.loading?'disabled':''}>${state.loading?'MEMULIHKAN…':'RESTORE DATA'}</button></div></div></div>`}
 if(state.modal==='guide'){return`<div class="modal-bg"><div class="modal guide-modal"><div class="modal-head"><div><div class="modal-title">GUIDE CN MONEY</div></div><button class="xbtn" data-guide-close>×</button></div><div class="guide-stack"><div class="guide-card"><div class="guide-card-title">MULAI</div><p><b>DASHBOARD</b> buat lihat saldo, budget, aktivitas, dan insight. Tombol <b>+</b> dipakai untuk Pemasukan, Pengeluaran, atau Transfer.</p></div><div class="guide-card"><div class="guide-card-title">LIST BELANJAAN</div><p>Ketik nama barang lalu tambah. Tap barang untuk <b>Quick Checkout</b>. Barang yang sudah dibeli tetap terlihat sementara supaya bisa di-undo, lalu <b>hilang otomatis setelah 24 jam</b> dari List Belanjaan.</p><p>Receipt dan History pembeliannya tetap tersimpan.</p></div><div class="guide-card"><div class="guide-card-title">SMART LEARNING</div><p>CN MONEY mengingat koreksi <b>Kategori, Sub Kategori, Prioritas, dan Satuan</b> yang lo simpan di DATA, lalu memakainya lagi di perangkat lain.</p><p>Harga, toko, satuan, dan saku terakhir juga diambil dari riwayat pembelian.</p></div><div class="guide-card"><div class="guide-card-title">DATA BARANG & RECEIPT</div><p><b>LIST</b> adalah rencana belanja. Barang baru masuk <b>DATA</b> setelah checkout berhasil. DATA menyimpan profil, produk yang pernah dibeli, kategori, sub kategori, prioritas, satuan, dan riwayat harga. <b>RECEIPT</b> berisi sesi checkout dan bisa diexport ke PDF thermal 80mm.</p></div><div class="guide-card"><div class="guide-card-title">KEKAYAAN</div><p><b>SAKU</b> untuk kas/rekening, <b>INVESTASI</b> untuk nilai dan pendapatan investasi, dan <b>ASET</b> untuk barang bernilai. TOTAL ASET menggabungkan semuanya.</p></div><div class="guide-card"><div class="guide-card-title">BACKUP & RESTORE</div><p><b>BACKUP</b> menyimpan salinan data ke file CN MONEY. <b>RESTORE</b> memulihkan data dari backup milik rumah yang sama.</p><p><b>BATALKAN RESTORE</b> hanya muncul setelah Restore benar-benar dilakukan.</p></div><div class="guide-card"><div class="guide-card-title">NOTIFIKASI</div><p>Notifikasi Household dikirim untuk <b>Pemasukan, Pengeluaran, dan item baru List Belanjaan</b>. Transfer dan Checkout tidak mengirim notifikasi.</p></div></div></div></div>`}
@@ -3485,7 +3602,7 @@ const addShop=async({keepFocus=false,resolvedName=null,originalRaw=null,skipReso
     toast('Item tersimpan lokal, sync gagal.');
   }
 };
-document.getElementById('shopAdd')?.addEventListener('click',()=>addShop({keepFocus:false}));const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('input',()=>clearShopAmbiguity());shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(e.repeat)return;addShop({keepFocus:true})}});bindShopListLive();document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('[data-db-name]').forEach(el=>el.classList.toggle('hidden',!el.dataset.dbName.includes(q)))});
+document.getElementById('shopAdd')?.addEventListener('click',()=>addShop({keepFocus:false}));const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('input',()=>clearShopAmbiguity());shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(e.repeat)return;addShop({keepFocus:true})}});bindShopListLive();document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{state.dataSearch=e.target.value;applyDbSearch(state.dataSearch)});if(document.getElementById('dbSearch'))requestAnimationFrame(()=>applyDbSearch(state.dataSearch));
 document.getElementById('qtyMinus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=Math.max(.01,(parseFloat(el.value)||1)-1)});document.getElementById('qtyPlus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=(parseFloat(el.value)||0)+1});bindMoneyInputs();document.getElementById('walletForm')?.addEventListener('submit',handleWalletSubmit);document.getElementById('walletEditForm')?.addEventListener('submit',handleWalletEditSubmit);document.getElementById('budgetForm')?.addEventListener('submit',handleBudgetSubmit);document.getElementById('txForm')?.addEventListener('submit',handleTxSubmit);document.getElementById('txEditForm')?.addEventListener('submit',handleTxEditSubmit);document.getElementById('checkoutForm')?.addEventListener('submit',handleCheckoutSubmit);document.getElementById('shopCategoryForm')?.addEventListener('submit',handleShopCategorySubmit);document.getElementById('investmentForm')?.addEventListener('submit',handleInvestmentSubmit);document.getElementById('investmentIncomeForm')?.addEventListener('submit',handleInvestmentIncomeSubmit);document.getElementById('investmentEditForm')?.addEventListener('submit',handleInvestmentEditSubmit);document.getElementById('assetForm')?.addEventListener('submit',handleAssetSubmit);document.getElementById('assetEditForm')?.addEventListener('submit',handleAssetEditSubmit);
 document.getElementById('themeToggle')?.addEventListener('click',()=>{const darkNow=document.documentElement.classList.contains('dark');localStorage.setItem('fin_theme',darkNow?'light':'dark');applyTheme();render()});document.getElementById('soundToggle')?.addEventListener('click',()=>{const next=soundIsOn()?'off':'on';localStorage.setItem('cn_sound',next);if(next==='on')playShopClick();render()});document.getElementById('guideBtn')?.addEventListener('click',()=>{state.modal='guide';render()});
 document.getElementById('categoryGuideBtn')?.addEventListener('click',()=>{state.categoryGuideSearch='';state.modal='categoryGuide';render()});
@@ -3798,25 +3915,20 @@ async function handleShopCategorySubmit(e){
 
   const itemId=e.currentTarget.dataset.itemid;
   const oldName=String(e.currentTarget.dataset.name||'').trim();
-  const newName=normalizeItemName(document.getElementById('shopProfileName')?.value||oldName);
+  const newName=shoppingMasterCanonicalName(normalizeItemName(document.getElementById('shopProfileName')?.value||oldName));
   const categoryKey=String(document.getElementById('shopMasterCategory')?.value||'');
-  const categoryId=document.getElementById('shopCategorySelect').value;
+  const categoryChoice=document.getElementById('shopCategorySelect').value;
   const priority=normalizeShoppingPriority(document.getElementById('shopPriorityValue')?.value||'');
   const uom=normalizeUom(document.getElementById('shopCategoryUom').value||'PCS');
 
   if(!newName)return toast('NAMA BARANG WAJIB DIISI.');
   if(!categoryKey)return toast('PILIH KATEGORI.');
-  if(!categoryId)return toast('PILIH SUB KATEGORI.');
+  if(!categoryChoice)return toast('PILIH SUB KATEGORI.');
   if(!priority)return toast('PILIH PRIORITAS.');
 
   const categoryRow=(state.catalog?.categories||[]).find(x=>String(x.category_key)===categoryKey);
-  const subCategoryRow=state.shoppingCategories.find(c=>String(c.id)===String(categoryId));
-  const subMaster=(state.catalog?.subcategories||[]).find(x=>
-    String(x.category_key)===categoryKey &&
-    String(x.name||'').toLocaleLowerCase('id-ID')===String(subCategoryRow?.name||'').toLocaleLowerCase('id-ID')
-  );
-
-  if(!categoryRow||!subCategoryRow||!subMaster)return toast('KATEGORI TIDAK VALID.');
+  const {subMaster,profileRow:subCategoryRow}=resolveShoppingSubcategoryChoice(categoryKey,categoryChoice);
+  if(!categoryRow||!subMaster)return toast('KATEGORI TIDAK VALID.');
 
   const oldNorm=normalizeItemName(oldName).toLocaleLowerCase('id-ID');
   const newNorm=normalizeItemName(newName).toLocaleLowerCase('id-ID');
@@ -3836,26 +3948,15 @@ async function handleShopCategorySubmit(e){
 
   state.loading=true;
 
-  // Keep compatibility profile data in Supabase.
-  const profileRes=await sb.rpc('shopping_set_item_profile',{
-    p_household_id:state.household.id,
-    p_item_name:newName,
-    p_category_id:categoryId,
-    p_preferred_uom:uom
-  });
-  if(profileRes.error){
-    state.loading=false;
-    return toast(profileRes.error.message||'GAGAL MENYIMPAN PROFIL BARANG.');
-  }
-
-  const priorityRes=await sb.rpc('shopping_set_item_priority',{
-    p_household_id:state.household.id,
-    p_item_name:newName,
-    p_priority:priority
-  });
-  if(priorityRes.error){
-    state.loading=false;
-    return toast(priorityRes.error.message||'GAGAL MENYIMPAN PRIORITAS.');
+  // Existing Supabase profile rows are still updated when the selected
+  // subcategory has a legacy shopping_category id. Synthetic "Lainnya"
+  // rows are persisted through the synced household database override,
+  // so no Supabase schema migration is required for v2.4.6.
+  if(subCategoryRow){
+    const profileRes=await sb.rpc('shopping_set_item_profile',{p_household_id:state.household.id,p_item_name:newName,p_category_id:subCategoryRow.id,p_preferred_uom:uom});
+    if(profileRes.error){state.loading=false;return toast(profileRes.error.message||'GAGAL MENYIMPAN PROFIL BARANG.')}
+    const priorityRes=await sb.rpc('shopping_set_item_priority',{p_household_id:state.household.id,p_item_name:newName,p_priority:priority});
+    if(priorityRes.error){state.loading=false;return toast(priorityRes.error.message||'GAGAL MENYIMPAN PRIORITAS.')}
   }
 
   if(newNorm!==oldNorm){
@@ -3889,7 +3990,7 @@ async function handleShopCategorySubmit(e){
     name:newName,
     normalized:newNorm,
     aliases:uniqueAliases,
-    category:subCategoryRow.name,
+    category:subMaster.name,
     categoryKey:categoryKey,
     categoryName:categoryRow.name,
     subcategoryKey:subMaster.subcategory_key,
@@ -3911,7 +4012,7 @@ async function handleShopCategorySubmit(e){
       ...x,
       name:newName,
       normalized:newNorm,
-      category:subCategoryRow.name,
+      category:subMaster.name,
       priority,
       uom
     }:x;
@@ -3956,7 +4057,7 @@ async function recoverOnline(){if(reconnectPromise)return reconnectPromise;recon
 window.addEventListener('online',()=>{if(!startupSyncing)recoverOnline()});window.addEventListener('offline',()=>{state.online=false;render()});window.addEventListener('pageshow',()=>{if(!startupSyncing&&state.household&&navigator.onLine)recoverOnline()});document.addEventListener('visibilitychange',()=>{if(!startupSyncing&&document.visibilityState==='visible'&&state.household&&navigator.onLine)recoverOnline()});
 history.replaceState({finRoot:true},'');history.pushState({finGuard:true},'');window.addEventListener('popstate',()=>{const now=Date.now();if(refs.modal){if(state.modal==='restorePreview'){state.restoreCandidate=null;state.modal='settings'}else if(state.modal==='guide'){state.modal='settings'}else if(state.modal==='categoryGuide'){state.categoryGuideSearch='';state.modal='settings'}else if(state.modal==='catalogSettings'){state.catalogSearch='';state.modal='settings'}else if(state.modal==='receiptPeriodPicker'){state.receiptPickerMonth=null;state.receiptPickerYear=null;state.modal=null}else{state.modal=null;state.restoreCandidate=null}state.confirmation=null;state.txClientId=null;render();history.pushState({finGuard:true},'');return}if(refs.tab!=='dashboard'){state.tab='dashboard';render();history.pushState({finGuard:true},'');return}if(now-refs.lastBack<1600){history.go(-1);return}refs.lastBack=now;toast('Tekan kembali sekali lagi untuk keluar.');history.pushState({finGuard:true},'')});
 async function seedMissingCategories(){if(!state.household?.id||!navigator.onLine)return;const jobs=[];if(!state.categories.length)jobs.push(sb.rpc('finance_seed_categories',{p_household_id:state.household.id}));if(!state.shoppingCategories.length)jobs.push(sb.rpc('shopping_seed_categories',{p_household_id:state.household.id}));if(!jobs.length)return;const results=await Promise.all(jobs);const err=results.find(x=>x?.error)?.error;if(err)throw err;await loadAll({rerender:false,preserveCacheOnEmpty:true})}
-async function boot(){loadShoppingAutocorrect().catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
+async function boot(){loadShoppingAutocorrect().catch(()=>{});loadShoppingMasterData().then(()=>{applyShoppingMasterCatalog();if(state.ready)render()}).catch(()=>{});const hasLocal=restoreHouseholdFromLocal();if(hasLocal){hydrateCaches();hydrateCatalogCache();state.ready=true;render()}if(!navigator.onLine){state.online=false;if(!hasLocal){state.ready=true;render()}startupSyncing=false;return}try{await ensureSession();const restored=await restoreHousehold();if(restored){hydrateCaches();await loadAll({rerender:false,preserveCacheOnEmpty:true});await seedMissingCategories();subscribeRealtime();persistCaches()}state.ready=true;render();repairPushState()}catch(err){console.error(err);state.ready=true;if(hasLocal||restoreHouseholdFromLocal()){hydrateCaches();render();toast('Cloud tidak terjangkau. Membuka data terakhir di perangkat.')}else{renderOnboarding(err?.message||'Gagal memulai aplikasi.')}}finally{startupSyncing=false}}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).then(r=>r.update()).catch(console.warn))}boot();
 })();
 </script>
