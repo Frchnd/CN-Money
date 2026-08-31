@@ -1,0 +1,9 @@
+CN MONEY v2.7.2 — PERFORMANCE PHASE 3
+
+[ ] Dashboard angka/format rupiah sama dengan v2.7.1
+[ ] History grouping + tanggal sama
+[ ] DATA search menemukan nama di riwayat/toko/dompet
+[ ] RECEIPT filter tanggal/toko/barang sama
+[ ] Investasi: pendapatan + total return benar
+[ ] UI/warna/layout tidak berubah
+[ ] Offline + sync smoke test

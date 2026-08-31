@@ -2481,6 +2481,7 @@
 
     /* v2.6.3 — compact receipt filter action; normal app typography */
     /* v2.7.1 — performance: preindexed master + local-first actions + coalesced background refresh */
+    /* v2.7.2 — performance: render indexes + formatter reuse + DATA/RECEIPT derived-cache */
     .receipt-custom-toolbar{display:flex;gap:7px;align-items:center;justify-content:flex-end;margin:8px 0 8px}
     .receipt-filter-trigger{width:auto!important;min-width:0!important;min-height:32px!important;padding:0 10px!important;border-radius:11px!important;font-size:9px!important;line-height:1!important;gap:6px!important;white-space:nowrap!important;flex:0 0 auto!important}
     .receipt-filter-trigger svg{width:14px!important;height:14px!important;display:block!important;flex:0 0 14px!important}
@@ -2569,7 +2570,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.7.1';
+const CN_MONEY_VERSION='2.7.2';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,receiptDateFilter:'',receiptStoreFilter:'',receiptItemFilters:[],receiptAllItems:true,receiptFilterDraft:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
@@ -2594,7 +2595,10 @@ function performAppBack(){
 }
 
 const esc=(s='')=>String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-const rupiah=n=>'Rp '+Math.round(Number(n||0)).toLocaleString('id-ID');
+const idMoneyFormatter=new Intl.NumberFormat('id-ID',{maximumFractionDigits:0});
+const idDateFormatter=new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+const idPdfDateFormatter=new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});
+const rupiah=n=>'Rp '+idMoneyFormatter.format(Math.round(Number(n||0)));
 const num=v=>Math.max(0,Number(String(v??'').replace(/[^0-9]/g,''))||0);
 const groupDigits=v=>{let d=String(v??'').replace(/\D/g,'').replace(/^0+(?=\d)/,'');return d?d.replace(/\B(?=(\d{3})+(?!\d))/g,'.'):''};
 const today=()=>new Date().toISOString().slice(0,10);
@@ -2610,7 +2614,7 @@ function receiptPeriodTrigger(){
 
 function dashboardMonthTrigger(){return`<button type="button" class="month-trigger dashboard-month-trigger" data-open-month-picker aria-label="Pilih bulan pengeluaran"><span class="dashboard-month-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span><span>${esc(monthLabel(state.month))}</span></button>`}
 function renderScrollKey(){if(state.tab==='shopping')return 'shopping:'+state.shopTab;if(state.tab==='wealth')return 'wealth:'+state.wealthTab;return state.tab}
-const dateLabel=d=>{try{return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(String(d).slice(0,10)+'T12:00:00'))}catch{return d}};
+const dateLabel=d=>{try{return idDateFormatter.format(new Date(String(d).slice(0,10)+'T12:00:00'))}catch{return d}};
 const walletTypeLabel=t=>({bank:'Bank',ewallet:'E-Wallet',cash:'Cash',other:'Lainnya'})[t]||t;
 const walletIcon=t=>({
 bank:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"/><path d="M5 10V20M9 10V20M15 10V20M19 10V20"/><path d="M2 20h20"/><path d="M12 3 3 8h18Z"/></svg>',
@@ -3263,9 +3267,30 @@ function queueBucketMutationsFast(rows,{onSynced=null}={}){
   },0);
   return true;
 }
-function metrics(){const monthTx=state.transactions.filter(t=>String(t.transaction_date||'').startsWith(state.month));const income=monthTx.filter(t=>t.transaction_type==='income').reduce((a,t)=>a+Number(t.amount||0),0);const expense=monthTx.filter(t=>t.transaction_type==='expense').reduce((a,t)=>a+Number(t.amount||0),0);const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);const cats={};monthTx.filter(t=>t.transaction_type==='expense').forEach(t=>{const c=state.categories.find(x=>x.id===t.category_id)?.name||'Lainnya';cats[c]=(cats[c]||0)+Number(t.amount||0)});const breakdown=Object.entries(cats).sort((a,b)=>b[1]-a[1]);return{monthTx,income,expense,net:income-expense,total,breakdown}}
-function txDescription(t){if(isInvestmentIncomeTx(t)){const inv=state.investments.find(i=>String(i.id)===String(t.source_id));return`${investmentIncomeTypeLabel(t.investment_income_type)} · ${inv?.name||'INVESTASI'}`}const cat=state.categories.find(c=>c.id===t.category_id)?.name;if(t.description)return t.description;if(cat)return cat;if(t.transaction_type==='transfer')return'Transfer antar dompet';if(t.transaction_type==='adjustment')return'Saldo awal';return txLabel(t.transaction_type)}
-function txMeta(t){const src=state.wallets.find(w=>w.id===t.wallet_id)?.name||'Dompet';const dst=state.wallets.find(w=>w.id===t.destination_wallet_id)?.name;if(t.transaction_type==='transfer')return`${src} → ${dst||'Dompet'}`;if(isInvestmentIncomeTx(t))return`${src}${t.description?' · '+t.description:''}`;const cat=state.categories.find(c=>c.id===t.category_id)?.name||'',title=String(txDescription(t)||'').toLocaleLowerCase('id-ID'),catKey=String(cat).toLocaleLowerCase('id-ID'),showCat=!!cat&&!title.includes(catKey);return`${src}${showCat?' · '+cat:''}`}
+let renderIndexes={walletById:new Map(),categoryById:new Map(),investmentById:new Map(),sessionById:new Map(),investmentIncomeById:new Map(),investmentIncomeTotalById:new Map()};
+let renderPerfCache={receiptRows:null,receiptOptions:null};
+function rebuildRenderIndexes(){
+  const walletById=new Map((state.wallets||[]).map(x=>[String(x.id),x]));
+  const categoryById=new Map((state.categories||[]).map(x=>[String(x.id),x]));
+  const investmentById=new Map((state.investments||[]).map(x=>[String(x.id),x]));
+  const sessionById=new Map((state.shoppingSessions||[]).map(x=>[String(x.id),x]));
+  const investmentIncomeById=new Map(),investmentIncomeTotalById=new Map();
+  for(const t of state.transactions||[]){
+    if(!isInvestmentIncomeTx(t))continue;
+    const key=String(t.source_id||'');if(!key)continue;
+    let rows=investmentIncomeById.get(key);if(!rows){rows=[];investmentIncomeById.set(key,rows)}rows.push(t);
+    investmentIncomeTotalById.set(key,(investmentIncomeTotalById.get(key)||0)+Number(t.amount||0));
+  }
+  for(const rows of investmentIncomeById.values())rows.sort((a,b)=>new Date(b.created_at||b.transaction_date||0)-new Date(a.created_at||a.transaction_date||0));
+  renderIndexes={walletById,categoryById,investmentById,sessionById,investmentIncomeById,investmentIncomeTotalById};
+  renderPerfCache={receiptRows:null,receiptOptions:null};
+}
+function indexedWallet(id){return renderIndexes.walletById.get(String(id))||null}
+function indexedCategory(id){return renderIndexes.categoryById.get(String(id))||null}
+function indexedInvestment(id){return renderIndexes.investmentById.get(String(id))||null}
+function metrics(){const monthTx=state.transactions.filter(t=>String(t.transaction_date||'').startsWith(state.month));const income=monthTx.filter(t=>t.transaction_type==='income').reduce((a,t)=>a+Number(t.amount||0),0);const expense=monthTx.filter(t=>t.transaction_type==='expense').reduce((a,t)=>a+Number(t.amount||0),0);const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);const cats={};monthTx.filter(t=>t.transaction_type==='expense').forEach(t=>{const c=indexedCategory(t.category_id)?.name||'Lainnya';cats[c]=(cats[c]||0)+Number(t.amount||0)});const breakdown=Object.entries(cats).sort((a,b)=>b[1]-a[1]);return{monthTx,income,expense,net:income-expense,total,breakdown}}
+function txDescription(t){if(isInvestmentIncomeTx(t)){const inv=indexedInvestment(t.source_id);return`${investmentIncomeTypeLabel(t.investment_income_type)} · ${inv?.name||'INVESTASI'}`}const cat=state.categories.find(c=>c.id===t.category_id)?.name;if(t.description)return t.description;if(cat)return cat;if(t.transaction_type==='transfer')return'Transfer antar dompet';if(t.transaction_type==='adjustment')return'Saldo awal';return txLabel(t.transaction_type)}
+function txMeta(t){const src=indexedWallet(t.wallet_id)?.name||'Dompet';const dst=indexedWallet(t.destination_wallet_id)?.name;if(t.transaction_type==='transfer')return`${src} → ${dst||'Dompet'}`;if(isInvestmentIncomeTx(t))return`${src}${t.description?' · '+t.description:''}`;const cat=indexedCategory(t.category_id)?.name||'',title=String(txDescription(t)||'').toLocaleLowerCase('id-ID'),catKey=String(cat).toLocaleLowerCase('id-ID'),showCat=!!cat&&!title.includes(catKey);return`${src}${showCat?' · '+cat:''}`}
 function renderTransactionRows(list,showActions=true){if(!list.length)return`<div class="card empty"><div class="big">${uiIcon('receipt')}</div><b>Belum ada transaksi</b><span>Data akan muncul di sini.</span></div>`;const ordered=[...list].sort((a,b)=>new Date(b.created_at||b.transaction_date||0)-new Date(a.created_at||a.transaction_date||0));return`<div class="card">${ordered.map(t=>{const type=t.transaction_type,cls=type==='income'?'green':type==='expense'?'red':type==='transfer'?'blue':'',sign=type==='income'?'+ ':type==='expense'?'- ':'',shopping=t.source_type==='shopping',investmentIncome=isInvestmentIncomeTx(t),editable=!shopping&&!investmentIncome&&(type==='income'||type==='expense'),undoable=!shopping&&['income','expense','transfer'].includes(type);return`<div class="tx-card"><div style="display:flex;align-items:center;gap:10px;min-width:0"><div class="tx-icon ${type==='income'?'income':type==='expense'?'expense':type==='transfer'?'transfer':''}">${txIcon(type)}</div><div style="min-width:0"><div class="tx-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(txDescription(t))}</div><div class="tx-meta">${esc(txMeta(t))} · ${dateLabel(t.transaction_date)}</div><div class="tx-device">DIBUAT OLEH ${esc(transactionDeviceName(t))}</div></div></div><div><div class="tx-amount ${cls}">${sign}${rupiah(t.amount)}</div>${showActions&&(editable||undoable)?`<div class="tx-actions">${editable?`<button class="icon-action primary" data-edit-tx="${t.id}" aria-label="Edit transaksi" title="Edit">${uiIcon('edit')}</button>`:''}${undoable?`<button class="icon-action danger" data-undo-tx="${t.id}" aria-label="${investmentIncome?'Hapus pendapatan investasi':'Undo transaksi'}" title="${investmentIncome?'Hapus':'Undo'}">${investmentIncome?uiIcon('trash'):uiIcon('undo')}</button>`:''}</div>`:''}</div></div>`}).join('')}</div>`}
 function renderDashboard(){const m=metrics(),max=m.breakdown[0]?.[1]||1,top=m.breakdown[0],shopping=m.breakdown.find(([n])=>n.toLowerCase()==='belanja bulanan')?.[1]||0,b=state.budgetSummary||{},budget=Number(b.budget_amount||0),spent=Number(b.spent_amount||0),remaining=Number(b.remaining_amount||0),usage=Number(b.usage_percent||0),barWidth=budget>0?Math.min(100,Math.max(0,usage)):0,flowMax=Math.max(m.income,m.expense,1),incomePct=m.income>0?Math.max(8,Math.min(100,Math.round(m.income/flowMax*100))):0,expensePct=m.expense>0?Math.max(8,Math.min(100,Math.round(m.expense/flowMax*100))):0;let insights=[];if(!m.monthTx.length)insights.push(['info','Mulai dari transaksi nyata','Catat pemasukan atau pengeluaran supaya insight otomatis terbentuk.']);else{if(top)insights.push(['info','Pengeluaran terbesar',`${top[0]} menyerap ${m.expense?Math.round(top[1]/m.expense*100):0}% dari pengeluaran bulan ini (${rupiah(top[1])}).`]);insights.push([m.net>=0?'good':'bad',m.net>=0?'Arus kas bulan ini positif':'Pengeluaran lebih besar dari pemasukan',`Net bulan ini ${m.net>=0?'+ ':''}${rupiah(m.net)}.`]);if(shopping>0)insights.push(['info','Belanja bulanan tercatat',`${rupiah(shopping)} tercatat otomatis dari proses checkout.`])}if(budget>0){if(remaining<0)insights.unshift(['bad','Anggaran belanja terlewati',`Pengeluaran belanja sudah melewati anggaran sebesar ${rupiah(Math.abs(remaining))}.`]);else if(usage>=80)insights.unshift(['warn','Anggaran belanja hampir habis',`${usage.toFixed(1).replace('.0','')}% terpakai. Sisa ${rupiah(remaining)}.`]);else insights.push(['good','Anggaran belanja masih aman',`${usage.toFixed(1).replace('.0','')}% terpakai. Sisa ${rupiah(remaining)}.`])}else insights.push(['info','Anggaran belum diatur','Atur anggaran belanja bulan ini agar pemakaian dan sisa budget terpantau.']);
 return`<div class="hero"><div class="eyebrow">Total saldo saat ini</div><div class="hero-amount">${rupiah(m.total)}</div><div class="hero-sub">${state.wallets.length} DOMPET AKTIF</div></div><div class="grid2"><div class="stat"><div class="stat-label">Pemasukan</div><div class="stat-value green">${rupiah(m.income)}</div></div><div class="stat"><div class="stat-label">Pengeluaran</div><div class="stat-value red">${rupiah(m.expense)}</div></div><div class="stat"><div class="stat-label">Net</div><div class="stat-value ${m.net>=0?'green':'red'}">${m.net>=0?'+ ':''}${rupiah(m.net)}</div></div><div class="stat"><div class="stat-label">Belanja</div><div class="stat-value">${rupiah(shopping)}</div></div></div>
@@ -3708,18 +3733,31 @@ function dataEntryHasPurchase(key,db){
   const sessions=new Set((state.shoppingSessions||[]).map(s=>String(s.id)));
   return (state.shoppingItems||[]).some(i=>sessions.has(String(i.session_id))&&names.has(normalizeItemName(i.item_name||'').toLocaleLowerCase('id-ID')));
 }
-function dataEntrySearchText(key,db){
+function buildDataPurchaseSearchIndex(){
+  const out=new Map(),sessions=renderIndexes.sessionById.size?renderIndexes.sessionById:new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
+  for(const item of state.shoppingItems||[]){
+    const key=normalizeItemName(item?.item_name||'').toLocaleLowerCase('id-ID');if(!key)continue;
+    const session=sessions.get(String(item?.session_id)),wallet=indexedWallet(session?.wallet_id);
+    const text=[item?.item_name,item?.uom,session?.store_name,session?.checkout_date,session?.created_at,wallet?.name,item?.quantity,item?.unit_price,item?.subtotal].filter(Boolean).join(' ');
+    if(!text)continue;out.set(key,(out.get(key)?out.get(key)+' ':'')+text);
+  }
+  return out;
+}
+function dataEntrySearchText(key,db,purchaseIndex=null){
   const name=normalizeItemName(db?.name||key)||String(key||'');
   const names=dataEntryPurchaseNames(key,db);
   const master=masterShoppingInfo(name),sub=shoppingCategoryFor(name,db?.category||''),category=master?.categoryName||db?.categoryName||masterCategoryForItemName(name,'Lainnya'),priority=shoppingPriorityFor(name,db?.priority||'',sub),uom=normalizeUom(db?.uom||master?.uom||'PCS');
   const parts=[name,category,sub,priority,uom,db?.lastStore,db?.categoryName,db?.subcategoryName,db?.category];
   if(Array.isArray(db?.aliases))parts.push(...db.aliases);
   if(db?.variants&&typeof db.variants==='object')for(const v of Object.values(db.variants))parts.push(v?.name,v?.lastStore,v?.uom,v?.lastPrice,v?.lastPurchased);
-  const sessions=new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
-  for(const item of state.shoppingItems||[]){
-    if(!names.has(normalizeItemName(item?.item_name||'').toLocaleLowerCase('id-ID')))continue;
-    const session=sessions.get(String(item?.session_id)),wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id));
-    parts.push(item?.item_name,item?.uom,session?.store_name,session?.checkout_date,session?.created_at,wallet?.name,item?.quantity,item?.unit_price,item?.subtotal);
+  if(purchaseIndex){for(const n of names){const extra=purchaseIndex.get(n);if(extra)parts.push(extra)}}
+  else{
+    const sessions=new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
+    for(const item of state.shoppingItems||[]){
+      if(!names.has(normalizeItemName(item?.item_name||'').toLocaleLowerCase('id-ID')))continue;
+      const session=sessions.get(String(item?.session_id)),wallet=state.wallets.find(w=>String(w.id)===String(session?.wallet_id));
+      parts.push(item?.item_name,item?.uom,session?.store_name,session?.checkout_date,session?.created_at,wallet?.name,item?.quantity,item?.unit_price,item?.subtotal);
+    }
   }
   return catalogSearchText(parts.filter(Boolean).join(' '));
 }
@@ -3808,13 +3846,14 @@ function refreshShopListLive(){
   bindShopListLive();
 }
 
-function dataItemCard(x){
-  const key=x._dbKey||x.normalized||String(x.name||'').toLowerCase(),search=dataEntrySearchText(key,x);
+function dataItemCard(x,purchaseIndex){
+  const key=x._dbKey||x.normalized||String(x.name||'').toLowerCase(),search=dataEntrySearchText(key,x,purchaseIndex);
   return`<button type="button" class="db-compact-row db-card-open" data-dbdetail="${encodeURIComponent(key)}" data-db-search="${esc(search)}" aria-label="Buka detail ${esc(x.name||'barang')}"><span class="db-compact-name">${esc(x.name||'-')}</span></button>`
 }
-function renderDbFlat(arr){return`<div class="card db-compact-list">${arr.map(dataItemCard).join('')}</div>`}
+function renderDbFlat(arr,purchaseIndex){return`<div class="card db-compact-list">${arr.map(x=>dataItemCard(x,purchaseIndex)).join('')}</div>`}
 
 function renderShopData(){
+  const purchaseIndex=buildDataPurchaseSearchIndex();
   const base=Object.entries(state.itemDb||{}).filter(([key,value])=>dataEntryHasPurchase(key,value)).map(([key,value])=>({...value,_dbKey:key}));
   const alpha=(a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'});
   const recent=(a,b)=>new Date(b.lastPurchased||0)-new Date(a.lastPurchased||0)||alpha(a,b);
@@ -3835,7 +3874,7 @@ function renderShopData(){
       (groups[k]||(groups[k]=[])).push(x)
     });
     content=Object.entries(groups)
-      .map(([k,v])=>`<div class="db-search-group"><div class="db-group-head">${esc(k)}</div>${renderDbFlat(v)}</div>`)
+      .map(([k,v])=>`<div class="db-search-group"><div class="db-group-head">${esc(k)}</div>${renderDbFlat(v,purchaseIndex)}</div>`)
       .join('');
   }else if(mode==='category'){
     const groups={};
@@ -3848,7 +3887,7 @@ function renderShopData(){
     const order=(state.catalog?.categories||[]).filter(catalogCategoryVisible).map(c=>c.name);
     content=Object.keys(groups)
       .sort((a,b)=>{const ai=order.indexOf(a),bi=order.indexOf(b);return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'})})
-      .map(cat=>`<div class="db-search-group"><div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}</div>`)
+      .map(cat=>`<div class="db-search-group"><div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha),purchaseIndex)}</div>`)
       .join('');
   }else if(mode==='subcategory'){
     const groups={};
@@ -3863,7 +3902,7 @@ function renderShopData(){
         const ai=order.indexOf(a),bi=order.indexOf(b);
         return(ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'id',{sensitivity:'base'})
       })
-      .map(cat=>`<div class="db-search-group"><div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha))}</div>`)
+      .map(cat=>`<div class="db-search-group"><div class="db-group-head">${esc(cat)}</div>${renderDbFlat(groups[cat].sort(alpha),purchaseIndex)}</div>`)
       .join('');
   }else if(mode==='priority'){
     const groups={PRIMER:[],SEKUNDER:[],PELENGKAP:[]};
@@ -3874,10 +3913,10 @@ function renderShopData(){
     });
     content=['PRIMER','SEKUNDER','PELENGKAP']
       .filter(k=>groups[k]?.length)
-      .map(k=>`<div class="db-search-group"><div class="db-group-head">${k}</div>${renderDbFlat(groups[k].sort(alpha))}</div>`)
+      .map(k=>`<div class="db-search-group"><div class="db-group-head">${k}</div>${renderDbFlat(groups[k].sort(alpha),purchaseIndex)}</div>`)
       .join('');
   }else{
-    content=renderDbFlat([...base].sort(recent));
+    content=renderDbFlat([...base].sort(recent),purchaseIndex);
   }
 
   if(!base.length){
@@ -3918,13 +3957,13 @@ function receiptPdfWrap(value,maxChars=36){
 }
 function receiptPdfMoney(value){
   const n=Math.round(Number(value)||0);
-  return 'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(n)
+  return 'Rp '+idMoneyFormatter.format(n)
 }
 function receiptPdfDate(value){
   const raw=String(value||today());
   const d=new Date(raw+'T00:00:00');
   if(Number.isNaN(d.getTime()))return raw;
-  return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d)
+  return idPdfDateFormatter.format(d)
 }
 function receiptPdfFilename(session){
   const date=String(session?.checkout_date||today()).slice(0,10);
@@ -4178,25 +4217,27 @@ function exportCustomReceiptPdf(){
 }
 
 function receiptSourceRows(){
-  const sessions=new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
-  const walletMap=new Map((state.wallets||[]).map(w=>[String(w.id),w.name||'DOMPET']));
-  return (state.shoppingItems||[]).map((item,index)=>{
+  if(renderPerfCache.receiptRows)return renderPerfCache.receiptRows;
+  const sessions=renderIndexes.sessionById.size?renderIndexes.sessionById:new Map((state.shoppingSessions||[]).map(s=>[String(s.id),s]));
+  const rows=(state.shoppingItems||[]).map((item,index)=>{
     const session=sessions.get(String(item?.session_id));
     if(!session)return null;
     const itemName=normalizeItemName(item?.item_name||'BARANG')||'BARANG';
     const date=String(session?.checkout_date||session?.created_at||'').slice(0,10);
     const store=normalizeStoreName(session?.store_name||'BELANJA BULANAN')||'BELANJA BULANAN';
     const qty=Number(item?.quantity||0),unit=Number(item?.unit_price||0),subtotal=Number(item?.subtotal||qty*unit||0);
-    return{id:String(item?.id||`${session.id}-${index}`),sessionId:String(session.id),date,store,walletName:walletMap.get(String(session?.wallet_id))||'DOMPET',itemName,itemKey:normalizeItemName(itemName).toLocaleLowerCase('id-ID'),quantity:qty,uom:normalizeUom(item?.uom||'PCS'),unitPrice:unit,subtotal};
-  }).filter(Boolean)
+    return{id:String(item?.id||`${session.id}-${index}`),sessionId:String(session.id),date,store,walletName:indexedWallet(session?.wallet_id)?.name||'DOMPET',itemName,itemKey:normalizeItemName(itemName).toLocaleLowerCase('id-ID'),quantity:qty,uom:normalizeUom(item?.uom||'PCS'),unitPrice:unit,subtotal};
+  }).filter(Boolean);
+  renderPerfCache.receiptRows=rows;return rows;
 }
 function receiptFilterOptions(){
+  if(renderPerfCache.receiptOptions)return renderPerfCache.receiptOptions;
   const rows=receiptSourceRows();
   const dates=[...new Set(rows.map(r=>r.date).filter(Boolean))].sort((a,b)=>String(b).localeCompare(String(a)));
   const stores=[...new Set(rows.map(r=>r.store).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id',{sensitivity:'base'}));
   const itemMap=new Map();rows.forEach(r=>{if(!itemMap.has(r.itemKey))itemMap.set(r.itemKey,r.itemName)});
   const items=[...itemMap.entries()].map(([key,name])=>({key,name})).sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
-  return{dates,stores,items}
+  renderPerfCache.receiptOptions={dates,stores,items};return renderPerfCache.receiptOptions;
 }
 function receiptAppliedFilters(){return{date:String(state.receiptDateFilter||''),store:String(state.receiptStoreFilter||''),items:Array.isArray(state.receiptItemFilters)?[...state.receiptItemFilters]:[],allItems:state.receiptAllItems!==false}}
 function beginReceiptFilterDraft(){const f=receiptAppliedFilters();state.receiptFilterDraft={...f,search:''};return state.receiptFilterDraft}
@@ -4227,7 +4268,7 @@ function renderShopReceipt(){
   return`${header}<div class="card receipt-card receipt-custom-card"><div class="receipt-top"><div><div class="receipt-store">RECEIPT GABUNGAN</div><div class="db-meta">${view.rows.length} ITEM · ${view.sessionCount} PEMBELIAN</div></div><div class="receipt-total">${rupiah(view.total)}</div></div><div class="receipt-items receipt-custom-scroll">${groups}</div><div class="receipt-custom-total-row"><span>GRAND TOTAL</span><b>${rupiah(view.total)}</b></div><div class="receipt-actions"><button class="btn btn-soft receipt-export-btn" data-export-custom-receipt aria-label="Export receipt gabungan ke PDF">${uiIcon('download')}<span>EXPORT PDF</span></button></div></div>`
 }
 function filteredHistory(){let list=state.transactions.filter(t=>String(t.transaction_date||'').startsWith(state.month)).sort((a,b)=>new Date(b.created_at||b.transaction_date||0)-new Date(a.created_at||a.transaction_date||0));if(state.historyFilter==='income')list=list.filter(t=>t.transaction_type==='income');if(state.historyFilter==='expense')list=list.filter(t=>t.transaction_type==='expense'&&t.source_type!=='shopping');if(state.historyFilter==='shopping')list=list.filter(t=>t.source_type==='shopping');if(state.historyFilter==='transfer')list=list.filter(t=>t.transaction_type==='transfer');return list}
-function historyGroupKey(t){if(state.historyGroup==='category')return state.categories.find(c=>c.id===t.category_id)?.name||(t.transaction_type==='transfer'?'Transfer':'Lainnya');if(state.historyGroup==='wallet')return state.wallets.find(w=>w.id===t.wallet_id)?.name||'Tanpa Dompet';return dateLabel(t.transaction_date)}
+function historyGroupKey(t){if(state.historyGroup==='category')return indexedCategory(t.category_id)?.name||(t.transaction_type==='transfer'?'Transfer':'Lainnya');if(state.historyGroup==='wallet')return indexedWallet(t.wallet_id)?.name||'Tanpa Dompet';return dateLabel(t.transaction_date)}
 function renderHistory(){
   const list=filteredHistory(),groups={};
   list.forEach(t=>{
@@ -4241,8 +4282,8 @@ function renderHistory(){
 function investmentTypeLabel(t){return({stock:'Saham',mutual_fund:'Reksadana',gold:'Emas Investasi',crypto:'Crypto',deposit:'Deposito',bond:'Obligasi',other:'Lainnya'})[t]||t}
 const investmentIncomeTypeLabel=t=>({dividend:'DIVIDEN',coupon:'KUPON',interest:'BUNGA',distribution:'DISTRIBUSI',reward:'REWARD',other:'PENDAPATAN'})[t]||'PENDAPATAN';
 function isInvestmentIncomeTx(t){return !!(t&&t.transaction_type==='income'&&t.source_type==='investment'&&t.investment_income_type)}
-function investmentIncomeTxFor(id){return state.transactions.filter(t=>isInvestmentIncomeTx(t)&&String(t.source_id)===String(id)).sort((a,b)=>new Date(b.created_at||b.transaction_date||0)-new Date(a.created_at||a.transaction_date||0))}
-function investmentIncomeTotal(id){return investmentIncomeTxFor(id).reduce((a,t)=>a+Number(t.amount||0),0)}
+function investmentIncomeTxFor(id){return renderIndexes.investmentIncomeById.get(String(id))||[]}
+function investmentIncomeTotal(id){return Number(renderIndexes.investmentIncomeTotalById.get(String(id))||0)}
 function defaultInvestmentIncomeType(type){if(type==='stock')return'dividend';if(type==='bond')return'coupon';if(type==='deposit')return'interest';if(type==='mutual_fund')return'distribution';if(type==='crypto')return'reward';if(type==='other')return'other';return null}
 function investmentSupportsCashIncome(type){return type!=='gold'&&!!defaultInvestmentIncomeType(type)}
 
@@ -4324,7 +4365,7 @@ function nav(tab,iconName,label){return`<button class="nav-btn ${state.tab===tab
 function renderApp(){let body=state.tab==='dashboard'?renderDashboard():state.tab==='shopping'?renderShopping():state.tab==='history'?renderHistory():renderWealth();return`<div class="app"><header class="header"><div class="header-row"><div class="brand-block"><div class="brand">CN MONEY</div><div class="app-status"><span class="dot ${state.online?'':'offline'}"></span><span>${state.online?'ONLINE':'OFFLINE'}</span></div></div><button id="settingsBtn" class="icon-btn" aria-label="Pengaturan">${uiIcon('settings')}</button></div></header><main class="content">${body}</main><nav class="bottom-nav">${nav('dashboard','dashboard','DASHBOARD')}${nav('shopping','shopping','BELANJA')}${nav('history','history','HISTORY')}${nav('wealth','wealth','KEKAYAAN')}</nav>${renderModal()}${renderConfirmation()}</div>`}
 function renderOnboarding(error=''){root.innerHTML=`<div class="onboard"><div class="onboard-card"><div class="logo">CN</div><h1>CN MONEY</h1><p>Keuangan rumah tangga bersama, sinkron antar perangkat.</p><form id="joinForm"><div class="field"><label class="label">Kode Household</label><input id="joinCode" class="input" required placeholder="SP-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters"></div><div class="field"><label class="label">Nama Perangkat</label><input id="deviceName" class="input" required maxlength="40" placeholder="Contoh: HP Utama"></div><button class="btn btn-primary btn-block" type="submit" ${!navigator.onLine?'disabled':''}>Gabung Household</button>${error?`<div class="error">${esc(error)}</div>`:''}</form></div></div>`;document.getElementById('joinForm')?.addEventListener('submit',async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;btn.textContent='Menghubungkan…';try{await joinHousehold(document.getElementById('joinCode').value,document.getElementById('deviceName').value);state.ready=true;render();if(pushPreferenceOn())syncPushSubscription().catch(err=>console.warn('Push sync',err))}catch(err){renderOnboarding(err?.message||'Gagal bergabung.')}})}
 function bindMoneyInputs(){document.querySelectorAll('.num-input').forEach(input=>{const formatNow=()=>{const before=input.value,caret=input.selectionStart??before.length,digitsBefore=before.slice(0,caret).replace(/\D/g,'').length,formatted=groupDigits(before);input.value=formatted;let pos=0,count=0;while(pos<formatted.length&&count<digitsBefore){if(/\d/.test(formatted[pos]))count++;pos++}try{input.setSelectionRange(pos,pos)}catch{}};input.addEventListener('input',formatNow);input.addEventListener('blur',formatNow)})}
-function render(){const previousContent=root.querySelector('.content');if(previousContent&&lastRenderScrollKey)scrollPositions[lastRenderScrollKey]=previousContent.scrollTop;const nextScrollKey=renderScrollKey();refs.tab=state.tab;refs.modal=state.modal||state.confirmation;if(!state.ready){root.innerHTML='<div class="loading"><div class="loading-shell"><div class="loading-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.8 8.2h10.4l1.15 11.05H5.65L6.8 8.2Z"/><path d="M9 8.2V6.7a3 3 0 0 1 6 0v1.5"/><path d="m9.35 13.7 1.65 1.65 3.8-4"/></svg></div><div class="loading-name">CN MONEY</div><div class="loading-sub">Menyiapkan aplikasi</div><div class="loading-track"><span></span></div></div></div>';lastRenderScrollKey=null;return}if(!state.household){lastRenderScrollKey=null;renderOnboarding();return}root.innerHTML=renderApp();lastRenderScrollKey=nextScrollKey;bind();const content=root.querySelector('.content'),saved=Number(scrollPositions[nextScrollKey]||0);if(content&&saved>0){content.scrollTop=saved;requestAnimationFrame(()=>{const current=root.querySelector('.content');if(current&&lastRenderScrollKey===nextScrollKey)current.scrollTop=saved})}renderToast()}
+function render(){const previousContent=root.querySelector('.content');if(previousContent&&lastRenderScrollKey)scrollPositions[lastRenderScrollKey]=previousContent.scrollTop;const nextScrollKey=renderScrollKey();refs.tab=state.tab;refs.modal=state.modal||state.confirmation;if(!state.ready){root.innerHTML='<div class="loading"><div class="loading-shell"><div class="loading-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.8 8.2h10.4l1.15 11.05H5.65L6.8 8.2Z"/><path d="M9 8.2V6.7a3 3 0 0 1 6 0v1.5"/><path d="m9.35 13.7 1.65 1.65 3.8-4"/></svg></div><div class="loading-name">CN MONEY</div><div class="loading-sub">Menyiapkan aplikasi</div><div class="loading-track"><span></span></div></div></div>';lastRenderScrollKey=null;return}if(!state.household){lastRenderScrollKey=null;renderOnboarding();return}rebuildRenderIndexes();root.innerHTML=renderApp();lastRenderScrollKey=nextScrollKey;bind();const content=root.querySelector('.content'),saved=Number(scrollPositions[nextScrollKey]||0);if(content&&saved>0){content.scrollTop=saved;requestAnimationFrame(()=>{const current=root.querySelector('.content');if(current&&lastRenderScrollKey===nextScrollKey)current.scrollTop=saved})}renderToast()}
 function suppressBrowserSuggestions(){document.querySelectorAll('form').forEach(f=>f.setAttribute('autocomplete','off'));document.querySelectorAll('input').forEach(el=>{const type=(el.getAttribute('type')||'text').toLowerCase();if(!['date','month','checkbox','radio','file'].includes(type)){el.setAttribute('autocomplete','off');el.setAttribute('autocorrect','off');el.setAttribute('spellcheck','false');el.setAttribute('data-form-type','other');el.setAttribute('data-lpignore','true')}})}
 function captureBackBeforeNavigation(el){
   if(!el)return;
