@@ -1,16 +1,13 @@
-# CN MONEY v2.6.0 — RECEIPT PDF THERMAL TYPOGRAPHY
+# CN MONEY v2.6.1 — CUSTOM COMBINED RECEIPT
 
-Scope release ini sengaja sempit: hanya export PDF Receipt.
+## Scope
+- Tab RECEIPT tidak lagi membuat satu card untuk setiap checkout.
+- Semua data pembelian tetap disimpan per transaksi asli untuk audit/cancel, tetapi tampilan RECEIPT dibangun dinamis dari filter.
+- Filter bisa digabung: TANGGAL + TOKO + BARANG.
+- BARANG mendukung pemilihan satu atau beberapa item.
+- Hasil filter ditampilkan sebagai satu receipt gabungan, dikelompokkan per tanggal/toko/dompet agar asal pembelian tetap jelas.
+- EXPORT PDF mengikuti receipt kustom yang sedang tampil.
+- Tidak ada SQL baru dan tidak ada perubahan transaksi finansial.
 
-## Perubahan
-- PDF Receipt tetap ukuran thermal 80 mm.
-- Teks PDF dirender memakai font stack monospace yang sama dengan Receipt di UI perangkat.
-- Hasil teks diraster ke canvas resolusi tinggi lalu ditempel ke PDF agar rupa font konsisten dengan tampilan aplikasi.
-- Separator dibuat dashed seperti Receipt di aplikasi.
-- Spacing item, total, dan footer dirapikan agar terasa seperti struk thermal.
-- Ada fallback ke generator PDF vector lama bila canvas tidak tersedia.
-
-## Tidak berubah
-- UI aplikasi v2.5.0.
-- Finance, Shopping, DATA, DATABASE, sync, offline, backup/restore, taxonomy, autocorrect.
-- Tidak ada SQL baru.
+## Catatan
+Data checkout asli tidak di-merge atau dihapus. Perubahan hanya pada cara data receipt dibaca dan ditampilkan.
