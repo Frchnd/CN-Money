@@ -1,19 +1,17 @@
-# CN MONEY v2.4.12 — TRANSACTION PICKER UI RESTORE
+# CN MONEY v2.4.13 — UI FLOW CLEANUP / REGRESSION HARDENING
 
-Hotfix visual regression: picker Tambah Transaksi dikembalikan ke desain semantic yang sudah ada sebelumnya — Pengeluaran merah, Pemasukan hijau, Transfer biru — tanpa mengubah logic navigation/stability. Tidak ada SQL baru.
+Release ini adalah stability cleanup setelah v2.4.12.
 
-# CN MONEY v2.4.12 — NAVIGATION + ACTION REGRESSION FIX
+Tidak ada redesign UI. Warna, card, icon, layout, urutan tab, dan picker transaksi v2.4.12 dipertahankan.
 
-Hotfix setelah stability audit v2.4.10.
+Perubahan:
+- no-op ketika user menekan tab/subtab/filter yang sudah aktif, agar tidak membuat render dan back-stack noise;
+- Guide Aplikasi, Panduan Kategori, dan Database memakai mekanisme Back yang sama;
+- dead event handler dan helper legacy yang sudah tidak punya UI/caller dihapus;
+- accessibility label tombol tambah transaksi di History disamakan dengan Dashboard.
 
-## Perbaikan
-- Semua modal finance yang dibutuhkan tombol `+` dipulihkan: transaksi, Saku, Investasi, Aset, dan Budget.
-- Detail/Edit Investasi dan Aset dipulihkan agar seluruh flow Kekayaan lengkap.
-- Back di modal/detail memakai satu mekanisme `performAppBack()` yang sama.
-- Tombol Back Android selalu mencoba kembali ke tampilan user sebelumnya sebelum menawarkan keluar dari aplikasi.
-- Tombol close/back pada detail tidak lagi hard-close ke state yang salah.
-- Status ONLINE/OFFLINE dipindahkan ke header tepat di bawah `CN MONEY`.
-- Status koneksi tidak diduplikasi lagi di baris Household Pengaturan.
+Backend:
+- tidak ada SQL baru;
+- migration v2.4.7 dan v2.4.8 tetap disertakan sebagai histori backend.
 
-## Backend
-Tidak ada SQL baru. Migration v2.4.7 dan v2.4.8 tetap sama.
+Lihat `UI-FLOW-AUDIT-v2.4.13.md` untuk keputusan audit.

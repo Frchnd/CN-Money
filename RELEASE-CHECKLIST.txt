@@ -1,17 +1,14 @@
-CN MONEY v2.4.12 — RELEASE CHECKLIST
+CN MONEY v2.4.13 — QUICK REGRESSION CHECK
 
-1. Dashboard: tombol + membuka pilihan Pemasukan/Pengeluaran/Transfer.
-2. Pilih Pemasukan, tekan Back Android -> kembali ke pilihan transaksi.
-3. Dari pilihan transaksi, Back Android -> kembali ke Dashboard.
-4. Kekayaan > Saku: tombol + membuka form Tambah Saku.
-5. Kekayaan > Investasi: tombol + membuka form Tambah Investasi.
-6. Kekayaan > Aset: tombol + membuka form Tambah Aset.
-7. Buka detail Saku, Investasi, Aset -> tombol panah kiri dan Back Android kembali ke layar sebelumnya.
-8. Dari Detail -> Edit -> Back Android kembali ke Detail, bukan menutup semua flow.
-9. Belanja > DATA -> detail barang -> detail pembelian -> Back kembali berurutan.
-10. Receipt detail -> Back kembali ke daftar Receipt.
-11. Settings -> Guide/Database/Panduan Kategori -> Back kembali ke Settings.
-12. Header menampilkan ONLINE/OFFLINE tepat di bawah CN MONEY.
-13. Offline boot v2.4.9, sync v2.4.7, finance idempotency v2.4.8 tetap diuji smoke-test.
+1. Dashboard + -> picker Pengeluaran merah / Pemasukan hijau / Transfer biru.
+2. Tap tab Dashboard yang sudah aktif -> tidak ada flicker / modal / perubahan tampilan.
+3. Belanja -> LIST -> tap LIST lagi -> tidak ada perubahan state.
+4. Kekayaan -> Saku -> tap Saku lagi -> tidak ada perubahan state.
+5. History -> pilih filter yang aktif lagi -> tidak mengubah posisi/alur.
+6. Settings -> Guide -> Back Android/UI -> kembali Settings.
+7. Settings -> Panduan Kategori -> Back -> kembali Settings.
+8. Settings -> Database -> Back -> kembali Settings.
+9. Saku/Investasi/Aset -> Detail -> Edit -> Back -> Detail -> Back -> list.
+10. Visual utama harus sama dengan v2.4.12.
 
-Tidak ada SQL baru untuk v2.4.12.
+Tidak ada SQL baru untuk v2.4.13.
