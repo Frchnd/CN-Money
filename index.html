@@ -2481,7 +2481,7 @@
 
     /* v2.6.3 — compact receipt filter action; normal app typography */
     /* v2.7.1 — performance: preindexed master + local-first actions + coalesced background refresh */
-    /* v2.7.2 — performance: render indexes + formatter reuse + DATA/RECEIPT derived-cache */
+    /* v2.8.0 RC1 — full regression candidate; behavior frozen from v2.7.2 */
     .receipt-custom-toolbar{display:flex;gap:7px;align-items:center;justify-content:flex-end;margin:8px 0 8px}
     .receipt-filter-trigger{width:auto!important;min-width:0!important;min-height:32px!important;padding:0 10px!important;border-radius:11px!important;font-size:9px!important;line-height:1!important;gap:6px!important;white-space:nowrap!important;flex:0 0 auto!important}
     .receipt-filter-trigger svg{width:14px!important;height:14px!important;display:block!important;flex:0 0 14px!important}
@@ -2570,7 +2570,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.7.2';
+const CN_MONEY_VERSION='2.8.0';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,receiptDateFilter:'',receiptStoreFilter:'',receiptItemFilters:[],receiptAllItems:true,receiptFilterDraft:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';

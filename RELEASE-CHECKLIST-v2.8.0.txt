@@ -1,0 +1,23 @@
+CN MONEY v2.8.0 — RC1 REAL-DEVICE REGRESSION
+
+[ ] Boot online cepat dan normal
+[ ] Force-close -> airplane mode -> boot offline berhasil
+[ ] Dashboard +: Pengeluaran/Pemasukan/Transfer berfungsi + warna benar
+[ ] Pemasukan, pengeluaran, transfer: saldo/history benar
+[ ] Saku: tambah/edit/detail/delete + Back Android
+[ ] Investasi: tambah/edit/detail/pendapatan/delete + Back Android
+[ ] Aset: tambah/edit/detail/delete + Back Android
+[ ] LIST: tambah cepat, delete/undo, offline queue, reopen
+[ ] 2 HP: add/add dan delete/add tidak overwrite
+[ ] Checkout: saldo, DATA, history, cancel sesi, stale estimasi tidak kembali
+[ ] DATA: search sampai isi card/history, detail, harga termurah, scroll history
+[ ] DATABASE: Kategori/Subkategori select-unselect, SELECT ALL, SIMPAN, tidak lompat scroll
+[ ] DATABASE visibility benar-benar berlaku di BELANJA
+[ ] Receipt: gabungan, filter tanggal/toko/barang, scroll, export PDF thermal
+[ ] HISTORY: filter bulan/kategori + edit/undo transaksi
+[ ] Backup .cnmoney + Restore + Batalkan Restore
+[ ] Back Android selalu mundur satu tampilan
+[ ] Dark/Light visual tetap konsisten v2.7.2
+[ ] Tidak ada data dobel/hilang setelah force-close/reopen
+
+Jika seluruh checklist PASS, lanjut v2.9.x final hardening/freeze lalu v3.0.0.

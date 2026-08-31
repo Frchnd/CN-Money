@@ -1,12 +1,25 @@
-# CN MONEY v2.7.2 — PERFORMANCE PHASE 3
+# CN MONEY v2.8.0 — RELEASE CANDIDATE 1
 
-Scope release ini hanya optimasi render/derived-data. UI, taxonomy, finance behavior, Shopping behavior, Receipt behavior, sync/offline, dan schema Supabase tidak diubah.
+Release ini adalah freeze candidate setelah rangkaian taxonomy, sync/offline, finance idempotency, Receipt custom, visual polish, dan performance v2.7.x.
 
-## Optimasi
-- Reuse `Intl.NumberFormat` / `Intl.DateTimeFormat` agar format rupiah/tanggal tidak membuat formatter baru berulang kali.
-- Render-level index untuk wallet, category, investment, shopping session, dan investment income.
-- DATA search membangun index riwayat pembelian satu kali per render, bukan scan seluruh history untuk setiap card.
-- RECEIPT source rows + filter options dihitung sekali per render dan dipakai ulang.
-- Investment income di-index sekali per render, bukan filter seluruh transaksi untuk setiap investment card.
+## Prinsip RC1
+- Tidak menambah fitur baru.
+- Tidak mengubah UI/layout/warna dari v2.7.2.
+- Tidak mengubah schema Supabase atau SQL migration.
+- Tidak mengubah master taxonomy 2.4.16, 959 master barang, alias, atau autocorrect.
+- Tidak mengubah logic finance, Shopping, DATA, Receipt, offline, sync, Back Android, DATABASE visibility, backup/restore, cancel/undo.
+- Perubahan source hanya nomor versi/cache + dokumentasi RC.
 
-Tidak ada SQL baru.
+## Audit sebelum packaging
+- JavaScript syntax: PASS.
+- Service worker syntax: PASS.
+- Manifest/master/autocorrect JSON: PASS.
+- UI smoke-test cached/offline: 19/19 PASS, 0 JS error.
+- Master taxonomy: 9 kategori, 35 subkategori, 959 canonical item.
+- Alias master: 224.
+- Autocorrect: 49.239 mapping dengan target canonical valid.
+- SQL v2.4.7, v2.4.8, v2.4.15 tidak diubah.
+- Sound assets tidak diubah.
+
+## Status
+RC1 belum disebut v3.0.0 Stable sampai regression real-device + Supabase lolos.
