@@ -2480,7 +2480,7 @@
 
 
     /* v2.6.3 — compact receipt filter action; normal app typography */
-    /* v2.7.0 — performance: preindexed shopping master/catalog + deferred cloud-cache writes */
+    /* v2.7.1 — performance: preindexed master + local-first actions + coalesced background refresh */
     .receipt-custom-toolbar{display:flex;gap:7px;align-items:center;justify-content:flex-end;margin:8px 0 8px}
     .receipt-filter-trigger{width:auto!important;min-width:0!important;min-height:32px!important;padding:0 10px!important;border-radius:11px!important;font-size:9px!important;line-height:1!important;gap:6px!important;white-space:nowrap!important;flex:0 0 auto!important}
     .receipt-filter-trigger svg{width:14px!important;height:14px!important;display:block!important;flex:0 0 14px!important}
@@ -2569,7 +2569,7 @@ async function ensureSupabaseClient(){
 }
 const root=document.getElementById('root');
 const DEFAULT_SETTINGS={autoBackup:'none',lastBackupDate:null};
-const CN_MONEY_VERSION='2.7.0';
+const CN_MONEY_VERSION='2.7.1';
 const CN_SHOPPING_TAXONOMY_VERSION='2.4.16';
 const state={ready:false,userId:null,household:null,wallets:[],categories:[],transactions:[],investments:[],assets:[],wealthSummary:{liquid_balance:0,investment_cost:0,investment_value:0,investment_gain_loss:0,asset_value:0,total_wealth:0},checklist:[],itemDb:{},legacyHistory:[],shoppingSessions:[],shoppingItems:[],shoppingCategories:[],shoppingProfiles:[],budgetSummary:{month_start:null,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0},tab:'dashboard',shopTab:'checkout',wealthTab:'wallets',receiptSessionId:null,receiptMonth:new Date().toISOString().slice(0,7),receiptPickerMonth:null,receiptPickerYear:null,receiptDateFilter:'',receiptStoreFilter:'',receiptItemFilters:[],receiptAllItems:true,receiptFilterDraft:null,month:new Date().toISOString().slice(0,7),historyFilter:'all',historyGroup:'date',dataView:'all',dataSearch:'',listView:'alpha',deviceNames:{},catalog:{categories:[],subcategories:[],items:[],brands:[],visibility:{}},catalogSection:'category',catalogSearch:'',categoryGuideSearch:'',modal:null,channel:null,online:navigator.onLine,loading:false,toast:null,txClientId:null,optimisticDeletedInvestmentIds:[],confirmation:null,monthPickerYear:null,restoreCandidate:null};
 const CN_CATALOG_VISIBILITY_KEY='__cn_catalog_visibility_v2418__';
@@ -3146,8 +3146,71 @@ const err=w.error||c.error||t.error||inv.error||ast.error||ws.error||b.error||se
 const nw=w.data||[],nc=c.data||[],nt=t.data||[],serverInvestments=inv.data||[],ni=serverInvestments.filter(x=>!state.optimisticDeletedInvestmentIds.includes(x.id)),na=ast.data||[];state.optimisticDeletedInvestmentIds=state.optimisticDeletedInvestmentIds.filter(id=>serverInvestments.some(x=>x.id===id));/* A successful cloud response is authoritative even when the result is empty. Keeping cached rows here caused soft-deleted items to remain visible on other devices until restart. Cache fallback is handled only when the cloud request actually fails/offline. */state.wallets=nw;state.categories=nc;state.transactions=nt;state.investments=ni;state.assets=na;const wr=Array.isArray(ws.data)?ws.data[0]:ws.data;if(wr)state.wealthSummary={liquid_balance:Number(wr.liquid_balance||0),investment_cost:Number(wr.investment_cost||0),investment_value:Number(wr.investment_value||0),investment_gain_loss:Number(wr.investment_gain_loss||0),asset_value:Number(wr.asset_value||0),total_wealth:Number(wr.total_wealth||0)};
 for(const row of b.data||[]){if(row.bucket==='checklist'&&Array.isArray(row.data))state.checklist=row.data;if(row.bucket==='database'&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data))state.itemDb=extractCatalogVisibilityFromDatabase(row.data);if(row.bucket==='history'&&Array.isArray(row.data))state.legacyHistory=row.data}
 state.shoppingSessions=sess.data||[];state.shoppingItems=si.data||[];state.shoppingCategories=sc.data||[];state.shoppingProfiles=sp.data||[];const br=Array.isArray(bs.data)?bs.data[0]:bs.data;if(br)state.budgetSummary={month_start:br.month_start||monthDate,budget_amount:Number(br.budget_amount||0),spent_amount:Number(br.spent_amount||0),remaining_amount:Number(br.remaining_amount||0),usage_percent:Number(br.usage_percent||0)};else state.budgetSummary={month_start:monthDate,budget_amount:0,spent_amount:0,remaining_amount:0,usage_percent:0};await Promise.all([loadDeviceNames(),loadCatalogSnapshot()]);if(generation!==loadAllGeneration)return false;applyPendingBucketMutations();migrateLegacyShoppingTaxonomyV2416();schedulePersistCaches();if(rerender&&!state.modal)render();return true}
+let cloudRefreshTimer=null,cloudRefreshPromise=null,cloudRefreshAgain=false;
+function scheduleCloudRefresh({delay=260}={}){
+  if(!state.online||!state.household?.id)return;
+  clearTimeout(cloudRefreshTimer);
+  cloudRefreshTimer=setTimeout(()=>{
+    cloudRefreshTimer=null;
+    runCloudRefresh().catch(err=>console.warn('Background refresh',err));
+  },Math.max(0,Number(delay)||0));
+}
+async function runCloudRefresh(){
+  if(cloudRefreshPromise){cloudRefreshAgain=true;return cloudRefreshPromise}
+  if(!state.online||!state.household?.id)return false;
+  const keepTyping=shopFastInputActive();
+  cloudRefreshPromise=loadAll({rerender:false,preserveCacheOnEmpty:true})
+    .then(ok=>{
+      if(ok===false)return false;
+      const typingNow=shopFastInputActive();
+      if((keepTyping||typingNow)&&document.getElementById('shopListLive'))refreshShopListLive();
+      else if(!state.modal)render();
+      return true;
+    })
+    .finally(()=>{
+      cloudRefreshPromise=null;
+      if(cloudRefreshAgain){cloudRefreshAgain=false;scheduleCloudRefresh({delay:180})}
+    });
+  return cloudRefreshPromise;
+}
+function recomputeWealthSummaryLocal(){
+  const liquid=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);
+  const investmentCost=state.investments.reduce((a,x)=>a+Number(x.invested_amount||0),0);
+  const investmentValue=state.investments.reduce((a,x)=>a+Number(x.current_value||0),0);
+  const assetValue=state.assets.reduce((a,x)=>a+Number(x.current_value||0),0);
+  state.wealthSummary={liquid_balance:liquid,investment_cost:investmentCost,investment_value:investmentValue,investment_gain_loss:investmentValue-investmentCost,asset_value:assetValue,total_wealth:liquid+investmentValue+assetValue};
+  return state.wealthSummary;
+}
+function applyLocalTransactionUndo(t){
+  if(!t)return;
+  const amount=Number(t.amount||0),type=String(t.transaction_type||'');
+  state.wallets=state.wallets.map(w=>{
+    let balance=Number(w.balance||0);
+    if(String(w.id)===String(t.wallet_id)){
+      if(type==='income')balance-=amount;
+      else if(type==='expense')balance+=amount;
+      else if(type==='transfer')balance+=amount;
+    }
+    if(type==='transfer'&&String(w.id)===String(t.destination_wallet_id))balance-=amount;
+    return balance===Number(w.balance||0)?w:{...w,balance};
+  });
+  state.transactions=state.transactions.filter(x=>String(x.id)!==String(t.id));
+  recomputeWealthSummaryLocal();
+}
+function applyLocalTransactionEdit(oldTx,{walletId,amount,categoryId,description,date}){
+  if(!oldTx)return;
+  const oldAmount=Number(oldTx.amount||0),newAmount=Number(amount||0),type=String(oldTx.transaction_type||'');
+  state.wallets=state.wallets.map(w=>{
+    let balance=Number(w.balance||0);
+    if(String(w.id)===String(oldTx.wallet_id))balance+=type==='expense'?oldAmount:-oldAmount;
+    if(String(w.id)===String(walletId))balance+=type==='expense'?-newAmount:newAmount;
+    return balance===Number(w.balance||0)?w:{...w,balance};
+  });
+  state.transactions=state.transactions.map(x=>String(x.id)===String(oldTx.id)?{...x,wallet_id:walletId,amount:newAmount,category_id:categoryId,description:description||null,transaction_date:date}:x);
+  recomputeWealthSummaryLocal();
+}
 let realtimeReloadTimer=null;
-function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>{clearTimeout(realtimeReloadTimer);realtimeReloadTimer=setTimeout(()=>{const keepTyping=shopFastInputActive();loadAll({rerender:!state.modal&&!keepTyping,preserveCacheOnEmpty:true}).then(()=>{if(keepTyping)refreshShopListLive()}).catch(console.error)},140)};state.channel=sb.channel('fin-safety-'+id)
+function subscribeRealtime(){if(!state.household?.id)return;if(state.channel)sb.removeChannel(state.channel);const id=state.household.id;const reload=()=>{clearTimeout(realtimeReloadTimer);realtimeReloadTimer=setTimeout(()=>scheduleCloudRefresh({delay:120}),180)};state.channel=sb.channel('fin-safety-'+id)
 .on('postgres_changes',{event:'*',schema:'public',table:'wallets',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'transactions',filter:`household_id=eq.${id}`},reload)
 .on('postgres_changes',{event:'*',schema:'public',table:'investments',filter:`household_id=eq.${id}`},reload)
@@ -3188,6 +3251,18 @@ async function commitBucketMutation(raw,{queueOnFail=true}={}){const m=normalize
 let pendingFlushPromise=null;
 async function flushPendingBucketMutations(){if(pendingFlushPromise)return pendingFlushPromise;if(!state.online||!state.household?.id)return false;pendingFlushPromise=(async()=>{let rows=readPendingBucketMutations();let changed=false;while(rows.length&&state.online){const m=rows[0];try{await sendBucketMutation(m);rows.shift();writePendingBucketMutations(rows);changed=true}catch(err){console.warn('Pending sync retry',err);break}}if(changed)persistCaches();return rows.length===0})();try{return await pendingFlushPromise}finally{pendingFlushPromise=null}}
 async function commitBucketMutations(rows){const results=[];for(const row of rows||[])results.push(await commitBucketMutation(row));return results.every(Boolean)}
+let fastBucketFlushTimer=null;
+function queueBucketMutationsFast(rows,{onSynced=null}={}){
+  const queued=(rows||[]).filter(Boolean).map(queueBucketMutation);
+  if(!queued.length)return false;
+  if(!state.online)return false;
+  clearTimeout(fastBucketFlushTimer);
+  fastBucketFlushTimer=setTimeout(()=>{
+    fastBucketFlushTimer=null;
+    flushPendingBucketMutations().then(ok=>{if(ok&&typeof onSynced==='function')onSynced()}).catch(err=>console.warn('Background bucket sync',err));
+  },0);
+  return true;
+}
 function metrics(){const monthTx=state.transactions.filter(t=>String(t.transaction_date||'').startsWith(state.month));const income=monthTx.filter(t=>t.transaction_type==='income').reduce((a,t)=>a+Number(t.amount||0),0);const expense=monthTx.filter(t=>t.transaction_type==='expense').reduce((a,t)=>a+Number(t.amount||0),0);const total=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0);const cats={};monthTx.filter(t=>t.transaction_type==='expense').forEach(t=>{const c=state.categories.find(x=>x.id===t.category_id)?.name||'Lainnya';cats[c]=(cats[c]||0)+Number(t.amount||0)});const breakdown=Object.entries(cats).sort((a,b)=>b[1]-a[1]);return{monthTx,income,expense,net:income-expense,total,breakdown}}
 function txDescription(t){if(isInvestmentIncomeTx(t)){const inv=state.investments.find(i=>String(i.id)===String(t.source_id));return`${investmentIncomeTypeLabel(t.investment_income_type)} · ${inv?.name||'INVESTASI'}`}const cat=state.categories.find(c=>c.id===t.category_id)?.name;if(t.description)return t.description;if(cat)return cat;if(t.transaction_type==='transfer')return'Transfer antar dompet';if(t.transaction_type==='adjustment')return'Saldo awal';return txLabel(t.transaction_type)}
 function txMeta(t){const src=state.wallets.find(w=>w.id===t.wallet_id)?.name||'Dompet';const dst=state.wallets.find(w=>w.id===t.destination_wallet_id)?.name;if(t.transaction_type==='transfer')return`${src} → ${dst||'Dompet'}`;if(isInvestmentIncomeTx(t))return`${src}${t.description?' · '+t.description:''}`;const cat=state.categories.find(c=>c.id===t.category_id)?.name||'',title=String(txDescription(t)||'').toLocaleLowerCase('id-ID'),catKey=String(cat).toLocaleLowerCase('id-ID'),showCat=!!cat&&!title.includes(catKey);return`${src}${showCat?' · '+cat:''}`}
@@ -3712,8 +3787,8 @@ async function deleteShopListItem(id){
   playDeleteUndo();
   if(document.getElementById('shopListLive'))refreshShopListLive();
   else render();
-  const synced=await commitBucketMutation({bucket:'checklist',action:'delete_id',itemId:id});
-  if(!synced)toast('Hapus tersimpan lokal. Akan sync otomatis saat koneksi pulih.');
+  const queuedOnline=queueBucketMutationsFast([{bucket:'checklist',action:'delete_id',itemId:id}]);
+  if(!queuedOnline)toast('Hapus tersimpan lokal. Akan sync otomatis saat koneksi pulih.');
   return true;
 }
 
@@ -4375,9 +4450,8 @@ const addShop=async({keepFocus=false,resolvedName=null,originalRaw=null,skipReso
     toast(`${resolved.correctedFrom.toUpperCase()} → ${String(rec.name).toUpperCase()}`);
   }
 
-  const synced=await commitBucketMutation({bucket:'checklist',action:'upsert_id',item});
-  if(synced)queueShoppingPush(rec.name);
-  else toast('Item tersimpan lokal. Akan sync otomatis saat koneksi pulih.');
+  const queuedOnline=queueBucketMutationsFast([{bucket:'checklist',action:'upsert_id',item}],{onSynced:()=>queueShoppingPush(rec.name)});
+  if(!queuedOnline)toast('Item tersimpan lokal. Akan sync otomatis saat koneksi pulih.');
 };
 document.getElementById('shopAdd')?.addEventListener('click',()=>addShop({keepFocus:false}));const shopInputEl=document.getElementById('shopInput');shopInputEl?.addEventListener('input',()=>clearShopAmbiguity());shopInputEl?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(e.repeat)return;addShop({keepFocus:true})}});bindShopListLive();document.querySelectorAll('[data-listview]').forEach(b=>b.addEventListener('click',()=>{state.listView=b.dataset.listview||'alpha';render()}));document.querySelectorAll('[data-dbview]').forEach(b=>b.addEventListener('click',()=>{state.dataView=b.dataset.dbview||'all';render()}));document.getElementById('dbSearch')?.addEventListener('input',e=>{state.dataSearch=e.target.value;applyDbSearch(state.dataSearch)});if(document.getElementById('dbSearch'))requestAnimationFrame(()=>applyDbSearch(state.dataSearch));
 document.getElementById('qtyMinus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=Math.max(.01,(parseFloat(el.value)||1)-1)});document.getElementById('qtyPlus')?.addEventListener('click',()=>{const el=document.getElementById('checkoutQty');el.value=(parseFloat(el.value)||0)+1});bindMoneyInputs();document.getElementById('walletForm')?.addEventListener('submit',handleWalletSubmit);document.getElementById('walletEditForm')?.addEventListener('submit',handleWalletEditSubmit);document.getElementById('budgetForm')?.addEventListener('submit',handleBudgetSubmit);document.getElementById('txForm')?.addEventListener('submit',handleTxSubmit);document.getElementById('txEditForm')?.addEventListener('submit',handleTxEditSubmit);document.getElementById('checkoutForm')?.addEventListener('submit',handleCheckoutSubmit);document.getElementById('shopCategoryForm')?.addEventListener('submit',handleShopCategorySubmit);document.getElementById('investmentForm')?.addEventListener('submit',handleInvestmentSubmit);document.getElementById('investmentIncomeForm')?.addEventListener('submit',handleInvestmentIncomeSubmit);document.getElementById('investmentEditForm')?.addEventListener('submit',handleInvestmentEditSubmit);document.getElementById('assetForm')?.addEventListener('submit',handleAssetSubmit);document.getElementById('assetEditForm')?.addEventListener('submit',handleAssetEditSubmit);
@@ -4411,17 +4485,17 @@ document.querySelector('[data-catalog-select-all]')?.addEventListener('click',()
 document.querySelector('[data-catalog-save]')?.addEventListener('click',saveCatalogDraft);
 document.getElementById('catalogSearch')?.addEventListener('input',e=>{state.catalogSearch=e.target.value;const pos=e.target.selectionStart;render();requestAnimationFrame(()=>{const n=document.getElementById('catalogSearch');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}})});
 document.querySelectorAll('[data-guide-close]').forEach(el=>el.addEventListener('click',()=>performAppBack()));document.getElementById('notificationToggle')?.addEventListener('click',()=>{if(pushActive())disablePushNotifications();else enablePushNotifications()});document.getElementById('backupBtn')?.addEventListener('click',backupData);document.getElementById('restoreBtn')?.addEventListener('click',()=>document.getElementById('restoreFile')?.click());document.getElementById('restoreFile')?.addEventListener('change',e=>{const file=e.target.files?.[0];e.target.value='';handleRestoreFile(file)});document.querySelectorAll('[data-restore-cancel]').forEach(el=>el.addEventListener('click',()=>{state.restoreCandidate=null;state.modal='settings';render()}));document.getElementById('restoreExecuteBtn')?.addEventListener('click',executeRestore);document.getElementById('rollbackRestoreBtn')?.addEventListener('click',()=>askConfirm('rollbackRestore',null,'Batalkan restore terakhir?','Data akan kembali ke checkpoint sebelum restore terakhir.','BATALKAN RESTORE'));document.getElementById('clearDeviceBtn')?.addEventListener('click',()=>askConfirm('clearDevice',null,'Hapus data perangkat ini?','Perangkat ini akan keluar dari CN MONEY. Data di perangkat lain tidak dihapus.','HAPUS DARI PERANGKAT'));document.querySelector('[data-confirm-cancel]')?.addEventListener('click',()=>{state.confirmation=null;render()});document.querySelector('[data-confirm-ok]')?.addEventListener('click',async()=>{const c=state.confirmation;if(!c)return;state.confirmation=null;const closesParent=['deleteWallet','deleteInvestment','deleteAsset','deleteDbItem','cancelCheckout'].includes(c.action);if(closesParent){state.modal=null;shopEditReturnKey=null;purchaseReturnDbKey=null}render();if(c.action==='deleteWallet')return handleDeleteWallet(c.payload,true);if(c.action==='deleteInvestment')return handleDeleteInvestment(c.payload,true);if(c.action==='deleteAsset')return handleDeleteAsset(c.payload,true);if(c.action==='deleteDbItem')return handleDeleteDbItem(c.payload,true);if(c.action==='undoTransaction')return handleUndoTransaction(c.payload,true);if(c.action==='cancelCheckout')return handleCancelCheckout(c.payload,true);if(c.action==='rollbackRestore')return undoLastRestore();if(c.action==='clearDevice'){await disablePushNotifications({silent:true});playDeleteUndo();forgetHousehold();state.wallets=[];state.categories=[];state.transactions=[];state.investments=[];state.assets=[];state.checklist=[];state.itemDb={};state.shoppingSessions=[];state.shoppingItems=[];state.modal=null;render()}})}
-async function handleBudgetSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const month=state.month||today().slice(0,7),amount=num(document.getElementById('budgetAmount').value);state.loading=true;const {error}=await sb.rpc('finance_set_monthly_budget',{p_household_id:state.household.id,p_month:month+'-01',p_amount:amount});state.loading=false;if(error)return toast(error.message||'Gagal menyimpan anggaran.');state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Anggaran belanja berhasil disimpan.')}
-async function handleInvestmentIncomeSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const investmentId=e.currentTarget.dataset.id,clientId=e.currentTarget.dataset.clientid||state.txClientId||makeId(),incomeType=e.currentTarget.dataset.type,amount=num(document.getElementById('investmentIncomeAmount').value),walletId=document.getElementById('investmentIncomeWallet').value,date=document.getElementById('investmentIncomeDate').value||today();if(!incomeType)return toast('JENIS PENDAPATAN TIDAK TERSEDIA.');if(amount<=0)return toast('NOMINAL WAJIB LEBIH DARI 0.');if(!walletId)return toast('PILIH DOMPET.');const invName=state.investments.find(i=>String(i.id)===String(investmentId))?.name||'INVESTASI';state.loading=true;const result=await runDurableFinanceOp({id:clientId,kind:'investment_income',rpc:'finance_add_investment_income',args:{p_household_id:state.household.id,p_investment_id:investmentId,p_income_type:incomeType,p_wallet_id:walletId,p_amount:amount,p_description:null,p_transaction_date:date,p_client_transaction_id:clientId},push:{event_type:'income',title:'PEMASUKAN INVESTASI',body:`${investmentIncomeTypeLabel(incomeType)} ${rupiah(amount)} · ${invName}`,dedupe_key:clientId}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;state.txClientId=null;render();return}return toast(result.error?.message||'GAGAL MENYIMPAN PENDAPATAN.')}localStorage.setItem('cn_last_investment_income_wallet',walletId);state.txClientId=null;state.modal='investmentDetail:'+investmentId;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();playCashRegister();toast('PENDAPATAN INVESTASI DISIMPAN.')}
-async function handleInvestmentSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('investmentName').value.trim(),type=document.getElementById('investmentType').value,amount=num(document.getElementById('investmentAmount').value),wallet=document.getElementById('investmentWallet').value||null;if(!name)return toast('Nama investasi wajib diisi.');if(amount<0)return toast('Nilai tidak valid.');const opId=makeId();state.loading=true;const result=await runDurableFinanceOp({id:opId,kind:'create_investment',rpc:'cn_finance_create_once_v1',args:{p_household_id:state.household.id,p_operation_id:opId,p_operation_type:'create_investment',p_payload:{name,investment_type:type,amount,source_wallet_id:wallet}}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal membuat investasi.')}state.modal=null;state.tab='wealth';state.wealthTab='investments';await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast(wallet?'Investasi dibeli dari dompet.':'Investasi dicatat.')}
-async function handleInvestmentEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,name=document.getElementById('investmentEditName').value.trim(),type=document.getElementById('investmentEditType').value,cost=num(document.getElementById('investmentEditCost').value),value=num(document.getElementById('investmentEditValue').value);state.loading=true;const {error}=await sb.rpc('finance_update_investment',{p_household_id:state.household.id,p_investment_id:id,p_name:name,p_investment_type:type,p_invested_amount:cost,p_current_value:value});state.loading=false;if(error)return toast(error.message||'Gagal mengedit investasi.');state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Nilai investasi diperbarui.')}
-async function handleDeleteInvestment(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const i=state.investments.find(x=>x.id===id);if(!i)return;if(investmentIncomeTxFor(id).length)return toast('HAPUS RIWAYAT PENDAPATAN INVESTASI DULU.');if(!confirmed){askConfirm('deleteInvestment',id,'Hapus investasi?',`\"${i.name}\" akan dihapus. Jika investasi dibeli dari dompet, nominal pembelian awal akan dikembalikan otomatis.`,'HAPUS');return}state.loading=true;const purchaseTx=state.transactions.find(t=>t.source_type==='investment'&&t.source_id===id&&t.transaction_type==='investment_buy');const {error}=await sb.rpc('finance_delete_investment',{p_household_id:state.household.id,p_investment_id:id});state.loading=false;if(error)return toast(error.message||'Gagal menghapus investasi.');state.optimisticDeletedInvestmentIds=[...new Set([...state.optimisticDeletedInvestmentIds,id])];state.investments=state.investments.filter(x=>x.id!==id);if(purchaseTx){state.transactions=state.transactions.filter(t=>t.id!==purchaseTx.id);state.wallets=state.wallets.map(w=>w.id===purchaseTx.wallet_id?{...w,balance:Number(w.balance||0)+Number(purchaseTx.amount||0)}:w)}const liquid=state.wallets.reduce((a,w)=>a+Number(w.balance||0),0),investmentCost=state.investments.reduce((a,x)=>a+Number(x.invested_amount||0),0),investmentValue=state.investments.reduce((a,x)=>a+Number(x.current_value||0),0),assetValue=state.assets.reduce((a,x)=>a+Number(x.current_value||0),0);state.wealthSummary={liquid_balance:liquid,investment_cost:investmentCost,investment_value:investmentValue,investment_gain_loss:investmentValue-investmentCost,asset_value:assetValue,total_wealth:liquid+investmentValue+assetValue};persistCaches();playDeleteUndo();render();toast('Investasi dihapus.');setTimeout(()=>{if(state.online)loadAll({preserveCacheOnEmpty:true}).catch(console.error)},1200)}
+async function handleBudgetSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const month=state.month||today().slice(0,7),amount=num(document.getElementById('budgetAmount').value);state.loading=true;const {error}=await sb.rpc('finance_set_monthly_budget',{p_household_id:state.household.id,p_month:month+'-01',p_amount:amount});state.loading=false;if(error)return toast(error.message||'Gagal menyimpan anggaran.');const spent=Number(state.budgetSummary?.spent_amount||0),remaining=amount-spent,usage=amount>0?spent/amount*100:0;state.budgetSummary={...state.budgetSummary,month_start:month+'-01',budget_amount:amount,spent_amount:spent,remaining_amount:remaining,usage_percent:usage};state.modal=null;persistCaches();render();scheduleCloudRefresh({delay:180});toast('Anggaran belanja berhasil disimpan.')}
+async function handleInvestmentIncomeSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const investmentId=e.currentTarget.dataset.id,clientId=e.currentTarget.dataset.clientid||state.txClientId||makeId(),incomeType=e.currentTarget.dataset.type,amount=num(document.getElementById('investmentIncomeAmount').value),walletId=document.getElementById('investmentIncomeWallet').value,date=document.getElementById('investmentIncomeDate').value||today();if(!incomeType)return toast('JENIS PENDAPATAN TIDAK TERSEDIA.');if(amount<=0)return toast('NOMINAL WAJIB LEBIH DARI 0.');if(!walletId)return toast('PILIH DOMPET.');const invName=state.investments.find(i=>String(i.id)===String(investmentId))?.name||'INVESTASI';state.loading=true;const result=await runDurableFinanceOp({id:clientId,kind:'investment_income',rpc:'finance_add_investment_income',args:{p_household_id:state.household.id,p_investment_id:investmentId,p_income_type:incomeType,p_wallet_id:walletId,p_amount:amount,p_description:null,p_transaction_date:date,p_client_transaction_id:clientId},push:{event_type:'income',title:'PEMASUKAN INVESTASI',body:`${investmentIncomeTypeLabel(incomeType)} ${rupiah(amount)} · ${invName}`,dedupe_key:clientId}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;state.txClientId=null;render();return}return toast(result.error?.message||'GAGAL MENYIMPAN PENDAPATAN.')}localStorage.setItem('cn_last_investment_income_wallet',walletId);state.wallets=state.wallets.map(w=>String(w.id)===String(walletId)?{...w,balance:Number(w.balance||0)+amount}:w);recomputeWealthSummaryLocal();persistCaches();state.txClientId=null;state.modal='investmentDetail:'+investmentId;render();scheduleCloudRefresh({delay:120});playCashRegister();toast('PENDAPATAN INVESTASI DISIMPAN.')}
+async function handleInvestmentSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('investmentName').value.trim(),type=document.getElementById('investmentType').value,amount=num(document.getElementById('investmentAmount').value),wallet=document.getElementById('investmentWallet').value||null;if(!name)return toast('Nama investasi wajib diisi.');if(amount<0)return toast('Nilai tidak valid.');const opId=makeId();state.loading=true;const result=await runDurableFinanceOp({id:opId,kind:'create_investment',rpc:'cn_finance_create_once_v1',args:{p_household_id:state.household.id,p_operation_id:opId,p_operation_type:'create_investment',p_payload:{name,investment_type:type,amount,source_wallet_id:wallet}}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal membuat investasi.')}state.modal=null;state.tab='wealth';state.wealthTab='investments';render();scheduleCloudRefresh({delay:40});toast(wallet?'Investasi dibeli dari dompet.':'Investasi dicatat.')}
+async function handleInvestmentEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,name=document.getElementById('investmentEditName').value.trim(),type=document.getElementById('investmentEditType').value,cost=num(document.getElementById('investmentEditCost').value),value=num(document.getElementById('investmentEditValue').value);state.loading=true;const {error}=await sb.rpc('finance_update_investment',{p_household_id:state.household.id,p_investment_id:id,p_name:name,p_investment_type:type,p_invested_amount:cost,p_current_value:value});state.loading=false;if(error)return toast(error.message||'Gagal mengedit investasi.');state.investments=state.investments.map(x=>String(x.id)===String(id)?{...x,name,investment_type:type,invested_amount:cost,current_value:value}:x);recomputeWealthSummaryLocal();persistCaches();state.modal=null;render();scheduleCloudRefresh({delay:180});toast('Nilai investasi diperbarui.')}
+async function handleDeleteInvestment(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const i=state.investments.find(x=>x.id===id);if(!i)return;if(investmentIncomeTxFor(id).length)return toast('HAPUS RIWAYAT PENDAPATAN INVESTASI DULU.');if(!confirmed){askConfirm('deleteInvestment',id,'Hapus investasi?',`\"${i.name}\" akan dihapus. Jika investasi dibeli dari dompet, nominal pembelian awal akan dikembalikan otomatis.`,'HAPUS');return}state.loading=true;const purchaseTx=state.transactions.find(t=>t.source_type==='investment'&&t.source_id===id&&t.transaction_type==='investment_buy');const {error}=await sb.rpc('finance_delete_investment',{p_household_id:state.household.id,p_investment_id:id});state.loading=false;if(error)return toast(error.message||'Gagal menghapus investasi.');state.optimisticDeletedInvestmentIds=[...new Set([...state.optimisticDeletedInvestmentIds,id])];state.investments=state.investments.filter(x=>x.id!==id);if(purchaseTx){state.transactions=state.transactions.filter(t=>t.id!==purchaseTx.id);state.wallets=state.wallets.map(w=>w.id===purchaseTx.wallet_id?{...w,balance:Number(w.balance||0)+Number(purchaseTx.amount||0)}:w)}recomputeWealthSummaryLocal();persistCaches();playDeleteUndo();render();scheduleCloudRefresh({delay:220});toast('Investasi dihapus.')}
 
-async function handleAssetSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('assetName').value.trim(),type=document.getElementById('assetType').value,purchase=num(document.getElementById('assetPurchase').value),currentInput=document.getElementById('assetCurrent').value.trim(),current=currentInput?num(currentInput):purchase,date=document.getElementById('assetDate').value||null;if(!name)return toast('Nama aset wajib diisi.');const opId=makeId();state.loading=true;const result=await runDurableFinanceOp({id:opId,kind:'create_asset',rpc:'cn_finance_create_once_v1',args:{p_household_id:state.household.id,p_operation_id:opId,p_operation_type:'create_asset',p_payload:{name,asset_type:type,purchase_value:purchase,current_value:current,purchase_date:date}}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal membuat aset.')}state.modal=null;state.tab='wealth';state.wealthTab='assets';await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Aset dicatat.')}
-async function handleAssetEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,name=document.getElementById('assetEditName').value.trim(),type=document.getElementById('assetEditType').value,purchase=num(document.getElementById('assetEditPurchase').value),current=num(document.getElementById('assetEditCurrent').value),date=document.getElementById('assetEditDate').value||null;state.loading=true;const {error}=await sb.rpc('finance_update_asset',{p_household_id:state.household.id,p_asset_id:id,p_name:name,p_asset_type:type,p_purchase_value:purchase,p_current_value:current,p_purchase_date:date});state.loading=false;if(error)return toast(error.message||'Gagal mengedit aset.');state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Aset diperbarui.')}
-async function handleDeleteAsset(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const a=state.assets.find(x=>x.id===id);if(!a)return;if(!confirmed){askConfirm('deleteAsset',id,'Hapus aset?',`\"${a.name}\" akan dihapus dari daftar kekayaan.`,'HAPUS');return}state.loading=true;const {error}=await sb.rpc('finance_delete_asset',{p_household_id:state.household.id,p_asset_id:id});state.loading=false;if(error)return toast(error.message||'Gagal menghapus aset.');await loadAll({rerender:false,preserveCacheOnEmpty:true});playDeleteUndo();render();toast('Aset dihapus.')}
-async function handleWalletSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('walletName').value.trim(),type=document.getElementById('walletType').value,bal=num(document.getElementById('walletBalance').value);if(!name)return toast('Nama dompet wajib diisi.');const opId=makeId();state.loading=true;const result=await runDurableFinanceOp({id:opId,kind:'create_wallet',rpc:'cn_finance_create_once_v1',args:{p_household_id:state.household.id,p_operation_id:opId,p_operation_type:'create_wallet',p_payload:{name,wallet_type:type,initial_balance:bal}}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal membuat dompet.')}state.modal=null;state.tab='wealth';state.wealthTab='wallets';await loadAll({rerender:false,preserveCacheOnEmpty:true});persistCaches();render();toast('Dompet berhasil dibuat.')}
-async function handleTxSubmit(e){e.preventDefault();if(state.loading||!state.online)return;state.loading=true;const form=e.currentTarget,submitBtn=form.querySelector('button[type="submit"]');if(submitBtn)submitBtn.disabled=true;const type=form.dataset.type,clientId=form.dataset.clientid||state.txClientId||makeId(),amount=num(document.getElementById('txAmount').value);if(amount<=0){state.loading=false;if(submitBtn)submitBtn.disabled=false;return toast('Nominal harus lebih dari 0.')}const wallet=document.getElementById('txWallet').value,desc=document.getElementById('txDescription').value.trim(),date=document.getElementById('txDate').value||today();let fn,args;if(type==='transfer'){const dest=document.getElementById('txDestination').value;if(wallet===dest){state.loading=false;if(submitBtn)submitBtn.disabled=false;return toast('Dompet asal dan tujuan harus berbeda.')}fn='finance_transfer_v2';args={p_household_id:state.household.id,p_source_wallet_id:wallet,p_destination_wallet_id:dest,p_amount:amount,p_description:desc||null,p_transaction_date:date,p_client_transaction_id:clientId}}else{const cat=document.getElementById('txCategory').value||null;fn=type==='income'?'finance_add_income_v2':'finance_add_expense_v2';args={p_household_id:state.household.id,p_wallet_id:wallet,p_amount:amount,p_category_id:cat,p_description:desc||null,p_transaction_date:date,p_client_transaction_id:clientId}}const walletName=state.wallets.find(w=>String(w.id)===String(wallet))?.name||'DOMPET',push=type==='income'||type==='expense'?{event_type:type,title:type==='income'?'PEMASUKAN':'PENGELUARAN',body:`${rupiah(amount)} · ${walletName}`,dedupe_key:clientId}:null;const result=await runDurableFinanceOp({id:clientId,kind:'transaction_'+type,rpc:fn,args,push});state.loading=false;if(!result.ok){if(submitBtn)submitBtn.disabled=false;if(result.pending){state.modal=null;state.txClientId=null;render();return}return toast(result.error?.message||'Transaksi gagal.')}state.modal=null;state.txClientId=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();playCashRegister();toast(type==='transfer'?'Transfer berhasil.':'Transaksi disimpan.')}
+async function handleAssetSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('assetName').value.trim(),type=document.getElementById('assetType').value,purchase=num(document.getElementById('assetPurchase').value),currentInput=document.getElementById('assetCurrent').value.trim(),current=currentInput?num(currentInput):purchase,date=document.getElementById('assetDate').value||null;if(!name)return toast('Nama aset wajib diisi.');const opId=makeId();state.loading=true;const result=await runDurableFinanceOp({id:opId,kind:'create_asset',rpc:'cn_finance_create_once_v1',args:{p_household_id:state.household.id,p_operation_id:opId,p_operation_type:'create_asset',p_payload:{name,asset_type:type,purchase_value:purchase,current_value:current,purchase_date:date}}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal membuat aset.')}state.modal=null;state.tab='wealth';state.wealthTab='assets';render();scheduleCloudRefresh({delay:40});toast('Aset dicatat.')}
+async function handleAssetEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,name=document.getElementById('assetEditName').value.trim(),type=document.getElementById('assetEditType').value,purchase=num(document.getElementById('assetEditPurchase').value),current=num(document.getElementById('assetEditCurrent').value),date=document.getElementById('assetEditDate').value||null;state.loading=true;const {error}=await sb.rpc('finance_update_asset',{p_household_id:state.household.id,p_asset_id:id,p_name:name,p_asset_type:type,p_purchase_value:purchase,p_current_value:current,p_purchase_date:date});state.loading=false;if(error)return toast(error.message||'Gagal mengedit aset.');state.assets=state.assets.map(x=>String(x.id)===String(id)?{...x,name,asset_type:type,purchase_value:purchase,current_value:current,purchase_date:date}:x);recomputeWealthSummaryLocal();persistCaches();state.modal=null;render();scheduleCloudRefresh({delay:180});toast('Aset diperbarui.')}
+async function handleDeleteAsset(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const a=state.assets.find(x=>x.id===id);if(!a)return;if(!confirmed){askConfirm('deleteAsset',id,'Hapus aset?',`\"${a.name}\" akan dihapus dari daftar kekayaan.`,'HAPUS');return}state.loading=true;const {error}=await sb.rpc('finance_delete_asset',{p_household_id:state.household.id,p_asset_id:id});state.loading=false;if(error)return toast(error.message||'Gagal menghapus aset.');state.assets=state.assets.filter(x=>String(x.id)!==String(id));recomputeWealthSummaryLocal();persistCaches();playDeleteUndo();render();scheduleCloudRefresh({delay:180});toast('Aset dihapus.')}
+async function handleWalletSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const name=document.getElementById('walletName').value.trim(),type=document.getElementById('walletType').value,bal=num(document.getElementById('walletBalance').value);if(!name)return toast('Nama dompet wajib diisi.');const opId=makeId();state.loading=true;const result=await runDurableFinanceOp({id:opId,kind:'create_wallet',rpc:'cn_finance_create_once_v1',args:{p_household_id:state.household.id,p_operation_id:opId,p_operation_type:'create_wallet',p_payload:{name,wallet_type:type,initial_balance:bal}}});state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal membuat dompet.')}state.modal=null;state.tab='wealth';state.wealthTab='wallets';render();scheduleCloudRefresh({delay:40});toast('Dompet berhasil dibuat.')}
+async function handleTxSubmit(e){e.preventDefault();if(state.loading||!state.online)return;state.loading=true;const form=e.currentTarget,submitBtn=form.querySelector('button[type="submit"]');if(submitBtn)submitBtn.disabled=true;const type=form.dataset.type,clientId=form.dataset.clientid||state.txClientId||makeId(),amount=num(document.getElementById('txAmount').value);if(amount<=0){state.loading=false;if(submitBtn)submitBtn.disabled=false;return toast('Nominal harus lebih dari 0.')}const wallet=document.getElementById('txWallet').value,desc=document.getElementById('txDescription').value.trim(),date=document.getElementById('txDate').value||today();let fn,args;if(type==='transfer'){const dest=document.getElementById('txDestination').value;if(wallet===dest){state.loading=false;if(submitBtn)submitBtn.disabled=false;return toast('Dompet asal dan tujuan harus berbeda.')}fn='finance_transfer_v2';args={p_household_id:state.household.id,p_source_wallet_id:wallet,p_destination_wallet_id:dest,p_amount:amount,p_description:desc||null,p_transaction_date:date,p_client_transaction_id:clientId}}else{const cat=document.getElementById('txCategory').value||null;fn=type==='income'?'finance_add_income_v2':'finance_add_expense_v2';args={p_household_id:state.household.id,p_wallet_id:wallet,p_amount:amount,p_category_id:cat,p_description:desc||null,p_transaction_date:date,p_client_transaction_id:clientId}}const walletName=state.wallets.find(w=>String(w.id)===String(wallet))?.name||'DOMPET',push=type==='income'||type==='expense'?{event_type:type,title:type==='income'?'PEMASUKAN':'PENGELUARAN',body:`${rupiah(amount)} · ${walletName}`,dedupe_key:clientId}:null;const result=await runDurableFinanceOp({id:clientId,kind:'transaction_'+type,rpc:fn,args,push});state.loading=false;if(!result.ok){if(submitBtn)submitBtn.disabled=false;if(result.pending){state.modal=null;state.txClientId=null;render();return}return toast(result.error?.message||'Transaksi gagal.')}state.modal=null;state.txClientId=null;render();scheduleCloudRefresh({delay:40});playCashRegister();toast(type==='transfer'?'Transfer berhasil.':'Transaksi disimpan.')}
 
 async function handleCheckoutSubmit(e){
   e.preventDefault();
@@ -4534,23 +4608,23 @@ async function handleCheckoutSubmit(e){
   if(sourceKey!==familyNorm)bucketMutations.push({bucket:'database',action:'delete_key',key:sourceKey});
   bucketMutations.push({bucket:'database',action:'set_key',key:familyNorm,item:state.itemDb[familyNorm]});
   bucketMutations.push({bucket:'history',action:'upsert_id',item:historyRow});
-  const synced=await commitBucketMutations(bucketMutations);
-  if(!synced)toast('Transaksi tercatat. Data belanja akan sync otomatis saat koneksi pulih.');
+  persistCaches();
+  const queuedOnline=queueBucketMutationsFast(bucketMutations);
+  if(!queuedOnline)toast('Transaksi tercatat. Data belanja akan sync otomatis saat koneksi pulih.');
 
   state.loading=false;
   state.modal=null;
   localStorage.setItem('cn_last_checkout_wallet',wallet);
-  persistCaches();
-  await loadAll({rerender:false,preserveCacheOnEmpty:true});
   render();
+  scheduleCloudRefresh({delay:160});
   playCashRegister();
   toast(`Checkout ${rupiah(total)} berhasil.`);
 }
 
-async function handleWalletEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const form=e.currentTarget,id=form.dataset.id,name=document.getElementById('walletEditName').value.trim(),type=document.getElementById('walletEditType').value,newBalance=num(document.getElementById('walletEditBalance').value),oldBalance=Number(form.dataset.oldBalance||0);if(!name)return toast('Nama dompet wajib diisi.');state.loading=true;let result;if(newBalance!==oldBalance){const clientId=makeId();result=await runDurableFinanceOp({id:clientId,kind:'wallet_balance_adjustment',rpc:'finance_update_wallet_v2',args:{p_household_id:state.household.id,p_wallet_id:id,p_name:name,p_wallet_type:type,p_new_balance:newBalance,p_client_transaction_id:clientId}})}else{const {error}=await sb.rpc('finance_update_wallet',{p_household_id:state.household.id,p_wallet_id:id,p_name:name,p_wallet_type:type});result={ok:!error,pending:false,error}}state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal mengedit dompet.')}state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast(newBalance!==oldBalance?'Dompet & saldo dikoreksi.':'Dompet diperbarui.')}
-async function handleDeleteWallet(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const w=state.wallets.find(x=>x.id===id);if(!w)return;if(!confirmed){askConfirm('deleteWallet',id,'Hapus dompet?',`\"${w.name}\" akan dihapus jika tidak memiliki history finansial. Dompet yang sudah dipakai transaksi akan ditolak otomatis.`,'HAPUS');return}state.loading=true;const {error}=await sb.rpc('finance_delete_wallet',{p_household_id:state.household.id,p_wallet_id:id});state.loading=false;if(error)return toast(error.message||'Dompet tidak bisa dihapus.');await loadAll({rerender:false,preserveCacheOnEmpty:true});playDeleteUndo();render();toast('Dompet dihapus aman.')}
-async function handleUndoTransaction(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const t=state.transactions.find(x=>x.id===id);if(!t)return;if(!confirmed){askConfirm('undoTransaction',id,'Batalkan transaksi?',`${txLabel(t.transaction_type)} ${rupiah(t.amount)} akan dibatalkan dan saldo dikembalikan otomatis.`,'BATALKAN');return}state.loading=true;const {error}=await sb.rpc('finance_undo_transaction',{p_household_id:state.household.id,p_transaction_id:id});state.loading=false;if(error)return toast(error.message||'Undo gagal.');await loadAll({rerender:false,preserveCacheOnEmpty:true});playDeleteUndo();render();toast('Transaksi dibatalkan.')}
-async function handleTxEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,amount=num(document.getElementById('txEditAmount').value),wallet=document.getElementById('txEditWallet').value,cat=document.getElementById('txEditCategory').value||null,desc=document.getElementById('txEditDescription').value.trim(),date=document.getElementById('txEditDate').value||today();if(amount<=0)return toast('Nominal harus lebih dari 0.');state.loading=true;const {error}=await sb.rpc('finance_update_transaction',{p_household_id:state.household.id,p_transaction_id:id,p_wallet_id:wallet,p_amount:amount,p_category_id:cat,p_description:desc||null,p_transaction_date:date});state.loading=false;if(error)return toast(error.message||'Edit transaksi gagal.');state.modal=null;await loadAll({rerender:false,preserveCacheOnEmpty:true});render();toast('Transaksi diperbarui.')}
+async function handleWalletEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const form=e.currentTarget,id=form.dataset.id,name=document.getElementById('walletEditName').value.trim(),type=document.getElementById('walletEditType').value,newBalance=num(document.getElementById('walletEditBalance').value),oldBalance=Number(form.dataset.oldBalance||0);if(!name)return toast('Nama dompet wajib diisi.');state.loading=true;let result;if(newBalance!==oldBalance){const clientId=makeId();result=await runDurableFinanceOp({id:clientId,kind:'wallet_balance_adjustment',rpc:'finance_update_wallet_v2',args:{p_household_id:state.household.id,p_wallet_id:id,p_name:name,p_wallet_type:type,p_new_balance:newBalance,p_client_transaction_id:clientId}})}else{const {error}=await sb.rpc('finance_update_wallet',{p_household_id:state.household.id,p_wallet_id:id,p_name:name,p_wallet_type:type});result={ok:!error,pending:false,error}}state.loading=false;if(!result.ok){if(result.pending){state.modal=null;render();return}return toast(result.error?.message||'Gagal mengedit dompet.')}state.wallets=state.wallets.map(w=>String(w.id)===String(id)?{...w,name,wallet_type:type,balance:newBalance}:w);recomputeWealthSummaryLocal();persistCaches();state.modal=null;render();scheduleCloudRefresh({delay:160});toast(newBalance!==oldBalance?'Dompet & saldo dikoreksi.':'Dompet diperbarui.')}
+async function handleDeleteWallet(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const w=state.wallets.find(x=>x.id===id);if(!w)return;if(!confirmed){askConfirm('deleteWallet',id,'Hapus dompet?',`\"${w.name}\" akan dihapus jika tidak memiliki history finansial. Dompet yang sudah dipakai transaksi akan ditolak otomatis.`,'HAPUS');return}state.loading=true;const {error}=await sb.rpc('finance_delete_wallet',{p_household_id:state.household.id,p_wallet_id:id});state.loading=false;if(error)return toast(error.message||'Dompet tidak bisa dihapus.');state.wallets=state.wallets.filter(x=>String(x.id)!==String(id));recomputeWealthSummaryLocal();persistCaches();playDeleteUndo();render();scheduleCloudRefresh({delay:180});toast('Dompet dihapus aman.')}
+async function handleUndoTransaction(id,confirmed=false){if(state.loading)return;if(!state.online)return toast('Internet diperlukan.');const t=state.transactions.find(x=>x.id===id);if(!t)return;if(!confirmed){askConfirm('undoTransaction',id,'Batalkan transaksi?',`${txLabel(t.transaction_type)} ${rupiah(t.amount)} akan dibatalkan dan saldo dikembalikan otomatis.`,'BATALKAN');return}state.loading=true;const {error}=await sb.rpc('finance_undo_transaction',{p_household_id:state.household.id,p_transaction_id:id});state.loading=false;if(error)return toast(error.message||'Undo gagal.');applyLocalTransactionUndo(t);persistCaches();playDeleteUndo();render();scheduleCloudRefresh({delay:160});toast('Transaksi dibatalkan.')}
+async function handleTxEditSubmit(e){e.preventDefault();if(state.loading||!state.online)return;const id=e.currentTarget.dataset.id,amount=num(document.getElementById('txEditAmount').value),wallet=document.getElementById('txEditWallet').value,cat=document.getElementById('txEditCategory').value||null,desc=document.getElementById('txEditDescription').value.trim(),date=document.getElementById('txEditDate').value||today();if(amount<=0)return toast('Nominal harus lebih dari 0.');const oldTx=state.transactions.find(x=>String(x.id)===String(id));state.loading=true;const {error}=await sb.rpc('finance_update_transaction',{p_household_id:state.household.id,p_transaction_id:id,p_wallet_id:wallet,p_amount:amount,p_category_id:cat,p_description:desc||null,p_transaction_date:date});state.loading=false;if(error)return toast(error.message||'Edit transaksi gagal.');if(oldTx)applyLocalTransactionEdit(oldTx,{walletId:wallet,amount,categoryId:cat,description:desc,date});persistCaches();state.modal=null;render();scheduleCloudRefresh({delay:160});toast('Transaksi diperbarui.')}
 function rebuildItemDbAfterCancelledCheckout(cancelledSessionId){
   const activeSessions=new Map(
     (state.shoppingSessions||[])
@@ -4627,7 +4701,7 @@ function rebuildItemDbAfterCancelledCheckout(cancelledSessionId){
   return next;
 }
 
-async function finalizeCancelledCheckoutLocal(sessionId,{silent=false}={}){
+async function finalizeCancelledCheckoutLocal(sessionId,{silent=false,fast=false}={}){
   const restoredChecklistItems=[];
   state.checklist=state.checklist.map(x=>{
     if(String(x.shoppingSessionId||'')!==String(sessionId))return x;
@@ -4638,7 +4712,7 @@ async function finalizeCancelledCheckoutLocal(sessionId,{silent=false}={}){
   state.legacyHistory=state.legacyHistory.filter(x=>String(x.shoppingSessionId||'')!==String(sessionId));
   persistCaches();
   const cancelMutations=[...restoredChecklistItems.map(item=>({bucket:'checklist',action:'upsert_id',item})),{bucket:'history',action:'delete_session',sessionId}];
-  const cancelSynced=await commitBucketMutations(cancelMutations);
+  const cancelSynced=fast?queueBucketMutationsFast(cancelMutations):await commitBucketMutations(cancelMutations);
   const dbBefore={...state.itemDb};
   rebuildItemDbAfterCancelledCheckout(sessionId);
   const dbMutations=[];
@@ -4647,7 +4721,7 @@ async function finalizeCancelledCheckoutLocal(sessionId,{silent=false}={}){
     if(!(key in state.itemDb))dbMutations.push({bucket:'database',action:'delete_key',key});
     else if(!(key in dbBefore)||JSON.stringify(dbBefore[key])!==JSON.stringify(state.itemDb[key]))dbMutations.push({bucket:'database',action:'set_key',key,item:state.itemDb[key]});
   }
-  const dbSynced=await commitBucketMutations(dbMutations);
+  const dbSynced=fast?queueBucketMutationsFast(dbMutations):await commitBucketMutations(dbMutations);
   persistCaches();
   if(!silent&&(!cancelSynced||!dbSynced))toast('Checkout dibatalkan. Cleanup lokal akan sync otomatis.');
   return cancelSynced&&dbSynced;
@@ -4697,16 +4771,17 @@ async function handleCancelCheckout(sessionId,confirmed=false){
     dropCheckoutCancel(sessionId);render();return toast(error.message||'Gagal membatalkan checkout.');
   }
   try{
-    await loadAll({rerender:false,preserveCacheOnEmpty:true});
-    await finalizeCancelledCheckoutLocal(sessionId,{silent:true});
+    state.shoppingSessions=state.shoppingSessions.filter(x=>String(x.id)!==String(sessionId));
+    state.shoppingItems=state.shoppingItems.filter(x=>String(x.session_id)!==String(sessionId));
+    await finalizeCancelledCheckoutLocal(sessionId,{silent:true,fast:true});
     dropCheckoutCancel(sessionId);
   }catch(e){
     console.error('Cancel checkout finalize',e);state.loading=false;render();return toast('Checkout sudah diproses. Finalisasi lokal akan dilanjutkan otomatis saat koneksi stabil.');
   }
-  state.loading=false;playDeleteUndo();render();toast('Checkout dibatalkan. Saldo & data pembelian dipulihkan.');
+  state.loading=false;playDeleteUndo();persistCaches();render();scheduleCloudRefresh({delay:180});toast('Checkout dibatalkan. Saldo & data pembelian dipulihkan.');
 }
 
-async function handleDeleteDbItem(payload,confirmed=false){if(state.loading)return;const key=String(payload?.key||''),name=String(payload?.name||state.itemDb[key]?.name||'').trim();if(!key||!state.itemDb[key])return;if(!confirmed){askConfirm('deleteDbItem',{key,name},'Hapus data barang?',`Data harga ${name||'barang ini'} akan dihapus. Riwayat transaksi dan receipt tetap aman.`,'HAPUS');return}const next={...state.itemDb};delete next[key];state.itemDb=next;persistCaches();playDeleteUndo();render();if(state.online&&name){const r=await sb.rpc('shopping_delete_item_profile',{p_household_id:state.household.id,p_item_name:name});if(r.error)console.warn('Profile delete',r.error)}const synced=await commitBucketMutation({bucket:'database',action:'delete_key',key});toast(synced?'Data barang dihapus.':'Data dihapus lokal. Akan sync otomatis saat koneksi pulih.')}
+async function handleDeleteDbItem(payload,confirmed=false){if(state.loading)return;const key=String(payload?.key||''),name=String(payload?.name||state.itemDb[key]?.name||'').trim();if(!key||!state.itemDb[key])return;if(!confirmed){askConfirm('deleteDbItem',{key,name},'Hapus data barang?',`Data harga ${name||'barang ini'} akan dihapus. Riwayat transaksi dan receipt tetap aman.`,'HAPUS');return}const next={...state.itemDb};delete next[key];state.itemDb=next;persistCaches();playDeleteUndo();render();if(state.online&&name)sb.rpc('shopping_delete_item_profile',{p_household_id:state.household.id,p_item_name:name}).then(({error})=>{if(error)console.warn('Profile delete',error)}).catch(err=>console.warn('Profile delete',err));const queuedOnline=queueBucketMutationsFast([{bucket:'database',action:'delete_key',key}]);toast(queuedOnline?'Data barang dihapus.':'Data dihapus lokal. Akan sync otomatis saat koneksi pulih.')}
 async function handleShopCategorySubmit(e){
   e.preventDefault();
   if(state.loading||!state.online)return;
@@ -4751,18 +4826,18 @@ async function handleShopCategorySubmit(e){
   // rows are persisted through the synced household database override,
   // so no Supabase schema migration is required for v2.4.16.
   if(subCategoryRow){
-    const profileRes=await sb.rpc('shopping_set_item_profile',{p_household_id:state.household.id,p_item_name:newName,p_category_id:subCategoryRow.id,p_preferred_uom:uom});
+    const [profileRes,priorityRes]=await Promise.all([
+      sb.rpc('shopping_set_item_profile',{p_household_id:state.household.id,p_item_name:newName,p_category_id:subCategoryRow.id,p_preferred_uom:uom}),
+      sb.rpc('shopping_set_item_priority',{p_household_id:state.household.id,p_item_name:newName,p_priority:priority})
+    ]);
     if(profileRes.error){state.loading=false;return toast(profileRes.error.message||'GAGAL MENYIMPAN PROFIL BARANG.')}
-    const priorityRes=await sb.rpc('shopping_set_item_priority',{p_household_id:state.household.id,p_item_name:newName,p_priority:priority});
     if(priorityRes.error){state.loading=false;return toast(priorityRes.error.message||'GAGAL MENYIMPAN PRIORITAS.')}
   }
 
   if(newNorm!==oldNorm){
-    const del=await sb.rpc('shopping_delete_item_profile',{
-      p_household_id:state.household.id,
-      p_item_name:oldName
-    });
-    if(del.error)console.warn('Old profile cleanup',del.error);
+    sb.rpc('shopping_delete_item_profile',{p_household_id:state.household.id,p_item_name:oldName})
+      .then(({error})=>{if(error)console.warn('Old profile cleanup',error)})
+      .catch(err=>console.warn('Old profile cleanup',err));
   }
 
   const sourceKey=sourceMatch?.key||
@@ -4826,19 +4901,16 @@ async function handleShopCategorySubmit(e){
       editMutations.push({bucket:'checklist',action:'upsert_id',item:row});
     }
   }
-  const editSynced=await commitBucketMutations(editMutations);
-  if(!editSynced)toast('Edit tersimpan lokal. Akan sync otomatis saat koneksi pulih.');
+  persistCaches();
+  const queuedOnline=queueBucketMutationsFast(editMutations);
+  if(!queuedOnline)toast('Edit tersimpan lokal. Akan sync otomatis saat koneksi pulih.');
 
   const returnKey=shopEditReturnKey?newNorm:null;
   shopEditReturnKey=null;
-  state.modal=null;
+  state.modal=returnKey&&state.itemDb[returnKey]?'dbdetail:'+encodeURIComponent(returnKey):null;
   state.loading=false;
-
-  await loadAll({rerender:false,preserveCacheOnEmpty:true});
-  if(returnKey&&state.itemDb[returnKey]){
-    state.modal='dbdetail:'+encodeURIComponent(returnKey);
-  }
   render();
+  scheduleCloudRefresh({delay:220});
   toast('DATABASE BARANG DIPERBARUI.');
 }
 

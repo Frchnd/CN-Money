@@ -1,0 +1,16 @@
+CN MONEY v2.7.1 — PERFORMANCE PHASE 2
+
+[ ] Buka app online sekali setelah deploy agar service worker v2.7.1 aktif
+[ ] LIST: tambah 5-10 item cepat, keyboard/fokus tetap responsif
+[ ] LIST: hapus beberapa item cepat, UI langsung berubah dan HP kedua ikut sync
+[ ] DATA: edit nama/kategori/prioritas/UOM, modal kembali cepat dan hasil tetap setelah reopen
+[ ] Checkout: setelah server sukses, modal menutup cepat; Receipt/DATA akhirnya reconcile benar
+[ ] Cancel checkout: saldo/receipt/list kembali benar dan tidak dobel
+[ ] Finance: edit Saku/Aset/Investasi terasa cepat dan nilai tetap benar setelah refresh
+[ ] Finance: Undo pemasukan/pengeluaran/transfer mengembalikan saldo tepat sekali
+[ ] Finance: edit nominal/wallet transaksi menghasilkan saldo yang benar
+[ ] 2 HP: perubahan tetap converge ke state yang sama
+[ ] Offline/reopen: pending LIST tetap aman
+[ ] UI/warna/layout identik dengan v2.7.0
+
+Tidak ada SQL baru.

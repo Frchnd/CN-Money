@@ -1,14 +1,24 @@
-# CN MONEY v2.7.0 — PERFORMANCE PHASE 1
+# CN MONEY v2.7.1 — PERFORMANCE PHASE 2
 
-Release ini fokus ke kecepatan tanpa mengubah UI atau fitur bisnis.
+Release ini fokus membuat aksi harian terasa lebih cepat tanpa mengubah UI atau model data.
 
 Perubahan utama:
-- master barang/alias dipre-index sekali, bukan dibangun + di-sort ulang setiap lookup;
-- lookup item/subkategori/merek memakai index Map + regex yang sudah dikompilasi;
-- autocorrect 1.8 MB dipanaskan saat browser idle, bukan berebut CPU saat boot;
-- snapshot catalog dan nama device diberi TTL 3 menit agar tidak RPC ulang pada setiap refresh/realtime;
-- penyimpanan cache hasil cloud didebounce agar JSON.stringify/localStorage tidak memblok UI berulang;
-- service worker navigation memakai fast network fallback (650 ms) lalu shell cache;
-- Supabase JS runtime cache memakai stale-while-revalidate agar launch berikutnya tidak selalu menunggu CDN.
+- realtime cloud refresh sekarang di-coalesce/debounce agar satu aksi tidak memicu full reload berulang;
+- add/delete LIST memakai durable local-first mutation: UI berubah dulu, queue disimpan lokal, sync dilakukan di belakang;
+- checkout tidak lagi menunggu serial sync bucket + full load sebelum menutup modal;
+- edit DATA mem-paralelkan profile/priority write dan menyinkronkan household override di background;
+- cancel checkout melakukan finalisasi lokal segera setelah finance RPC berhasil, lalu reconcile cloud di background;
+- edit/delete/undo finance yang sudah dikonfirmasi server memperbarui state lokal langsung lalu reconcile cloud;
+- create wallet/investment/asset/transaksi tidak lagi menunggu full `loadAll()` sebelum UI kembali responsif;
+- wealth summary lokal direkalkulasi setelah edit/delete/undo agar tampilan tidak menunggu cloud refresh.
 
-Tidak ada SQL baru. UI/CSS, taxonomy, receipt custom/PDF, finance, sync, offline queue, DATABASE visibility, dan master data tetap dipertahankan.
+Safety yang tetap dipertahankan:
+- pending bucket queue v2.4.7;
+- finance idempotency queue v2.4.8;
+- crash-safe checkout cancel v2.4.10;
+- offline boot v2.4.9;
+- DATABASE visibility v2.4.18;
+- taxonomy/master/autocorrect v2.4.16;
+- custom receipt/PDF v2.6.x.
+
+Tidak ada SQL baru. UI/CSS tidak diubah.
