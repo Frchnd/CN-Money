@@ -1,0 +1,11 @@
+CN MONEY v2.6.3
+RECEIPT FILTER UI HOTFIX
+
+[ ] Tombol FILTER compact, tidak jumbo
+[ ] Ikon tidak keluar tombol
+[ ] Teks FILTER satu baris
+[ ] RESET sejajar saat filter aktif
+[ ] Tab RECEIPT tetap scroll normal
+[ ] Custom receipt filter tetap berfungsi
+[ ] Export PDF tetap thermal style
+[ ] Tidak ada SQL baru

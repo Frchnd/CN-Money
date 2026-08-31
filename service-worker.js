@@ -1,4 +1,4 @@
-const CACHE='cn-money-v2.6.2-shell';
+const CACHE='cn-money-v2.6.3-shell';
 const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const CORE=[
   '/',

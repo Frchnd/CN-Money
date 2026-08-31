@@ -1,11 +1,12 @@
-# CN MONEY v2.6.2 — RECEIPT UX REFINEMENT
+# CN MONEY v2.6.3 — RECEIPT FILTER UI HOTFIX
 
-Scope sempit: UI tab RECEIPT saja.
+Scope sempit: hanya merapikan tombol filter di tab RECEIPT.
 
-- Tab RECEIPT memakai font normal CN MONEY.
-- Font thermal/monospace hanya dipakai pada hasil PDF.
-- Seluruh tab RECEIPT mengikuti scroll utama aplikasi; tidak ada scroll internal pada card hasil.
-- Filter dibuat lebih compact dan berurutan: Tanggal → Toko → Barang.
-- Daftar barang hanya dibuka saat diperlukan.
-- Logic custom combined receipt dan export PDF v2.6.1 tetap dipertahankan.
+- Tombol filter dibuat compact dan proporsional.
+- Ikon receipt dikunci 14×14 px agar tidak membesar mengikuti SVG default browser.
+- Label disederhanakan menjadi FILTER agar tidak pecah/keluar tombol.
+- RESET dibuat compact dan sejajar.
+- Font aplikasi tetap font normal CN MONEY.
+- Font thermal tetap hanya untuk PDF.
+- Logic custom receipt/filter/export PDF tidak diubah.
 - Tidak ada SQL baru.
