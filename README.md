@@ -1,51 +1,32 @@
-# CN MONEY v3.0.0 — STABLE
+# CN MONEY v3.1.0 — CHECKOUT PURCHASE DATE
 
-Final stable release dari rangkaian audit taxonomy, sync/offline, finance idempotency, Receipt custom, visual polish, performance, regression RC1, dan final hardening RC2.
+Baseline: CN MONEY v3.0.0 Stable.
 
-## Prinsip release
-- Tidak ada fitur baru dibanding v2.9.0 RC2.
-- Tidak ada perubahan business logic, UI, taxonomy, master barang, atau schema Supabase.
-- Perubahan release hanya version/cache bump dari v2.9.0 RC2 ke v3.0.0 Stable dan dokumentasi final.
-- SQL migration yang dibutuhkan tetap migration historis v2.4.7, v2.4.8, dan v2.4.15; tidak ada SQL baru untuk v3.0.0.
+## Perubahan
 
-## Baseline final
-- 9 kategori / 35 subkategori.
-- 959 master barang canonical.
-- 49.239 autocorrect mapping tervalidasi.
-- Offline boot + durable sync.
-- Finance idempotency + crash/reopen protection.
-- Custom combined Receipt + PDF thermal export.
-- Performance optimization v2.7.x.
-- Regression/freeze dari v2.8.0 RC1 dan v2.9.0 RC2.
+- Quick Checkout sekarang punya field **TANGGAL DIBELI**.
+- Default tanggal adalah hari ini, sehingga checkout normal tetap cepat.
+- User dapat mencatat pembelian lama pada tanggal sebenarnya.
+- Tanggal masa depan tidak dapat dipilih.
+- `finance_complete_checkout_v2` sekarang menerima tanggal yang dipilih melalui parameter `p_checkout_date` yang memang sudah tersedia di backend.
+- DATA, riwayat pembelian, Receipt, dan Receipt Kustom membaca tanggal pembelian tersebut.
+- Input pembelian historis tidak menimpa harga/toko/satuan terbaru jika tanggalnya lebih lama dari pembelian terbaru yang sudah tercatat.
+- Rekonstruksi harga setelah Cancel Checkout juga memprioritaskan `checkout_date`, bukan waktu record dibuat.
 
----
+## Database / Supabase
 
-# CN MONEY v2.9.0 — FINAL HARDENING / RC2
+Tidak ada SQL migration baru. RPC checkout yang digunakan v3.0.0 sudah memiliki parameter `p_checkout_date`.
+Migration historis tetap:
 
-Release ini adalah final hardening sebelum v3.0.0. Tidak ada fitur baru dan tidak ada perubahan logic aplikasi dibanding v2.8.0 RC1. Perubahan hanya version/cache bump, pembersihan dua file master legacy v2.4.6 yang sudah tidak direferensikan runtime, dan dokumentasi freeze.
+- `SUPABASE-v2.4.7-STABILITY-SYNC.sql`
+- `SUPABASE-v2.4.8-FINANCE-IDEMPOTENCY.sql`
+- `SUPABASE-v2.4.15-CATALOG-VISIBILITY-BATCH.sql`
 
-# CN MONEY v2.8.0 — RELEASE CANDIDATE 1
+## Regression focus
 
-Release ini adalah freeze candidate setelah rangkaian taxonomy, sync/offline, finance idempotency, Receipt custom, visual polish, dan performance v2.7.x.
-
-## Prinsip RC1
-- Tidak menambah fitur baru.
-- Tidak mengubah UI/layout/warna dari v2.7.2.
-- Tidak mengubah schema Supabase atau SQL migration.
-- Tidak mengubah master taxonomy 2.4.16, 959 master barang, alias, atau autocorrect.
-- Tidak mengubah logic finance, Shopping, DATA, Receipt, offline, sync, Back Android, DATABASE visibility, backup/restore, cancel/undo.
-- Perubahan source hanya nomor versi/cache + dokumentasi RC.
-
-## Audit sebelum packaging
-- JavaScript syntax: PASS.
-- Service worker syntax: PASS.
-- Manifest/master/autocorrect JSON: PASS.
-- UI smoke-test cached/offline: 19/19 PASS, 0 JS error.
-- Master taxonomy: 9 kategori, 35 subkategori, 959 canonical item.
-- Alias master: 224.
-- Autocorrect: 49.239 mapping dengan target canonical valid.
-- SQL v2.4.7, v2.4.8, v2.4.15 tidak diubah.
-- Sound assets tidak diubah.
-
-## Status
-RC1 belum disebut v3.0.0 Stable sampai regression real-device + Supabase lolos.
+1. Checkout hari ini tanpa mengubah tanggal.
+2. Checkout barang dengan tanggal kemarin / tanggal lama.
+3. DATA → riwayat pembelian menampilkan tanggal yang dipilih.
+4. Receipt filter tanggal menemukan pembelian backdated.
+5. Pembelian lama yang baru diinput tidak mengganti harga terbaru pada LIST.
+6. Cancel Checkout backdated tetap mengembalikan saldo/budget dengan benar.

@@ -1,0 +1,12 @@
+CN MONEY v3.1.0 — CHECKOUT PURCHASE DATE
+
+1. Buka Quick Checkout -> field TANGGAL DIBELI tampil dan default HARI INI.
+2. Checkout normal hari ini -> transaksi, DATA, Receipt tetap benar.
+3. Checkout item test dengan tanggal kemarin -> DATA/HISTORY/RECEIPT menampilkan tanggal kemarin.
+4. Coba pilih tanggal masa depan -> tanggal tidak dapat dipilih / submit ditolak.
+5. Punya item dengan harga terbaru Rp20.000 hari ini. Input pembelian lama Rp10.000 tanggal minggu lalu -> riwayat bertambah, tetapi estimasi/list tetap memakai harga terbaru Rp20.000.
+6. Receipt Kustom filter tanggal lama -> item backdated muncul.
+7. Cancel checkout backdated -> saldo/budget kembali sekali dan riwayat sesi hilang.
+8. Reopen + sync 2 HP -> tanggal pembelian tetap sama.
+
+Tidak ada SQL baru untuk v3.1.0.
