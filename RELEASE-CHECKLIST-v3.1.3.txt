@@ -1,0 +1,10 @@
+CN MONEY v3.1.3 — CHECKLIST
+
+[ ] Buka checkout: TEMPAT BELI kosong.
+[ ] Buka checkout: TANGGAL DIBELI default tanggal WIB hari ini.
+[ ] Tanggal masa depan tidak bisa dipilih.
+[ ] Setelah 00:00 WIB, tanggal baru otomatis bisa dipilih.
+[ ] Nama Produk tetap kosong.
+[ ] Harga per Satuan tetap kosong.
+[ ] Dompet terakhir tetap dipilih.
+[ ] Checkout, DATA, Receipt, dan estimasi tetap normal.
