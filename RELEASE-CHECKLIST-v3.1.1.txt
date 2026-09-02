@@ -1,0 +1,9 @@
+CN MONEY v3.1.1 — QUICK CHECKOUT BLANK ENTRY
+
+[ ] Item dengan history harga: checkoutPrice kosong saat modal dibuka.
+[ ] Item dengan variant lama: Nama Produk kosong saat modal dibuka.
+[ ] Nama Produk kosong + checkout berhasil -> nama induk tersimpan.
+[ ] Nama Produk diisi manual -> variant tersimpan.
+[ ] Estimasi LIST tetap memakai lastPrice setelah checkout baru.
+[ ] Tanggal Dibeli tetap berfungsi.
+[ ] Tidak ada SQL baru.
