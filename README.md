@@ -1,4 +1,4 @@
-# CN MONEY v3.1.3 — RECEIPT FILTER UI THEME REFINE
+# CN MONEY v3.1.4 — SCROLL SAFE FILTER PICKERS
 
 Patch sempit dari v3.1.1.
 
@@ -17,3 +17,9 @@ Patch sempit dari v3.1.1.
 - Dropdown tanggal & toko diganti menjadi picker bergaya CN Money, bukan dropdown native browser.
 - Struktur filter lebih rapi, konsisten, dan lebih nyaman dipakai di layar HP.
 - Scope sengaja dibatasi ke UI receipt filter saja; logic receipt tidak diubah.
+
+
+- Hapus scroll horizontal yang muncul di UI filter / picker.
+- Modal dan picker dipaksa overflow-x hidden agar tidak melebar ke samping.
+- Daftar opsi picker sekarang punya area scroll vertikal sendiri, jadi kalau data makin panjang tetap bisa discroll dan tidak stuck.
+- Fix ini diterapkan generik ke picker lain juga, bukan cuma Atur Receipt.
