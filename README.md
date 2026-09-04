@@ -1,4 +1,4 @@
-# CN MONEY v3.1.4 — SCROLL SAFE FILTER PICKERS
+# CN MONEY v3.1.5 — TRANSACTION DESCRIPTION ANDROID FIX
 
 Patch sempit dari v3.1.1.
 
@@ -23,3 +23,10 @@ Patch sempit dari v3.1.1.
 - Modal dan picker dipaksa overflow-x hidden agar tidak melebar ke samping.
 - Daftar opsi picker sekarang punya area scroll vertikal sendiri, jadi kalau data makin panjang tetap bisa discroll dan tidak stuck.
 - Fix ini diterapkan generik ke picker lain juga, bukan cuma Atur Receipt.
+
+## v3.1.5 — Transaction Description Android Fix
+
+- KETERANGAN pada Pemasukan, Pengeluaran, dan Transfer dipaksa sebagai input teks eksplisit (`type=text`, `inputmode=text`) untuk kompatibilitas Android/WebView.
+- Field KETERANGAN saat edit transaksi Pemasukan/Pengeluaran juga memakai konfigurasi teks yang sama.
+- Payload `p_description` dan tampilan description di HISTORY tidak diubah.
+- Tidak ada SQL baru dan tidak ada perubahan ke Shopping, Receipt, DATA, sync, offline, taxonomy, atau finance calculation.
